@@ -1,4 +1,4 @@
-# NexLab v25.16.0 — Identidade Visual e Foto de Perfil
+# NexLab v25.16.0
 
 Versão RC baseada na v25.15.0 validada.
 
