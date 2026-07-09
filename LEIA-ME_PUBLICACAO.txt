@@ -1,13 +1,13 @@
-NEXLAB v25.17.6 — Marketing antigo com tabela estilo Agenda
+NEXLAB v25.17.7 — Correção da Agenda duplicada
 
 O que mudou nesta versão:
-- Mantida a navegação antiga do Marketing restaurada na v25.17.5.
-- Adicionada tabela mensal estilo Agenda para visualização de campanhas/publicações por data.
-- A tabela tenta preencher itens do próprio conteúdo renderizado no Marketing quando houver datas.
-- O registro de informações de Marketing permanece com os mesmos campos operacionais:
-  titulo, descricao, tipo, canal, status, data, link, responsavel_id e created_at.
+- Corrigida a duplicidade da tabela no módulo Agenda.
+- A tabela mensal adicionada ao Marketing não aparece mais dentro da Agenda.
+- A identificação visual de página agora diferencia Agenda e Marketing corretamente.
+- Mantidas todas as alterações anteriores aprovadas.
 
 Preservado:
+- Marketing com navegação antiga, filtros recolhíveis e tabela mensal estilo Agenda;
 - base oficial sem notificações por e-mail;
 - login por e-mail e recuperação de senha;
 - permissões, RLS, Supabase, Web Push/PWA e demais módulos.
@@ -16,4 +16,4 @@ Como publicar:
 1. Extraia este ZIP.
 2. Publique todo o conteúdo no host do NEXLAB.
 3. Limpe cache/Service Worker caso o navegador carregue versão antiga.
-4. Teste o módulo Marketing: navegação, filtros, tabela mensal e registro de campanhas.
+4. Teste o módulo Agenda e o módulo Marketing.
