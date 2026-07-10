@@ -1,12 +1,20 @@
-NEXLAB v26.4 — Supabase, segurança e integridade
+NEXLAB v26.7 — Monitoramento e Prontidão Final
 
-ANTES DE PUBLICAR:
-1. Execute no Supabase SQL Editor:
-   supabase/supabase_v26_4_seguranca_integridade.sql
-2. Publique todo o conteúdo deste ZIP no GitHub Pages.
-3. Limpe cache e Service Worker.
-4. Entre como ADM e abra Saúde do Sistema.
-5. Confira o painel “Auditoria v26.4”.
-6. Teste todos os perfis.
+ORDEM OBRIGATÓRIA:
+1. Confirme backup/ponto de restauração.
+2. Execute no Supabase SQL Editor:
+   supabase/supabase_v26_7_observabilidade_prontidao.sql
+3. Publique todo o conteúdo do ZIP no GitHub Pages.
+4. Aguarde o deployment ficar verde.
+5. Limpe cache e Service Worker.
+6. Abra homologacao.html e prontidao.html.
+7. Entre como ADM e confira Saúde do Sistema → NEXLAB v26.7.
+8. Acompanhe o painel por 24–48 horas.
 
-A migration não apaga registros e não substitui policies existentes.
+GITHUB ACTIONS:
+- NEXLAB Quality valida o pacote.
+- NEXLAB Production Smoke é opcional.
+- Para ativá-lo, crie a variável de repositório NEXLAB_PRODUCTION_URL
+  contendo a URL completa publicada.
+
+A v26.7 é a release final planejada da série 26.x.

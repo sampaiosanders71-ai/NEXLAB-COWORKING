@@ -1,6 +1,6 @@
-const CACHE_NAME = "nexlab-v26-4-shell-r1";
-const RUNTIME_CACHE = "nexlab-v26-4-runtime-r1";
-const IMAGE_CACHE = "nexlab-v26-4-images-r1";
+const CACHE_NAME = "nexlab-v26-7-shell-r1";
+const RUNTIME_CACHE = "nexlab-v26-7-runtime-r1";
+const IMAGE_CACHE = "nexlab-v26-7-images-r1";
 const MAX_RUNTIME_ENTRIES = 60;
 const MAX_IMAGE_ENTRIES = 40;
 
@@ -15,21 +15,25 @@ const SHELL_FILES = [
   "./",
   "./index.html",
   "./offline.html",
-  "./manifest.webmanifest?v=brand-r34",
-  "./assets/index-CKPsxFpP.js?v=brand-r34",
-  "./assets/index-B1u8eynw.css?v=brand-r34",
-  "./assets/nexlab-bootstrap-v26-4.js?v=brand-r34",
-  "./assets/nexlab-visual-v26-4.css?v=brand-r34",
-  "./assets/nexlab-visual-v26-4.js?v=brand-r34",
-  "./icons/nexlab-192.png?v=brand-r34",
-  "./icons/nexlab-512.png?v=brand-r34",
-  "./icons/nexlab-maskable-192.png?v=brand-r34",
-  "./icons/nexlab-maskable-512.png?v=brand-r34",
-  "./icons/apple-touch-icon.png?v=brand-r34",
-  "./icons/nexlab-favicon-rounded.png?v=brand-r34",
-  "./brand/nexlab-logo-light.webp?v=brand-r34",
-  "./brand/nexlab-logo-dark.webp?v=brand-r34",
-  "./brand/nexlab-icon.webp?v=brand-r34"
+  "./homologacao.html",
+  "./RELATORIO_NEXLAB_V26_7.html",
+  "./prontidao.html",
+  "./release.json",
+  "./manifest.webmanifest?v=brand-r37",
+  "./assets/index-CKPsxFpP.js?v=brand-r37",
+  "./assets/index-B1u8eynw.css?v=brand-r37",
+  "./assets/nexlab-bootstrap-v26-7.js?v=brand-r37",
+  "./assets/nexlab-visual-v26-7.css?v=brand-r37",
+  "./assets/nexlab-visual-v26-7.js?v=brand-r37",
+  "./icons/nexlab-192.png?v=brand-r37",
+  "./icons/nexlab-512.png?v=brand-r37",
+  "./icons/nexlab-maskable-192.png?v=brand-r37",
+  "./icons/nexlab-maskable-512.png?v=brand-r37",
+  "./icons/apple-touch-icon.png?v=brand-r37",
+  "./icons/nexlab-favicon-rounded.png?v=brand-r37",
+  "./brand/nexlab-logo-light.webp?v=brand-r37",
+  "./brand/nexlab-logo-dark.webp?v=brand-r37",
+  "./brand/nexlab-icon.webp?v=brand-r37"
 ];
 
 const ALLOWED_TABS = new Set([
@@ -137,8 +141,8 @@ self.addEventListener("push", (event) => {
       String(payload.title || "NEXLAB").slice(0, 120),
       {
         body: String(payload.body || "Você recebeu uma nova notificação.").slice(0, 500),
-        icon: "./icons/nexlab-192.png?v=brand-r34",
-        badge: "./icons/nexlab-192.png?v=brand-r34",
+        icon: "./icons/nexlab-192.png?v=brand-r37",
+        badge: "./icons/nexlab-192.png?v=brand-r37",
         tag: String(payload.tag || `nexlab-${Date.now()}`).slice(0, 160),
         renotify: false,
         data: { targetTab },

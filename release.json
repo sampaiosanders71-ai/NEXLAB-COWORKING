@@ -1,0 +1,15 @@
+{
+  "name": "NEXLAB",
+  "version": "26.7",
+  "channel": "stable",
+  "title": "Monitoramento e Prontidão Final",
+  "built_at": "2026-07-10T16:00:00-03:00",
+  "requires_sql": true,
+  "sql_file": "supabase/supabase_v26_7_observabilidade_prontidao.sql",
+  "previous_version": "26.6",
+  "publication": {
+    "replace_all_files": true,
+    "clear_service_worker": true,
+    "test_homologation": true
+  }
+}
