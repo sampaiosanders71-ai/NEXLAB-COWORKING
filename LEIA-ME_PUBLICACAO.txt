@@ -1,19 +1,12 @@
-NEXLAB v26.3 — Desempenho
+NEXLAB v26.4 — Supabase, segurança e integridade
 
-Principais alterações:
-- ativos WebP;
-- preconnect com Supabase;
-- module preload;
-- cache limitado e adaptativo;
-- renderização progressiva;
-- modo econômico para aparelhos mais fracos;
-- métricas de desempenho.
-
-Publicação:
-1. Apague os arquivos antigos do GitHub Pages.
-2. Envie todo o conteúdo deste ZIP mantendo as pastas.
+ANTES DE PUBLICAR:
+1. Execute no Supabase SQL Editor:
+   supabase/supabase_v26_4_seguranca_integridade.sql
+2. Publique todo o conteúdo deste ZIP no GitHub Pages.
 3. Limpe cache e Service Worker.
-4. Feche e abra novamente o app instalado.
-5. Teste login, troca de módulos, imagens e exportações.
+4. Entre como ADM e abra Saúde do Sistema.
+5. Confira o painel “Auditoria v26.4”.
+6. Teste todos os perfis.
 
-Nenhum SQL novo é necessário.
+A migration não apaga registros e não substitui policies existentes.
