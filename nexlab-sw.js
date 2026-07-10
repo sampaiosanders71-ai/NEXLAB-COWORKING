@@ -1,6 +1,6 @@
-const CACHE_NAME = "nexlab-v26-7-6-shell-r1";
-const RUNTIME_CACHE = "nexlab-v26-7-6-runtime-r1";
-const IMAGE_CACHE = "nexlab-v26-7-6-images-r1";
+const CACHE_NAME = "nexlab-v26-7-6-1-shell-r1";
+const RUNTIME_CACHE = "nexlab-v26-7-6-1-runtime-r1";
+const IMAGE_CACHE = "nexlab-v26-7-6-1-images-r1";
 const MAX_RUNTIME_ENTRIES = 60;
 const MAX_IMAGE_ENTRIES = 40;
 
@@ -20,11 +20,11 @@ const SHELL_FILES = [
   "./prontidao.html",
   "./release.json",
   "./manifest.webmanifest?v=brand-r38",
-  "./assets/index-CKPsxFpP.js?v=app-r2676",
+  "./assets/index-CKPsxFpP-v26-7-6-1.js?v=app-r26761",
   "./assets/index-B1u8eynw.css?v=brand-r38",
-  "./assets/nexlab-bootstrap-v26-7.js?v=app-r2676",
+  "./assets/nexlab-bootstrap-v26-7.js?v=app-r26761",
   "./assets/nexlab-visual-v26-7.css?v=brand-r38",
-  "./assets/nexlab-visual-v26-7.js?v=app-r2676",
+  "./assets/nexlab-visual-v26-7.js?v=app-r26761",
   "./icons/nexlab-192.png?v=brand-r38",
   "./icons/nexlab-512.png?v=brand-r38",
   "./icons/nexlab-maskable-192.png?v=brand-r38",

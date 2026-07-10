@@ -289,9 +289,9 @@
 
 
 
-  const OBSERVABILITY_VERSION = '26.7.6';
-  const OBSERVABILITY_QUEUE_KEY = 'nexlab:observability:queue:v26.7.6';
-  const OBSERVABILITY_DEDUP_KEY = 'nexlab:observability:dedup:v26.7.6';
+  const OBSERVABILITY_VERSION = '26.7.6.1';
+  const OBSERVABILITY_QUEUE_KEY = 'nexlab:observability:queue:v26.7.6.1';
+  const OBSERVABILITY_DEDUP_KEY = 'nexlab:observability:dedup:v26.7.6.1';
   const OBSERVABILITY_RPC = 'nexlab_record_client_error_v26_7_4';
   const OBSERVABILITY_MAX_QUEUE = 20;
   const OBSERVABILITY_DEDUP_MS = 5 * 60 * 1000;
@@ -697,7 +697,7 @@
   window.setTimeout(observabilityFlush, 1800);
 
   const performanceState = {
-    version: '26.7.6',
+    version: '26.7.6.1',
     longTasks: 0,
     longestTaskMs: 0,
     lcpMs: 0,
@@ -711,7 +711,7 @@
     performanceState.capturedAt = new Date().toISOString();
     window.__NEXLAB_PERFORMANCE__ = Object.freeze({ ...performanceState });
     try {
-      sessionStorage.setItem('nexlab:performance:v26.7.6', JSON.stringify(performanceState));
+      sessionStorage.setItem('nexlab:performance:v26.7.6.1', JSON.stringify(performanceState));
     } catch {}
     emit('nexlab:performance-metrics', { ...performanceState });
   }
