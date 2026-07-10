@@ -1,11 +1,48 @@
-<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>NEXLAB v26.7 — Changelog</title><style>
-body{margin:0;font-family:Inter,system-ui,Arial,sans-serif;background:#f5f7fb;color:#0E1F3D}main{max-width:900px;margin:auto;padding:40px 20px}.card{background:#fff;border:1px solid #e2e8f0;border-radius:26px;padding:28px}li{margin:.75rem 0;color:#64748b;line-height:1.5}a{color:#ff6b00;font-weight:900}
-</style></head><body><main><section class="card"><h1>NEXLAB v26.7</h1><ul>
-<li>Observabilidade autenticada e sanitizada.</li>
-<li>Painel de monitoramento na Saúde do Sistema.</li>
-<li>Resumo administrativo e retenção de eventos.</li>
-<li>Checklist final de produção.</li>
-<li>Plano de backup, recuperação e incidentes.</li>
-<li>Smoke test opcional do ambiente publicado.</li>
-</ul><p><a href="./prontidao.html">Abrir prontidão final</a> · <a href="./RELATORIO_NEXLAB_V26_7.html">Abrir relatório</a></p></section></main></body></html>
+-- NEXLAB v25.17.0 — Remoção do canal de notificações por e-mail
+-- Execute no Supabase SQL Editor se a base ainda tiver tabelas/colunas das versões de notificações externas.
+-- Este script mantém login por e-mail intacto. Remove/desativa apenas notificações por e-mail.
+
+do $$
+begin
+  if exists (
+    select 1 from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'notification_preferences'
+      and column_name = 'email_enabled'
+  ) then
+    execute 'update public.notification_preferences set email_enabled = false where coalesce(email_enabled, false) = true';
+  end if;
+end $$;
+
+do $$
+begin
+  if exists (
+    select 1 from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'notification_templates'
+      and column_name = 'email_subject_template'
+  ) then
+    execute 'update public.notification_templates set email_subject_template = null where email_subject_template is not null';
+  end if;
+end $$;
+
+do $$
+begin
+  if exists (
+    select 1 from information_schema.tables
+    where table_schema = 'public'
+      and table_name = 'notification_deliveries'
+  ) then
+    execute $q$
+      update public.notification_deliveries
+         set status = case
+           when status in ('pending','processing','queued','failed') then 'skipped'
+           else status
+         end,
+         last_error = coalesce(last_error, 'Canal de notificações por e-mail removido na v25.17.0'),
+         updated_at = now()
+       where channel = 'email'
+         and status in ('pending','processing','queued','failed')
+    $q$;
+  end if;
+end $$;

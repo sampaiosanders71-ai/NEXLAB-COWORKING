@@ -2,7 +2,7 @@
   "id": "./",
   "name": "NEXLAB",
   "short_name": "NEXLAB",
-  "description": "Gestão integrada do Coworking Space UEMA Timon — v26.7 estável.",
+  "description": "Gestão integrada do Coworking Space UEMA Timon — v26.7.1 estável.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

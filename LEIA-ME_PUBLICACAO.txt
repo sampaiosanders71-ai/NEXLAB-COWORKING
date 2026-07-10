@@ -1,20 +1,15 @@
-NEXLAB v26.7 — Monitoramento e Prontidão Final
+NEXLAB v26.7.1 — Hotfix da Sidebar
 
-ORDEM OBRIGATÓRIA:
-1. Confirme backup/ponto de restauração.
-2. Execute no Supabase SQL Editor:
-   supabase/supabase_v26_7_observabilidade_prontidao.sql
-3. Publique todo o conteúdo do ZIP no GitHub Pages.
-4. Aguarde o deployment ficar verde.
-5. Limpe cache e Service Worker.
-6. Abra homologacao.html e prontidao.html.
-7. Entre como ADM e confira Saúde do Sistema → NEXLAB v26.7.
-8. Acompanhe o painel por 24–48 horas.
+Correções:
+- somente o módulo ativo fica destacado;
+- scrollbar interna invisível;
+- rolagem preservada;
+- cartão do usuário separado no rodapé.
 
-GITHUB ACTIONS:
-- NEXLAB Quality valida o pacote.
-- NEXLAB Production Smoke é opcional.
-- Para ativá-lo, crie a variável de repositório NEXLAB_PRODUCTION_URL
-  contendo a URL completa publicada.
+Publicação:
+1. Substitua todo o conteúdo no GitHub Pages.
+2. Aguarde o deployment ficar verde.
+3. Limpe cache e Service Worker.
+4. Feche e abra novamente o PWA.
 
-A v26.7 é a release final planejada da série 26.x.
+Nenhum SQL novo é necessário.
