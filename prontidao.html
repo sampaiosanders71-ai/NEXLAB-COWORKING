@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>NEXLAB v26.7.5 — Prontidão final</title>
+<title>NEXLAB v26.7.6 — Prontidão final</title>
 <style>
 :root{font-family:Inter,system-ui,Arial,sans-serif;color:#0E1F3D;background:#f5f7fb}
 *{box-sizing:border-box}body{margin:0;min-height:100vh}main{max-width:1080px;margin:auto;padding:34px 18px 60px}
@@ -20,7 +20,7 @@ header{padding:26px}h1{margin:0 0 8px;font-size:clamp(1.6rem,5vw,2.35rem)}header
 <body>
 <main>
 <header>
-<h1>NEXLAB v26.7.5 — Prontidão final</h1>
+<h1>NEXLAB v26.7.6 — Prontidão final</h1>
 <p>Checklist definitivo antes de oficializar a versão estável em produção.</p>
 <span class="badge">Versão final da série 26.x</span>
 <div class="toolbar">
@@ -42,11 +42,11 @@ header{padding:26px}h1{margin:0 0 8px;font-size:clamp(1.6rem,5vw,2.35rem)}header
 </section>
 </main>
 <script>
-const VERSION='26.7.5';
-const KEY='nexlab:readiness:v26.7.5';
+const VERSION='26.7.6';
+const KEY='nexlab:readiness:v26.7.6';
 const groups={
 package:[
-['release.json informa a versão 26.7.5.','Verificação automática disponível.'],
+['release.json informa a versão 26.7.6.','Verificação automática disponível.'],
 ['Teste estático e Playwright foram aprovados.','Confira o GitHub Action NEXLAB Quality.'],
 ['ZIP final foi validado sem arquivos corrompidos.','Conferido durante a geração do pacote.']
 ],
@@ -77,7 +77,7 @@ publish:[
 ['Android e desktop foram testados.','Use pelo menos Chrome Android e Chrome/Edge desktop.']
 ],
 monitoring:[
-['Painel v26.7.5 aparece na Saúde do Sistema.','Visível somente para ADM.'],
+['Painel v26.7.6 aparece na Saúde do Sistema.','Visível somente para ADM.'],
 ['Um erro controlado de homologação foi registrado.','Confirme ambiente homologacao e metadata sem dados sensíveis.'],
 ['Resumo de erros 24h responde corretamente.','Erros, críticos, usuários e módulos.'],
 ['Responsável por incidentes foi definido.','Nome e canal de contato interno.'],
@@ -87,8 +87,8 @@ function state(){try{return JSON.parse(localStorage.getItem(KEY)||'{}')}catch{re
 function save(value){localStorage.setItem(KEY,JSON.stringify(value))}
 function render(){const current=state();for(const[group,items]of Object.entries(groups)){const host=document.querySelector(`[data-group="${group}"]`);host.replaceChildren();items.forEach(([title,detail],index)=>{const label=document.createElement('label');label.className='check';const input=document.createElement('input');input.type='checkbox';input.checked=Boolean(current[`${group}:${index}`]);input.addEventListener('change',()=>{const next=state();next[`${group}:${index}`]=input.checked;save(next);update()});const span=document.createElement('span');span.textContent=title;const small=document.createElement('small');small.textContent=detail;span.appendChild(small);label.append(input,span);host.appendChild(label)})}update()}
 function update(){const inputs=[...document.querySelectorAll('.check input')];const done=inputs.filter(input=>input.checked).length;const percent=inputs.length?Math.round(done/inputs.length*100):0;document.getElementById('bar').style.width=`${percent}%`;document.getElementById('progress-text').textContent=`${percent}% concluído — ${done} de ${inputs.length} itens`;}
-async function verify(){const meta=document.getElementById('meta');const checks=[];async function add(label,path,validate){try{const response=await fetch(path,{cache:'no-store'});if(!response.ok)throw new Error(`HTTP ${response.status}`);const value=await (path.endsWith('.json')?response.json():response.text());if(validate&&!validate(value))throw new Error('Conteúdo inesperado');checks.push([label,'Aprovado'])}catch(error){checks.push([label,`Falhou: ${error.message}`])}}await add('Release','./release.json',value=>value.version==='26.7.5');await add('Manifesto','./manifest.webmanifest',value=>value.name==='NEXLAB');await add('Service Worker','./nexlab-sw.js',value=>value.includes('nexlab-v26-7-5-shell-r1'));meta.replaceChildren(...checks.map(([label,value])=>{const div=document.createElement('div');const span=document.createElement('span');span.textContent=label;const strong=document.createElement('strong');strong.textContent=value;div.append(span,strong);return div}))}
-function exportData(){const payload={version:VERSION,url:location.href,checklist:state(),capturedAt:new Date().toISOString()};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const link=document.createElement('a');link.href=url;link.download=`nexlab-prontidao-v26.7.5-${new Date().toISOString().slice(0,10)}.json`;link.click();URL.revokeObjectURL(url)}
+async function verify(){const meta=document.getElementById('meta');const checks=[];async function add(label,path,validate){try{const response=await fetch(path,{cache:'no-store'});if(!response.ok)throw new Error(`HTTP ${response.status}`);const value=await (path.endsWith('.json')?response.json():response.text());if(validate&&!validate(value))throw new Error('Conteúdo inesperado');checks.push([label,'Aprovado'])}catch(error){checks.push([label,`Falhou: ${error.message}`])}}await add('Release','./release.json',value=>value.version==='26.7.6');await add('Manifesto','./manifest.webmanifest',value=>value.name==='NEXLAB');await add('Service Worker','./nexlab-sw.js',value=>value.includes('nexlab-v26-7-6-shell-r1'));meta.replaceChildren(...checks.map(([label,value])=>{const div=document.createElement('div');const span=document.createElement('span');span.textContent=label;const strong=document.createElement('strong');strong.textContent=value;div.append(span,strong);return div}))}
+function exportData(){const payload={version:VERSION,url:location.href,checklist:state(),capturedAt:new Date().toISOString()};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const link=document.createElement('a');link.href=url;link.download=`nexlab-prontidao-v26.7.6-${new Date().toISOString().slice(0,10)}.json`;link.click();URL.revokeObjectURL(url)}
 document.getElementById('run').addEventListener('click',verify);document.getElementById('export').addEventListener('click',exportData);document.getElementById('clear').addEventListener('click',()=>{localStorage.removeItem(KEY);render()});render();verify();
 </script>
 </body>

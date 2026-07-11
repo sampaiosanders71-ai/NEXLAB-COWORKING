@@ -5,6 +5,7 @@
   const nativeFetch = window.fetch ? window.fetch.bind(window) : null;
   const nativeAlert = window.alert ? window.alert.bind(window) : function(){};
   const SUPABASE_RE = /https:\/\/[a-z0-9.-]+\.supabase\.co/i;
+  const SUPABASE_SOCKET_RE = /wss:\/\/[a-z0-9.-]+\.supabase\.co/i;
   const SUPABASE_REST_RE = /https:\/\/[a-z0-9.-]+\.supabase\.co\/rest\/v1\//i;
   const MUTATING_METHOD_RE = /^(POST|PUT|PATCH|DELETE)$/i;
   const READ_CACHE_TTL = 12000;
@@ -34,6 +35,7 @@
     }
   }
   const pendingReads = new Map();
+  let readCacheGeneration = 0;
 
   function methodFrom(input, init){
     try {
@@ -76,6 +78,82 @@
     try { window.dispatchEvent(new CustomEvent(name, { detail: detail || {} })); } catch {}
   }
 
+  function invalidateReadCache(reason = 'manual', detail = {}){
+    readCacheGeneration += 1;
+    readCache.clear();
+    pendingReads.clear();
+    emit('nexlab:read-cache-invalidated', {
+      reason,
+      generation: readCacheGeneration,
+      ...detail
+    });
+  }
+
+  function realtimePayloadHasDatabaseChange(value){
+    if (typeof value !== 'string') return false;
+    return /(?:\"event\"\s*:\s*\"postgres_changes\"|\"type\"\s*:\s*\"postgres_changes\"|,\s*\"postgres_changes\"\s*,)/.test(value);
+  }
+
+  function inspectRealtimePayload(value, socketUrl){
+    try {
+      if (typeof value === 'string') {
+        if (realtimePayloadHasDatabaseChange(value)) {
+          invalidateReadCache('realtime-postgres-change', { socketUrl });
+        }
+        return;
+      }
+      if (value instanceof ArrayBuffer) {
+        inspectRealtimePayload(new TextDecoder().decode(value), socketUrl);
+        return;
+      }
+      if (ArrayBuffer.isView(value)) {
+        inspectRealtimePayload(
+          new TextDecoder().decode(value.buffer.slice(value.byteOffset, value.byteOffset + value.byteLength)),
+          socketUrl
+        );
+        return;
+      }
+      if (typeof Blob !== 'undefined' && value instanceof Blob) {
+        value.text().then((text) => inspectRealtimePayload(text, socketUrl)).catch(() => undefined);
+      }
+    } catch {}
+  }
+
+  function installRealtimeCacheInvalidation(){
+    const NativeWebSocket = globalThis.WebSocket;
+    if (typeof NativeWebSocket !== 'function' || NativeWebSocket.__NEXLAB_CACHE_WRAPPED__) return;
+
+    function NexlabWebSocket(...args){
+      const socket = new NativeWebSocket(...args);
+      try {
+        const socketUrl = String(socket.url || args[0] || '');
+        if (SUPABASE_SOCKET_RE.test(socketUrl)) {
+          socket.addEventListener('message', (event) => {
+            inspectRealtimePayload(event.data, socketUrl);
+          });
+        }
+      } catch {}
+      return socket;
+    }
+
+    NexlabWebSocket.prototype = NativeWebSocket.prototype;
+    Object.setPrototypeOf(NexlabWebSocket, NativeWebSocket);
+    Object.defineProperty(NexlabWebSocket, '__NEXLAB_CACHE_WRAPPED__', { value: true });
+    globalThis.WebSocket = NexlabWebSocket;
+  }
+
+  installRealtimeCacheInvalidation();
+
+  window.__NEXLAB_READ_CACHE__ = Object.freeze({
+    invalidate: (reason = 'test-or-manual') => invalidateReadCache(reason),
+    snapshot: () => Object.freeze({
+      entries: readCache.size,
+      pending: pendingReads.size,
+      generation: readCacheGeneration,
+      ttl: adaptiveReadCacheTtl()
+    })
+  });
+
   window.nexlabShowModal = function(options){
     if (!window.__NEXLAB_MODAL_READY__) {
       nativeAlert(String(options?.message || options?.text || 'Aviso do NEXLAB'));
@@ -105,7 +183,7 @@
     const startedAt = Date.now();
 
     if (isMutatingSupabase) {
-      readCache.clear();
+      invalidateReadCache('supabase-mutation', { method, url: target });
       emit('nexlab:action-start', { method, url: target, startedAt });
     }
 
@@ -158,7 +236,7 @@
     }
   }
 
-  window.addEventListener('nexlab:retry-module', () => readCache.clear());
+  window.addEventListener('nexlab:retry-module', () => invalidateReadCache('module-retry'));
 
   if (nativeFetch) {
     window.fetch = async function(input, init){
@@ -188,9 +266,10 @@
         return template.clone();
       }
 
+      const requestGeneration = readCacheGeneration;
       const request = fetchAndMonitor(input, init, target, method, isSupabase)
         .then((response) => {
-          if (response.ok) {
+          if (response.ok && requestGeneration === readCacheGeneration) {
             const cacheTemplate = response.clone();
             readCache.delete(key);
             readCache.set(key, { createdAt: Date.now(), response: cacheTemplate });
@@ -210,9 +289,9 @@
 
 
 
-  const OBSERVABILITY_VERSION = '26.7.5';
-  const OBSERVABILITY_QUEUE_KEY = 'nexlab:observability:queue:v26.7.5';
-  const OBSERVABILITY_DEDUP_KEY = 'nexlab:observability:dedup:v26.7.5';
+  const OBSERVABILITY_VERSION = '26.7.6';
+  const OBSERVABILITY_QUEUE_KEY = 'nexlab:observability:queue:v26.7.6';
+  const OBSERVABILITY_DEDUP_KEY = 'nexlab:observability:dedup:v26.7.6';
   const OBSERVABILITY_RPC = 'nexlab_record_client_error_v26_7_4';
   const OBSERVABILITY_MAX_QUEUE = 20;
   const OBSERVABILITY_DEDUP_MS = 5 * 60 * 1000;
@@ -618,7 +697,7 @@
   window.setTimeout(observabilityFlush, 1800);
 
   const performanceState = {
-    version: '26.7.5',
+    version: '26.7.6',
     longTasks: 0,
     longestTaskMs: 0,
     lcpMs: 0,
@@ -632,7 +711,7 @@
     performanceState.capturedAt = new Date().toISOString();
     window.__NEXLAB_PERFORMANCE__ = Object.freeze({ ...performanceState });
     try {
-      sessionStorage.setItem('nexlab:performance:v26.7.5', JSON.stringify(performanceState));
+      sessionStorage.setItem('nexlab:performance:v26.7.6', JSON.stringify(performanceState));
     } catch {}
     emit('nexlab:performance-metrics', { ...performanceState });
   }

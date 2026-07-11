@@ -2,7 +2,7 @@
   if (window.__NEXLAB_VISUAL_V26_7__) return;
   window.__NEXLAB_VISUAL_V26_7__ = true;
 
-  const VERSION = '26.7.5';
+  const VERSION = '26.7.6';
   let connectionBackdrop = null;
   let connectionDismissedUntil = 0;
   let activeActions = 0;
@@ -872,7 +872,7 @@
       <div class="nexlab-v267-production-head">
         <div>
           <span>MONITORAMENTO E PRONTIDÃO FINAL</span>
-          <h2>NEXLAB v26.7.5</h2>
+          <h2>NEXLAB v26.7.6</h2>
         </div>
         <div class="nexlab-v267-production-actions">
           <a href="./prontidao.html">Checklist final</a>
