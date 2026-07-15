@@ -1,0 +1,6 @@
+NEXLAB v26.30.9 — R55.4.5
+
+Objetivo: retirar o app do ciclo infinito “Atualizando”.
+Não executar SQL.
+Substituir todos os arquivos do GitHub.
+O Push foi preservado.
