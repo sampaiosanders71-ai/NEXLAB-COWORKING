@@ -1,0 +1,124 @@
+{
+  "version": "26.30.23",
+  "revision": "global-background-fff2e2-r55610",
+  "release": "R55.6.10",
+  "status": "ready_for_publication",
+  "title": "Fundo global #FFF2E2 com cards brancos preservados",
+  "generated_at": "2026-07-16T22:17:49.800661+00:00",
+  "public_file_count": 31,
+  "files": {
+    "index_html": {
+      "path": "index.html",
+      "sha256": "f0cbfc9e8daba6d6012c9da17dd17b063dfbed7b80fddc46f93deffc2440b65a",
+      "size_bytes": 2904
+    },
+    "main_bundle": {
+      "path": "assets/index-R55v26323.js",
+      "sha256": "f02554dde5736a77e00b070d2c13457b56e0aa951e4559c0344280ab20f4a3c5",
+      "size_bytes": 1203148
+    },
+    "realtime_hub": {
+      "path": "assets/nexlab-realtime-hub-r55610.js",
+      "sha256": "1e3ccd92fc473383b0f45e8ef99402fd8159c3b63af71df2382d2451fba5bdf7",
+      "size_bytes": 3426
+    },
+    "visual_css": {
+      "path": "assets/nexlab-visual.css",
+      "sha256": "06e1db2d8f47ebd02e7be10bdb49550632f346b50e4aefb4afacfc7d04a57358",
+      "size_bytes": 140954
+    },
+    "service_worker": {
+      "path": "nexlab-sw.js",
+      "sha256": "506b8a24c187a55cb307f32e812de615dad8906d260287498c89676f65e1a29e",
+      "size_bytes": 7750
+    },
+    "bootstrap": {
+      "path": "assets/nexlab-bootstrap.js",
+      "sha256": "49e750b0a3e45047d46e2aaca0cb9fc2180a997e778f9c351a2c275a7dbe2983",
+      "size_bytes": 30542
+    },
+    "update_manager": {
+      "path": "assets/nexlab-update-manager.js",
+      "sha256": "b15dcf970eefb61e30858030bd5e19ebfb5695a48a9f152d0596a888f4cd888d",
+      "size_bytes": 11833
+    },
+    "vapid_rotation": {
+      "path": "assets/nexlab-vapid-rotation.js",
+      "sha256": "ad61dbe6a07776d0eac2148baceaf451b57f16f06c4ab38798a7890eed68319e",
+      "size_bytes": 4434
+    },
+    "manifest": {
+      "path": "manifest.webmanifest",
+      "sha256": "6ed1ad26e262a937f2a96d84c301014dfa4d3138ff410d46ec4056fda68cd657",
+      "size_bytes": 1087
+    },
+    "technical_report": {
+      "path": "RELATORIO_NEXLAB_V26_30_23.html",
+      "sha256": "d6e8f0ac21b1004bea326d9871c52280e6e2b626be3746b8037fca97e89a6454",
+      "size_bytes": 1149
+    }
+  },
+  "changes": [
+    "Fundo global claro alterado para #FFF2E2 em todo o aplicativo.",
+    "Cards e superfícies de conteúdo permanecem brancos.",
+    "Nenhuma alteração funcional, de banco ou de permissões."
+  ],
+  "database": {
+    "migration": null,
+    "rpc": null,
+    "applied": false,
+    "edge_function_required": false
+  },
+  "publication": {
+    "replace_all_repository_files": true,
+    "active_bundle": "assets/index-R55v26323.js",
+    "asset_revision": "app-r26323-global-background-fff2e2-r55610",
+    "service_worker_registration": "single_registration_in_main_bundle",
+    "sql_files_public": false,
+    "source_maps_public": false,
+    "realtime_hub": "assets/nexlab-realtime-hub-r55610.js",
+    "cache_name": "nexlab-v26-30-23-shell-r55610"
+  },
+  "design": {
+    "global_light_background": "#FFF2E2",
+    "cards_background": "#FFFFFF",
+    "scope": "canvas_only"
+  },
+  "validation": {
+    "javascript_syntax": true,
+    "main_bundle_ecmascript_module_runtime": true,
+    "json_syntax": true,
+    "local_references": true,
+    "public_sql_removed": true,
+    "public_source_maps_removed": true,
+    "version_identifiers_aligned": true,
+    "single_service_worker_registration": true,
+    "package_file_count": 31,
+    "background_runtime_test": {
+      "status": "passed",
+      "body": "rgb(255, 242, 226)",
+      "root": "rgb(255, 242, 226)",
+      "dashboard_main": "rgb(255, 242, 226)",
+      "ordinary_main": "rgb(255, 242, 226)",
+      "dashboard_card": "rgb(255, 255, 255)",
+      "ordinary_card": "rgb(255, 255, 255)",
+      "page_exceptions": 0,
+      "console_errors": 0
+    },
+    "service_worker_runtime_test": {
+      "status": "passed",
+      "cached_entries": 22,
+      "offline_navigation": true,
+      "offline_asset": true,
+      "old_cache_removed": true,
+      "unrelated_cache_preserved": true,
+      "web_push_preserved": true
+    },
+    "http_static_test": {
+      "status": "passed",
+      "files_http_200": 30
+    },
+    "authenticated_ui_post_publish_required": true,
+    "actual_service_worker_control_cycle_post_publish_required": true
+  }
+}
