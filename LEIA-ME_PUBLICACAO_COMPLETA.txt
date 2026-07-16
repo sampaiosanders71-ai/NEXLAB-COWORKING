@@ -1,0 +1,16 @@
+NEXLAB 26.30.25 — R55.6.12
+
+ALTERAÇÃO VISUAL
+O fundo global claro foi restaurado ao cinza original do aplicativo. Cards, modais, formulários, tabelas e demais superfícies brancas foram preservados.
+
+PUBLICAÇÃO
+1. Apague os arquivos atuais do repositório.
+2. Extraia este ZIP.
+3. Envie somente o conteúdo extraído, mantendo a estrutura.
+4. Aguarde o GitHub Pages concluir.
+5. Abra em janela anônima e confirme a versão 26.30.25.
+6. Confirme o bundle assets/index-R55v26325.js.
+7. Confirme o hub assets/nexlab-realtime-hub-r55612.js.
+
+BANCO E EDGE FUNCTIONS
+Não há SQL, migration ou Edge Function nova nesta versão.
