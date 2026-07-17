@@ -1,2 +1,0 @@
-NEXLAB 26.30.34 — R55.6.22
-Aplicação de decoração sutil e neutra em cards de resumo e destaque.
