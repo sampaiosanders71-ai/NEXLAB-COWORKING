@@ -1,0 +1,126 @@
+{
+  "version": "26.30.42",
+  "revision": "meeting-response-automation-r55630",
+  "release": "R55.6.30",
+  "status": "ready_for_publication",
+  "title": "Automação e reconfirmação das participações em reuniões",
+  "generated_at": "2026-07-17T23:34:56+00:00",
+  "changes": [
+    "O responsável recebe notificação quando um participante confirma ou recusa.",
+    "O painel de acompanhamento aberto é atualizado pelo hub Realtime.",
+    "Alterações de data, horário, local, formato ou link incrementam a revisão do convite.",
+    "As respostas são redefinidas e um novo convite de confirmação é enviado.",
+    "Lembretes de reunião são bloqueados para participantes que recusaram a revisão atual."
+  ],
+  "database": {
+    "new_migrations_in_this_release": true,
+    "migrations_applied": [
+      "nexlab_r55_6_30_meeting_reconfirmation",
+      "nexlab_r55_6_30_organizer_response_notification",
+      "nexlab_r55_6_30_reminder_eligibility",
+      "nexlab_r55_6_30_reminder_delivery_guard",
+      "nexlab_r55_6_30_reminder_state_sync",
+      "nexlab_r55_6_30_reconfirmation_trigger_fix"
+    ],
+    "rpc_used": [
+      "nexlab_respond_meeting_invitation_v263042",
+      "nexlab_get_meeting_responses_v263038"
+    ],
+    "rpc_authenticated_only": true,
+    "rpc_anonymous_execute": false,
+    "edge_function_required": false
+  },
+  "publication": {
+    "replace_all_repository_files": true,
+    "active_bundle": "assets/index-R55v26342.js",
+    "asset_revision": "app-r26342-meeting-response-automation-r55630",
+    "service_worker_registration": "single_registration_in_main_bundle",
+    "sql_files_public": false,
+    "source_maps_public": false,
+    "realtime_hub": "assets/nexlab-realtime-hub-r55630.js",
+    "cache_name": "nexlab-v26-30-42-shell-r55630"
+  },
+  "scope": {
+    "frontend": [
+      "organizer_response_realtime_refresh",
+      "response_rpc_v263042"
+    ],
+    "database": [
+      "organizer_response_notification",
+      "essential_change_reconfirmation",
+      "declined_reminder_guard"
+    ],
+    "edge_functions": []
+  },
+  "validation": {
+    "javascript_syntax": true,
+    "json_syntax": true,
+    "local_references": true,
+    "public_sql_removed": true,
+    "public_source_maps_removed": true,
+    "version_identifiers_aligned": true,
+    "single_service_worker_registration": true,
+    "database_transactional_tests": true,
+    "actual_authenticated_flow_post_publish_required": true,
+    "actual_service_worker_control_cycle_post_publish_required": true,
+    "package_file_count": 31
+  },
+  "files": {
+    "index_html": {
+      "path": "index.html",
+      "sha256": "5634cc5f874a6b81c92145d2e446f70e277fd6a928dbeb2f8fb8e20df72c280d",
+      "size_bytes": 2939
+    },
+    "main_bundle": {
+      "path": "assets/index-R55v26342.js",
+      "sha256": "e4059a12f715bac6e4b6c0215ff2e0271cc0fe1d3946f3b630930892c1b4faed",
+      "size_bytes": 1216871
+    },
+    "realtime_hub": {
+      "path": "assets/nexlab-realtime-hub-r55630.js",
+      "sha256": "647bd49c62838c50bbef5a5ebff4b86cb7134068ef69eb7d82ca871eb6c4fe26",
+      "size_bytes": 3426
+    },
+    "visual_css": {
+      "path": "assets/nexlab-visual.css",
+      "sha256": "27e7918386ad3c5256e5f7ddac3bdf9ceae296585930241b60a48760f4a486b2",
+      "size_bytes": 162818
+    },
+    "visual_js": {
+      "path": "assets/nexlab-visual.js",
+      "sha256": "7f7078ceabf49ba31b15bc498a2382633d36950111b9e24fc1b229cbfbb1c969",
+      "size_bytes": 41189
+    },
+    "service_worker": {
+      "path": "nexlab-sw.js",
+      "sha256": "ab4b81a1449282a1d800fa4f8864faf8f1850b18a575cee6bc73867cb79f8c19",
+      "size_bytes": 7793
+    },
+    "bootstrap": {
+      "path": "assets/nexlab-bootstrap.js",
+      "sha256": "520899ecfcef177c618a89f712739a1e35d28db2b768afda38af3ecea5ea4809",
+      "size_bytes": 30545
+    },
+    "update_manager": {
+      "path": "assets/nexlab-update-manager.js",
+      "sha256": "dbf22f99c9997cbe35a9a6923af6627866f5266907d748413d7177ed2f586495",
+      "size_bytes": 11836
+    },
+    "vapid_rotation": {
+      "path": "assets/nexlab-vapid-rotation.js",
+      "sha256": "5a953ac18ffbdcea3e7207b658edbefc55d44abf7b83dc71acb3b5345af95296",
+      "size_bytes": 4439
+    },
+    "manifest": {
+      "path": "manifest.webmanifest",
+      "sha256": "1c327cad5488de7ed16006560246a654176a8ef5c94586bc37b26020e8522066",
+      "size_bytes": 1103
+    },
+    "technical_report": {
+      "path": "RELATORIO_NEXLAB_V26_30_42.html",
+      "sha256": "cdaa34cae5eb35378255a11883b6f4aad6bd53c455a23d046610a4da869b2ee9",
+      "size_bytes": 1442
+    }
+  },
+  "public_file_count": 31
+}
