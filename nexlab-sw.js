@@ -1,5 +1,5 @@
 importScripts('./assets/nexlab-release-identity.js');
-const BUILD_IDENTITY=self.__NEXLAB_BUILD_IDENTITY__||Object.freeze({version:'0.26.13',release:'Beta',revision:'beta-0-26-13-update-cache-bookings-stability',assetRevision:'app-beta-0-26-13-update-cache-bookings-stability',cacheName:'nexlab-beta-0-26-13-update-cache-bookings-stability',generatedAt:'2026-07-19T23:28:02Z'});
+const BUILD_IDENTITY=self.__NEXLAB_BUILD_IDENTITY__||Object.freeze({version:'0.26.16',release:'Beta',revision:'beta-0-26-16-physical-homologation-incident-cleanup-export-retirement',assetRevision:'app-beta-0-26-16-physical-homologation-incident-cleanup-export-retirement',cacheName:'nexlab-beta-0-26-16-physical-homologation-incident-cleanup-export-retirement',generatedAt:'2026-07-20T01:02:00Z'});
 const APP_VERSION=BUILD_IDENTITY.version;
 const APP_RELEASE=BUILD_IDENTITY.release;
 const APP_REVISION=BUILD_IDENTITY.revision;
@@ -14,6 +14,22 @@ const SHARED_BUNDLE='nexlab-app-shared-beta-0-26-12.js';
 const FEATURE_BUNDLE='nexlab-feature-modules-beta-0-26-12.js';
 const EXPORT_BUNDLE='nexlab-export-vendor-beta-0-26-12.js';
 const ALLOWED_TABS=new Set(['dashboard','pendencias','agenda','notificacoes','participantes','permissoes','equipes','perfil','projetos','inventario','patrimonio','estoque','reserva','marketing','eventos','mural','feedback','relatorios','saude-sistema','logs']);
+const PROTECTED_COMPATIBILITY_FILES=[
+  './assets/index-beta-0-26-11.js',
+  './assets/nexlab-vendor-beta-0-26-11.js',
+  './assets/nexlab-app-shared-beta-0-26-11.js',
+  './assets/nexlab-feature-modules-beta-0-26-11.js',
+  './assets/nexlab-export-vendor-beta-0-26-11.js',
+  './assets/nexlab-realtime-core-beta-0-26-11.js',
+  './assets/nexlab-realtime-hub-beta-0-26-11.js',
+  './assets/index-R56v263122rc17.js',
+  './assets/nexlab-vendor-r56022rc17.js',
+  './assets/nexlab-app-shared-r56022rc17.js',
+  './assets/nexlab-feature-modules-r56022rc17.js',
+  './assets/nexlab-export-vendor.js',
+  './assets/nexlab-realtime-core-r56022rc17.js',
+  './assets/nexlab-realtime-hub-r56022rc17.js',
+];
 const MANDATORY_SHELL=[
   './index.html','./offline.html',
   `./manifest.webmanifest?v=${ASSET_REVISION}`,
@@ -35,7 +51,8 @@ const MANDATORY_SHELL=[
   './icons/nexlab-favicon-rounded.png?v=brand-r38','./icons/apple-touch-icon.png?v=brand-r38',
   './icons/nexlab-192.png?v=brand-r38','./icons/nexlab-maskable-192.png?v=brand-r38',
   './icons/nexlab-512.png?v=brand-r38','./icons/nexlab-maskable-512.png?v=brand-r38',
-  './brand/nexlab-icon.webp?v=brand-r38','./brand/nexlab-logo-dark.webp?v=brand-r38','./brand/nexlab-logo-light.webp?v=brand-r38'
+  './brand/nexlab-icon.webp?v=brand-r38','./brand/nexlab-logo-dark.webp?v=brand-r38','./brand/nexlab-logo-light.webp?v=brand-r38',
+  ...PROTECTED_COMPATIBILITY_FILES.map(path=>`./${path}?v=${ASSET_REVISION}`)
 ];
 const OPTIONAL_ASSETS=new Set([
   new URL(`./assets/${FEATURE_BUNDLE}?v=${ASSET_REVISION}`,self.registration.scope).href,
@@ -48,6 +65,7 @@ const OFFLINE_URL=new URL('./offline.html',self.registration.scope).href;
 const SCOPE_URL=new URL(self.registration.scope);
 const INSTALL_CACHE_NAME=`${CACHE_NAME}-installing`;
 const REQUIRED_SHELL=new Set(MANDATORY_SHELL.map(url=>new URL(url,self.registration.scope).href));
+const PROTECTED_COMPATIBILITY_PATHNAMES=new Set(PROTECTED_COMPATIBILITY_FILES.map(path=>new URL(`./${path}`,self.registration.scope).pathname));
 
 let retainedPreviousCacheName=null;
 
@@ -112,6 +130,18 @@ async function validatePreviousCache(cacheName){
     if(!mainText.includes(new URL(shared,self.registration.scope).pathname.split('/').pop().split('?')[0]))return false;
     return true;
   }catch{return false;}
+}
+
+function isProtectedCompatibilityRequest(url){
+  return PROTECTED_COMPATIBILITY_PATHNAMES.has(url.pathname);
+}
+
+async function protectedCompatibilityAsset(request,kind){
+  const current=await currentCacheMatch(request,{ignoreSearch:true});
+  if(current)return current;
+  const response=await fetch(new Request(request,{cache:'no-store'}));
+  if(!(await cacheValidResponse(request,response,kind)))throw new Error(`Ativo de compatibilidade inválido: ${request.url}`);
+  return response;
 }
 
 function isRequiredShellRequest(request){
@@ -340,6 +370,12 @@ self.addEventListener('fetch',(event)=>{
     return;
   }
 
+  if(isProtectedCompatibilityRequest(url)){
+    const kind=expectedKind(request,url);
+    event.respondWith(protectedCompatibilityAsset(request,kind).catch(()=>new Response('',{status:503})));
+    return;
+  }
+
   if(isStaticAsset(request,url)){
     const kind=expectedKind(request,url);
     event.respondWith(cacheFirst(request,kind).catch(()=>new Response('',{status:503})));
@@ -351,7 +387,7 @@ self.addEventListener('fetch',(event)=>{
 
 self.addEventListener('message',(event)=>{
   if(event.data?.type==='NEXLAB_GET_VERSION'){
-    event.ports?.[0]?.postMessage({type:'NEXLAB_VERSION',version:APP_VERSION,release:APP_RELEASE,revision:APP_REVISION,generatedAt:GENERATED_AT,cache:CACHE_NAME,cachePolicy:'core-precache-lazy-on-demand'});
+    event.ports?.[0]?.postMessage({type:'NEXLAB_VERSION',version:APP_VERSION,release:APP_RELEASE,revision:APP_REVISION,generatedAt:GENERATED_AT,cache:CACHE_NAME,cachePolicy:'core-precache-lazy-on-demand',compatibilityPolicy:'protected-lightweight-bridges-current-cache-only'});
     return;
   }
   if(event.data?.type==='NEXLAB_SKIP_WAITING'){

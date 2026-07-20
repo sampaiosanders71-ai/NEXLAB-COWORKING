@@ -2,7 +2,7 @@
   if (window.__NEXLAB_VISUAL_V26_7__) return;
   window.__NEXLAB_VISUAL_V26_7__ = true;
 
-  const VERSION = '0.26.13';
+  const VERSION = '0.26.16';
   let connectionBackdrop = null;
   let connectionDismissedUntil = 0;
   let activeActions = 0;

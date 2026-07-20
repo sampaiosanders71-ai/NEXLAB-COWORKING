@@ -2,7 +2,7 @@
   if (window.__NEXLAB_BOOTSTRAP_V26_7__) return;
   window.__NEXLAB_BOOTSTRAP_V26_7__ = true;
 
-  const BUILD_IDENTITY = window.__NEXLAB_BUILD_IDENTITY__ || Object.freeze({version:'0.26.13',release:'Beta',revision:'beta-0-26-13-update-cache-bookings-stability',assetRevision:'app-beta-0-26-13-update-cache-bookings-stability',cacheName:'nexlab-beta-0-26-13-update-cache-bookings-stability',generatedAt:'2026-07-19T23:28:02Z'});
+  const BUILD_IDENTITY = window.__NEXLAB_BUILD_IDENTITY__ || Object.freeze({version:'0.26.16',release:'Beta',revision:'beta-0-26-16-physical-homologation-incident-cleanup-export-retirement',assetRevision:'app-beta-0-26-16-physical-homologation-incident-cleanup-export-retirement',cacheName:'nexlab-beta-0-26-16-physical-homologation-incident-cleanup-export-retirement',generatedAt:'2026-07-20T01:02:00Z'});
   const APP_VERSION = BUILD_IDENTITY.version;
   const APP_RELEASE = BUILD_IDENTITY.release;
   const APP_REVISION = BUILD_IDENTITY.revision;
@@ -244,8 +244,8 @@
 
 
   const OBSERVABILITY_VERSION = APP_VERSION;
-  const OBSERVABILITY_QUEUE_KEY = 'nexlab:observability:queue:v0.26.13';
-  const OBSERVABILITY_DEDUP_KEY = 'nexlab:observability:dedup:v0.26.13';
+  const OBSERVABILITY_QUEUE_KEY = 'nexlab:observability:queue:v0.26.16';
+  const OBSERVABILITY_DEDUP_KEY = 'nexlab:observability:dedup:v0.26.16';
   const OBSERVABILITY_RPC = 'nexlab_record_client_error_v26_7_4';
   const OBSERVABILITY_MAX_QUEUE = 20;
   const OBSERVABILITY_DEDUP_MS = 5 * 60 * 1000;
@@ -670,7 +670,42 @@
     });
   });
 
-  const PERFORMANCE_ALERT_STATE_KEY = 'nexlab:performance-alert-state:v0.26.13';
+  const COMPATIBILITY_MARKER_KEY = 'nexlab:compatibility-asset:last';
+  function reportCompatibilityAsset(detail){
+    if (!detail || typeof detail !== 'object') return;
+    const sourceVersion = observabilitySanitize(detail.sourceVersion || 'unknown', 80);
+    const targetVersion = observabilitySanitize(detail.targetVersion || APP_VERSION, 80);
+    const assetPath = observabilitySanitize(detail.assetPath || '', 240);
+    const group = observabilitySanitize(detail.group || 'compatibility', 120);
+    observabilityQueueEvent({
+      source: 'compatibility-asset',
+      severity: 'info',
+      module: 'update',
+      page: 'update',
+      fingerprint: `compatibility-${sourceVersion}-${group}-${assetPath}`,
+      message: `Ativo de compatibilidade utilizado por cliente ${sourceVersion}.`,
+      metadata: {
+        component: 'compatibility-bridge',
+        sourceVersion,
+        targetVersion,
+        assetPath,
+        group,
+        mode: observabilitySanitize(detail.mode || 'bridge', 80)
+      }
+    });
+  }
+  window.addEventListener('nexlab:compatibility-asset-used', (event) => {
+    reportCompatibilityAsset(event.detail || {});
+  });
+  try {
+    const pendingCompatibilityMarker = JSON.parse(sessionStorage.getItem(COMPATIBILITY_MARKER_KEY) || 'null');
+    if (pendingCompatibilityMarker) {
+      reportCompatibilityAsset(pendingCompatibilityMarker);
+      sessionStorage.removeItem(COMPATIBILITY_MARKER_KEY);
+    }
+  } catch {}
+
+  const PERFORMANCE_ALERT_STATE_KEY = 'nexlab:performance-alert-state:v0.26.16';
   const PERFORMANCE_ALERT_MIN_INTERVAL_MS = 10 * 60 * 1000;
   let performanceAlertState = observabilityReadJson(PERFORMANCE_ALERT_STATE_KEY, {
     degraded: false,
@@ -772,7 +807,7 @@
     performanceState.capturedAt = new Date().toISOString();
     window.__NEXLAB_PERFORMANCE__ = Object.freeze({ ...performanceState });
     try {
-      sessionStorage.setItem('nexlab:performance:v0.26.13', JSON.stringify(performanceState));
+      sessionStorage.setItem('nexlab:performance:v0.26.16', JSON.stringify(performanceState));
     } catch {}
     emit('nexlab:performance-metrics', { ...performanceState });
   }

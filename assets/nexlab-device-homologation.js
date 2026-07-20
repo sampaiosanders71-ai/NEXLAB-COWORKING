@@ -1,12 +1,15 @@
 (function(){
   'use strict';
-  const BUILD=globalThis.__NEXLAB_BUILD_IDENTITY__||Object.freeze({version:'0.26.13',revision:'beta-0-26-13-update-cache-bookings-stability'});
+  const BUILD=globalThis.__NEXLAB_BUILD_IDENTITY__||Object.freeze({version:'0.26.16',revision:'beta-0-26-16-physical-homologation-incident-cleanup-export-retirement'});
   const VERSION=BUILD.version;
   const REVISION=BUILD.revision;
   if(globalThis.__NEXLAB_DEVICE_HOMOLOGATION__?.revision===REVISION)return;
   const EVIDENCE_KEY='nexlab:device-homologation:'+VERSION;
-  const RPC='nexlab_record_device_homologation_v02613';
-  const syncRequested=()=>{try{return new URL(location.href).searchParams.get('nexlabHomologationSync')==='1';}catch{return false;}};
+  const RPC='nexlab_record_device_homologation_v02616';
+  const flag=(name)=>{try{return new URL(location.href).searchParams.get(name)==='1';}catch{return false;}};
+  const syncRequested=()=>flag('nexlabHomologationSync');
+  const pushTestRequested=()=>flag('nexlabPushTest');
+  const anyRequested=()=>syncRequested()||pushTestRequested();
   const read=()=>{try{return JSON.parse(localStorage.getItem(EVIDENCE_KEY)||'{}')||{};}catch{return {};}};
   const write=(patch)=>{
     const current=read();
@@ -26,7 +29,7 @@
     && Boolean(evidence?.automaticPushDestinationSignature);
   let bannerNode=null;
   function banner(message,state='pending'){
-    if(!syncRequested()&&!bannerNode)return;
+    if(!anyRequested()&&!bannerNode)return;
     if(!bannerNode){
       bannerNode=document.createElement('div');
       bannerNode.setAttribute('role','status');
@@ -42,10 +45,58 @@
     const started=Date.now();
     while(Date.now()-started<timeoutMs){
       const client=globalThis.__NEXLAB_SUPABASE__;
-      if(client?.rpc&&client?.auth?.getSession)return client;
+      if(client?.rpc&&client?.auth?.getSession&&client?.functions?.invoke)return client;
       await delay(500);
     }
     throw new Error('O cliente Supabase não ficou disponível.');
+  }
+  async function waitForSession(client,timeoutMs=120000){
+    const started=Date.now();
+    while(Date.now()-started<timeoutMs){
+      const result=await client.auth.getSession();
+      if(result?.error)throw result.error;
+      if(result?.data?.session)return result.data.session;
+      await delay(1000);
+    }
+    throw new Error('Entre no aplicativo para continuar o teste.');
+  }
+  function clearRequestParams(){
+    try{
+      const url=new URL(location.href);
+      url.searchParams.delete('nexlabPushTest');
+      url.searchParams.delete('nexlabHomologationSync');
+      history.replaceState(history.state,'',url);
+    }catch{}
+  }
+  let activePushTest=null;
+  async function requestPushTest(){
+    if(activePushTest)return activePushTest;
+    activePushTest=(async()=>{
+      if(navigator.onLine===false)throw new Error('Reconecte a internet para solicitar o Push de teste.');
+      if(!('Notification' in globalThis)||Notification.permission!=='granted')throw new Error('Ative as notificações Push no módulo Notificações antes de executar o teste.');
+      const registration=await navigator.serviceWorker?.getRegistration?.('./');
+      const subscription=await registration?.pushManager?.getSubscription?.();
+      if(!registration?.active||!subscription)throw new Error('A inscrição Push não está ativa neste aparelho. Ative o Push no módulo Notificações.');
+      banner('Aguardando autenticação para solicitar um Push real...');
+      const client=await waitForClient();
+      const session=await waitForSession(client);
+      const created=await client.rpc('create_test_notification');
+      if(created?.error)throw created.error;
+      const notificationId=String(created?.data||'').trim();
+      if(!notificationId)throw new Error('O Supabase não retornou o identificador da notificação de teste.');
+      write({automaticPushTestRequestedAt:new Date().toISOString(),automaticPushTestNotificationId:notificationId,automaticPushTestUserId:String(session.user?.id||'')});
+      const processing=await client.functions.invoke('process-notification-deliveries',{body:{action:'process',source:'device-homologation-push-test',notificationId}}).catch(error=>({data:null,error}));
+      clearRequestParams();
+      const delayed=Boolean(processing?.error);
+      banner(delayed?'Push de teste colocado na fila. O processamento automático fará a tentativa; toque na notificação quando ela aparecer.':'Push de teste solicitado. Minimize o aplicativo e toque na notificação real quando ela aparecer.','ok');
+      globalThis.dispatchEvent(new CustomEvent('nexlab:device-push-test-requested',{detail:{notificationId,queued:true,processedImmediately:!delayed}}));
+      return {ok:true,notificationId,processedImmediately:!delayed};
+    })().catch(error=>{
+      clearRequestParams();
+      banner(String(error?.message||error),'error');
+      return {ok:false,error:String(error?.message||error)};
+    }).finally(()=>{activePushTest=null;});
+    return activePushTest;
   }
   let activeSync=null;
   async function sync({redirect=syncRequested()}={}){
@@ -56,41 +107,29 @@
       if(navigator.onLine===false)throw new Error('Reconecte a internet para registrar a homologação.');
       banner('Aguardando autenticação administrativa...');
       const client=await waitForClient();
-      let session=null;
-      for(let attempt=0;attempt<120;attempt+=1){
-        const result=await client.auth.getSession();
-        if(result?.error)throw result.error;
-        session=result?.data?.session||null;
-        if(session)break;
-        await delay(1000);
-      }
-      if(!session)throw new Error('Entre com uma conta administradora para registrar a evidência.');
+      const session=await waitForSession(client);
       banner('Registrando evidência física no Supabase...');
       const {data,error}=await client.rpc(RPC,{p_evidence:evidence});
       if(error)throw error;
       if(!data?.ok||data?.complete!==true||!data?.homologation_id)throw new Error(String(data?.error||'O Supabase não confirmou a homologação.'));
-      const next=write({
-        serverReceiptId:String(data.homologation_id),
-        serverReceiptAt:String(data.completed_at||new Date().toISOString()),
-        serverReceiptHash:String(data.evidence_hash||''),
-        serverReceiptRevision:REVISION,
-        serverReceiptComplete:true,
-        serverReceiptUserId:String(session.user?.id||'')
-      });
+      const next=write({serverReceiptId:String(data.homologation_id),serverReceiptAt:String(data.completed_at||new Date().toISOString()),serverReceiptHash:String(data.evidence_hash||''),serverReceiptRevision:REVISION,serverReceiptComplete:true,serverReceiptUserId:String(session.user?.id||'')});
       globalThis.dispatchEvent(new CustomEvent('nexlab:device-homologation-synced',{detail:{receipt:data,evidence:next}}));
+      clearRequestParams();
       banner('Homologação física registrada. Abrindo o diagnóstico final...','ok');
       if(redirect)setTimeout(()=>location.replace('./pwa-check.html?nexlabHomologationSynced=1'),900);
       return {ok:true,receipt:data,evidence:next};
     })().catch(error=>{
+      clearRequestParams();
       banner(String(error?.message||error),'error');
       globalThis.dispatchEvent(new CustomEvent('nexlab:device-homologation-sync-error',{detail:{error:String(error?.message||error)}}));
       return {ok:false,error:String(error?.message||error)};
     }).finally(()=>{activeSync=null;});
     return activeSync;
   }
-  globalThis.__NEXLAB_DEVICE_HOMOLOGATION__=Object.freeze({version:VERSION,revision:REVISION,read,localComplete,sync});
-  if(syncRequested()){
-    if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{banner('Preparando registro da homologação...');void sync();},{once:true});
-    else{banner('Preparando registro da homologação...');void sync();}
-  }
+  globalThis.__NEXLAB_DEVICE_HOMOLOGATION__=Object.freeze({version:VERSION,revision:REVISION,read,localComplete,sync,requestPushTest});
+  const boot=()=>{
+    if(pushTestRequested()){banner('Preparando Push real de homologação...');void requestPushTest();return;}
+    if(syncRequested()){banner('Preparando registro da homologação...');void sync();}
+  };
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 })();
