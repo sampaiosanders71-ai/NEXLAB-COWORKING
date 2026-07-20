@@ -2,8 +2,9 @@
   if (window.__NEXLAB_VISUAL_V26_7__) return;
   window.__NEXLAB_VISUAL_V26_7__ = true;
 
-  const VERSION = '0.26.18';
+  const VERSION = '0.26.19';
   let connectionBackdrop = null;
+  let userErrorBackdrop = null;
   let connectionDismissedUntil = 0;
   let activeActions = 0;
   let actionSafetyTimer = 0;
@@ -116,6 +117,175 @@
     document.addEventListener('keydown', onKey, true);
     document.body.appendChild(backdrop);
     setTimeout(() => ok.focus(), 0);
+  }
+
+
+  const FEEDBACK_ASSIST_CONTEXT_KEY = 'nexlab:feedback-assist:context:v0.26.19';
+
+  function moduleDisplayName(moduleName){
+    const labels = {
+      dashboard:'Dashboard', pendencias:'Pendências', agenda:'Agenda',
+      notificacoes:'Notificações', participantes:'Usuários', permissoes:'Permissões',
+      equipes:'Equipes', perfil:'Meu Perfil', projetos:'Projetos',
+      inventario:'Estoque e Patrimônio', patrimonio:'Patrimônio', estoque:'Estoque',
+      reserva:'Reservas e Reuniões', marketing:'Marketing', eventos:'Eventos',
+      mural:'Mural Interno', feedback:'Feedback', relatorios:'Relatórios',
+      'saude-sistema':'Saúde do Sistema', logs:'Central de Atividades'
+    };
+    return labels[String(moduleName || '')] || 'NEXLAB';
+  }
+
+  function readFeedbackAssistContext(){
+    try {
+      const value = JSON.parse(sessionStorage.getItem(FEEDBACK_ASSIST_CONTEXT_KEY) || 'null');
+      return value && typeof value === 'object' ? value : null;
+    } catch {
+      return null;
+    }
+  }
+
+  function setReactControlledValue(element, value){
+    if (!element) return;
+    const prototype = element.tagName === 'SELECT'
+      ? HTMLSelectElement.prototype
+      : element.tagName === 'TEXTAREA'
+        ? HTMLTextAreaElement.prototype
+        : HTMLInputElement.prototype;
+    const setter = Object.getOwnPropertyDescriptor(prototype, 'value')?.set;
+    if (setter) setter.call(element, value);
+    else element.value = value;
+    element.dispatchEvent(new Event(element.tagName === 'SELECT' ? 'change' : 'input', { bubbles:true }));
+    if (element.tagName !== 'SELECT') {
+      element.dispatchEvent(new Event('change', { bubbles:true }));
+    }
+  }
+
+  function feedbackAssistText(context){
+    const moduleName = moduleDisplayName(context?.module);
+    const occurredAt = context?.occurredAt
+      ? new Date(context.occurredAt).toLocaleString('pt-BR')
+      : new Date().toLocaleString('pt-BR');
+    return [
+      'Relato assistido de erro do NEXLAB.',
+      '',
+      `Módulo: ${moduleName}`,
+      `Ação: ${context?.action || 'usar o aplicativo'}`,
+      `Data e hora: ${occurredAt}`,
+      `Versão: ${context?.appVersion || VERSION}`,
+      `Código de referência: ${context?.reference || 'não informado'}`,
+      `Aplicativo instalado: ${context?.installed ? 'sim' : 'não identificado'}`,
+      `Conexão no momento: ${context?.online === false ? 'offline' : 'online'}`,
+      '',
+      'Descreva abaixo o que você estava fazendo e o que aconteceu:',
+      ''
+    ].join('\n');
+  }
+
+  function applyFeedbackAssistPrefill(){
+    const context = readFeedbackAssistContext();
+    if (!context || document.body.dataset.nexlabPage !== 'feedback') return false;
+
+    const forms = Array.from(document.querySelectorAll('main form, #root form'));
+    const form = forms.find((candidate) =>
+      /categoria do feedback/i.test(String(candidate.textContent || '')) &&
+      candidate.querySelector('textarea')
+    );
+    if (!form) {
+      const sendTab = Array.from(document.querySelectorAll('button')).find((button) =>
+        /enviar novo feedback/i.test(String(button.textContent || ''))
+      );
+      if (sendTab && sendTab.offsetParent !== null) sendTab.click();
+      return false;
+    }
+    if (form.dataset.nexlabFeedbackAssistReference === String(context.reference || '')) return true;
+
+    const category = form.querySelector('select');
+    const subject = form.querySelector('input[type="text"], input:not([type])');
+    const message = form.querySelector('textarea');
+    if (!category || !subject || !message) return false;
+
+    setReactControlledValue(category, 'Bug');
+    setReactControlledValue(
+      subject,
+      `Erro em ${moduleDisplayName(context.module)} — ${context.reference || 'sem referência'}`.slice(0, 180)
+    );
+    setReactControlledValue(message, feedbackAssistText(context));
+    form.dataset.nexlabFeedbackAssistReference = String(context.reference || '');
+    message.focus({ preventScroll:false });
+    try { sessionStorage.removeItem(FEEDBACK_ASSIST_CONTEXT_KEY); } catch {}
+    return true;
+  }
+
+  function openAssistedFeedback(context){
+    try {
+      sessionStorage.setItem(FEEDBACK_ASSIST_CONTEXT_KEY, JSON.stringify(context || {}));
+    } catch {}
+    window.dispatchEvent(new CustomEvent('nexlab:navigate-record', {
+      detail: { tabId:'feedback', source:'global-error-assist' }
+    }));
+    window.setTimeout(applyFeedbackAssistPrefill, 100);
+  }
+
+  function retryAfterUserError(context){
+    const moduleName = String(context?.module || document.body.dataset.nexlabPage || '');
+    window.dispatchEvent(new CustomEvent('nexlab:retry-module', {
+      detail: { module:moduleName, source:'global-error-assist', reference:context?.reference || null }
+    }));
+    if (context?.source === 'module-render' || context?.source === 'window.error') {
+      window.setTimeout(() => location.reload(), 120);
+    }
+  }
+
+  function showUserError(detail){
+    const info = detail || {};
+    userErrorBackdrop?.remove();
+    userErrorBackdrop = document.createElement('div');
+    userErrorBackdrop.className = 'nexlab-user-error-backdrop';
+    userErrorBackdrop.setAttribute('role','alertdialog');
+    userErrorBackdrop.setAttribute('aria-modal','true');
+    userErrorBackdrop.setAttribute('aria-labelledby','nexlab-user-error-title');
+    userErrorBackdrop.setAttribute('aria-describedby','nexlab-user-error-message');
+    userErrorBackdrop.innerHTML = `
+      <section class="nexlab-user-error-card">
+        <div class="nexlab-user-error-head">
+          <div class="nexlab-user-error-icon" aria-hidden="true">!</div>
+          <div>
+            <h2 id="nexlab-user-error-title">Erro</h2>
+            <p id="nexlab-user-error-message"></p>
+          </div>
+        </div>
+        <div class="nexlab-user-error-body">
+          <p class="nexlab-user-error-reference"></p>
+          <div class="nexlab-user-error-actions">
+            <button type="button" class="nexlab-user-error-close">Fechar</button>
+            <button type="button" class="nexlab-user-error-feedback">Informar problema</button>
+            <button type="button" class="nexlab-user-error-retry">Tentar novamente</button>
+          </div>
+        </div>
+      </section>`;
+    userErrorBackdrop.querySelector('#nexlab-user-error-message').textContent =
+      String(info.message || 'Erro, tente novamente. Se o erro persistir, informe o problema no Feedback para ser corrigido.');
+    userErrorBackdrop.querySelector('.nexlab-user-error-reference').textContent =
+      info.reference ? `Código de referência: ${info.reference}` : '';
+
+    const close = () => {
+      userErrorBackdrop?.remove();
+      userErrorBackdrop = null;
+    };
+    userErrorBackdrop.querySelector('.nexlab-user-error-close')?.addEventListener('click', close);
+    userErrorBackdrop.querySelector('.nexlab-user-error-feedback')?.addEventListener('click', () => {
+      close();
+      openAssistedFeedback(info);
+    });
+    userErrorBackdrop.querySelector('.nexlab-user-error-retry')?.addEventListener('click', () => {
+      close();
+      retryAfterUserError(info);
+    });
+    userErrorBackdrop.addEventListener('click', (event) => {
+      if (event.target === userErrorBackdrop) close();
+    });
+    document.body.appendChild(userErrorBackdrop);
+    requestAnimationFrame(() => userErrorBackdrop?.querySelector('.nexlab-user-error-retry')?.focus());
   }
 
   function showConnectionError(detail){
@@ -724,6 +894,7 @@
     scheduled = false;
     markPage();
     ensureAccessibleFieldNamesBeta();
+    applyFeedbackAssistPrefill();
   }
 
 
@@ -1018,6 +1189,7 @@
 
   window.addEventListener('nexlab:modal', (event) => openStandardModal(event.detail || {}));
   window.addEventListener('nexlab:connection-error', (event) => showConnectionError(event.detail || {}));
+  window.addEventListener('nexlab:user-error', (event) => showUserError(event.detail || {}));
   window.addEventListener('nexlab:connection-restored', hideConnectionError);
   window.addEventListener('nexlab:action-start', () => {
     activeActions += 1;
@@ -1086,9 +1258,27 @@
     v261PartialBanner=document.createElement('section');
     v261PartialBanner.className='nexlab-v261-partial-banner';
     v261PartialBanner.setAttribute('role','status');
-    v261PartialBanner.innerHTML='<div><strong>Dados carregados parcialmente</strong><p></p></div><button type="button">Tentar novamente</button>';
+    v261PartialBanner.innerHTML='<div><strong>Dados carregados parcialmente</strong><p></p></div><div class="nexlab-v261-partial-actions"><button type="button" data-action="feedback">Informar problema</button><button type="button" data-action="retry">Tentar novamente</button></div>';
     v261PartialBanner.querySelector('p').textContent=`Não foi possível atualizar: ${failures.join(', ')}. Os dados anteriores foram preservados.`;
-    v261PartialBanner.querySelector('button').addEventListener('click',()=>window.dispatchEvent(new CustomEvent('nexlab:retry-module',{detail:{module:info.module}})));
+    v261PartialBanner.querySelector('[data-action="retry"]').addEventListener('click',()=>window.dispatchEvent(new CustomEvent('nexlab:retry-module',{detail:{module:info.module}})));
+    v261PartialBanner.querySelector('[data-action="feedback"]').addEventListener('click',()=>{
+      const context=window.nexlabReportUserError?.({
+        source:'partial-load',
+        severity:'warning',
+        module:info.module,
+        action:'carregar os dados do módulo',
+        message:`Carregamento parcial: ${failures.join(', ') || 'consulta não identificada'}.`,
+        metadata:{failures}
+      });
+      if(context){
+        userErrorBackdrop?.remove();
+        userErrorBackdrop=null;
+        openAssistedFeedback(context);
+      } else {
+        const stored=readFeedbackAssistContext();
+        if(stored)openAssistedFeedback(stored);
+      }
+    });
     document.body.appendChild(v261PartialBanner);
   }
 

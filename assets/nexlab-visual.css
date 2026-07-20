@@ -6144,3 +6144,42 @@ input[type="datetime-local"].nexlab-form-control-v263033{
 .nexlab-prompt-field-host{width:100%;}
 .nexlab-prompt-field[data-mode="text"],.nexlab-prompt-field[data-mode="code"]{min-height:48px;resize:none;}
 .nexlab-prompt-field[data-mode="code"]{font-size:22px;font-weight:900;letter-spacing:.35em;text-align:center;font-variant-numeric:tabular-nums;}
+
+
+/* Beta 0.26.19 — aviso global de erro e Feedback assistido */
+.nexlab-user-error-backdrop{
+  position:fixed;inset:0;z-index:2147483100;display:flex;align-items:center;justify-content:center;
+  padding:18px;background:rgba(2,8,23,.62);backdrop-filter:blur(10px);
+}
+.nexlab-user-error-card{
+  width:min(520px,100%);overflow:hidden;border-radius:26px;background:#fff;
+  border:1px solid rgba(185,28,28,.20);box-shadow:0 28px 90px rgba(2,8,23,.34);color:#0E1F3D;
+}
+.nexlab-user-error-head{display:flex;align-items:flex-start;gap:14px;padding:22px 22px 16px;}
+.nexlab-user-error-icon{
+  flex:none;width:44px;height:44px;border-radius:16px;display:grid;place-items:center;
+  background:#fee2e2;color:#b91c1c;font-size:1.15rem;font-weight:950;
+}
+.nexlab-user-error-head h2{margin:0;color:#0E1F3D;font-size:1.12rem;font-weight:950;}
+.nexlab-user-error-head p{margin:6px 0 0;color:#475569;font-size:.86rem;line-height:1.55;font-weight:650;}
+.nexlab-user-error-body{padding:0 22px 20px;}
+.nexlab-user-error-reference{
+  margin:0 0 16px;padding:10px 12px;border-radius:12px;background:#f8fafc;
+  border:1px solid rgba(14,31,61,.08);color:#64748b;font-size:.7rem;font-weight:850;
+}
+.nexlab-user-error-reference:empty{display:none;}
+.nexlab-user-error-actions{display:flex;justify-content:flex-end;gap:9px;flex-wrap:wrap;}
+.nexlab-user-error-actions button{
+  border:0;border-radius:13px;padding:10px 13px;font-size:.75rem;font-weight:900;cursor:pointer;
+}
+.nexlab-user-error-close{background:#fff;color:#475569;border:1px solid rgba(14,31,61,.13)!important;}
+.nexlab-user-error-feedback{background:#fff7ed;color:#9a3412;border:1px solid #fdba74!important;}
+.nexlab-user-error-retry{background:linear-gradient(135deg,#991b1b,#dc2626);color:#fff;}
+.nexlab-v261-partial-actions{display:flex;align-items:center;gap:8px;flex:none;}
+@media(max-width:720px){
+  .nexlab-user-error-backdrop{align-items:flex-end;padding:12px;}
+  .nexlab-user-error-card{border-radius:24px 24px 18px 18px;}
+  .nexlab-user-error-actions{flex-direction:column-reverse;}
+  .nexlab-user-error-actions button{width:100%;padding:13px 14px;}
+  .nexlab-v261-partial-actions{width:100%;display:grid;grid-template-columns:1fr 1fr;}
+}

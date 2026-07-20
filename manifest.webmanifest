@@ -1,8 +1,8 @@
 {
   "id": "./",
-  "name": "NEXLAB Beta 0.26.18",
+  "name": "NEXLAB Beta 0.26.19",
   "short_name": "NEXLAB",
-  "description": "NEXLAB Beta 0.26.18 — visibilidade contextual por perfil, sem indicadores gerenciais para Bolsistas e Coworking Júnior.",
+  "description": "NEXLAB Beta 0.26.19 — tratamento global de erros, tentativa de recuperação e Feedback assistido com código de referência.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

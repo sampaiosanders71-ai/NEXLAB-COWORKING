@@ -2,7 +2,7 @@
   if (window.__NEXLAB_BOOTSTRAP_V26_7__) return;
   window.__NEXLAB_BOOTSTRAP_V26_7__ = true;
 
-  const BUILD_IDENTITY = window.__NEXLAB_BUILD_IDENTITY__ || Object.freeze({version:'0.26.18',release:'Beta',revision:'beta-0-26-18-contextual-visibility-by-role',assetRevision:'app-beta-0-26-18-contextual-visibility-by-role',cacheName:'nexlab-beta-0-26-18-contextual-visibility-by-role',generatedAt:'2026-07-20T15:20:00Z'});
+  const BUILD_IDENTITY = window.__NEXLAB_BUILD_IDENTITY__ || Object.freeze({version:'0.26.19',release:'Beta',revision:'beta-0-26-19-global-error-feedback-assist',assetRevision:'app-beta-0-26-19-global-error-feedback-assist',cacheName:'nexlab-beta-0-26-19-global-error-feedback-assist',generatedAt:'2026-07-20T14:54:35Z'});
   const APP_VERSION = BUILD_IDENTITY.version;
   const APP_RELEASE = BUILD_IDENTITY.release;
   const APP_REVISION = BUILD_IDENTITY.revision;
@@ -244,8 +244,8 @@
 
 
   const OBSERVABILITY_VERSION = APP_VERSION;
-  const OBSERVABILITY_QUEUE_KEY = 'nexlab:observability:queue:v0.26.18';
-  const OBSERVABILITY_DEDUP_KEY = 'nexlab:observability:dedup:v0.26.18';
+  const OBSERVABILITY_QUEUE_KEY = 'nexlab:observability:queue:v0.26.19';
+  const OBSERVABILITY_DEDUP_KEY = 'nexlab:observability:dedup:v0.26.19';
   const OBSERVABILITY_RPC = 'nexlab_record_client_error_v26_7_4';
   const OBSERVABILITY_MAX_QUEUE = 20;
   const OBSERVABILITY_DEDUP_MS = 5 * 60 * 1000;
@@ -460,7 +460,7 @@
       if (!observabilityDedupAllowed(fingerprint)) {
         observabilityState.dropped += 1;
         observabilityPublishState();
-        return;
+        return fingerprint;
       }
 
       const metadata = observabilitySanitizeMetadata(input?.metadata);
@@ -497,7 +497,10 @@
 
       observabilityPublishState();
       window.setTimeout(observabilityFlush, 350);
-    } catch {}
+      return fingerprint;
+    } catch {
+      return '';
+    }
   }
 
   async function observabilityFlush(){
@@ -572,13 +575,152 @@
     }
   }
 
+
+  const USER_ERROR_CONTEXT_KEY = 'nexlab:feedback-assist:context:v0.26.19';
+  const USER_ERROR_STATE_KEY = 'nexlab:user-error-state:v0.26.19';
+  const USER_ERROR_MESSAGE = 'Erro, tente novamente. Se o erro persistir, informe o problema no Feedback para ser corrigido.';
+  const USER_ERROR_REPEAT_MS = 90 * 1000;
+  const USER_ERROR_BURST_MS = 5 * 60 * 1000;
+  const USER_ERROR_BURST_LIMIT = 3;
+  let userErrorState = observabilityReadJson(USER_ERROR_STATE_KEY, { fingerprints:{}, notices:[] });
+  if (!userErrorState || typeof userErrorState !== 'object') {
+    userErrorState = { fingerprints:{}, notices:[] };
+  }
+
+  function userErrorPersistState(){
+    try {
+      sessionStorage.setItem(USER_ERROR_STATE_KEY, JSON.stringify(userErrorState));
+    } catch {}
+  }
+
+  function userErrorExcluded(input){
+    const text = `${input?.message || ''} ${input?.stack || ''}`.toLowerCase();
+    if (!text.trim()) return true;
+    if (isExpectedAbort(input?.error)) return true;
+    if (navigator.onLine === false) return true;
+    return /(?:failed to fetch|networkerror|network request failed|load failed|internet|offline|sem conexão|conexão caiu|http\s*(?:0|401|403|502|503|504)|jwt|token expir|session|sessão expir|não autenticad|autenticação obrigatória|password|senha|dynamic import|dynamically imported module|chunkloaderror|loading chunk|module script|service worker|update available|atualização disponível)/i.test(text);
+  }
+
+  function userErrorReference(fingerprint){
+    const cleanVersion = String(APP_VERSION || '0').replace(/\D/g,'').slice(-6).padStart(3,'0');
+    return `NXL-${cleanVersion}-${String(fingerprint || '00000000').slice(0,8).toUpperCase()}`;
+  }
+
+  function userErrorActionLabel(input){
+    const explicit = observabilitySanitize(input?.action || '', 120);
+    if (explicit) return explicit;
+    const source = String(input?.source || '');
+    if (source === 'module-render') return 'abrir ou renderizar o módulo';
+    if (source === 'partial-load') return 'carregar os dados do módulo';
+    if (source === 'caught-error') return 'concluir a ação solicitada';
+    if (source === 'react-recoverable') return 'atualizar a interface';
+    return 'usar o aplicativo';
+  }
+
+  function userErrorBuildContext(input, fingerprint, reference){
+    const moduleName = observabilitySanitize(
+      input?.module || document.body?.dataset?.nexlabPage || 'não identificado',
+      120
+    ) || 'não identificado';
+    return {
+      reference,
+      fingerprint,
+      module: moduleName,
+      action: userErrorActionLabel(input),
+      occurredAt: new Date().toISOString(),
+      appVersion: APP_VERSION,
+      revision: APP_REVISION,
+      source: observabilitySanitize(input?.source || 'client', 80),
+      online: navigator.onLine !== false,
+      installed: Boolean(
+        window.matchMedia?.('(display-mode: standalone)')?.matches ||
+        navigator.standalone === true
+      ),
+      message: USER_ERROR_MESSAGE
+    };
+  }
+
+  function userErrorNotify(input, fingerprint){
+    try {
+      if (userErrorExcluded(input)) return null;
+      const normalizedFingerprint = String(
+        fingerprint ||
+        observabilityHash(`${input?.source || 'client'}|${input?.module || document.body?.dataset?.nexlabPage || ''}|${input?.message || ''}`)
+      );
+      const now = Date.now();
+      const fingerprints = userErrorState.fingerprints && typeof userErrorState.fingerprints === 'object'
+        ? userErrorState.fingerprints
+        : {};
+      const last = Number(fingerprints[normalizedFingerprint] || 0);
+      const notices = Array.isArray(userErrorState.notices)
+        ? userErrorState.notices.filter((stamp) => now - Number(stamp) < USER_ERROR_BURST_MS)
+        : [];
+
+      if (last && now - last < USER_ERROR_REPEAT_MS) return null;
+      if (notices.length >= USER_ERROR_BURST_LIMIT) {
+        userErrorState = { fingerprints, notices };
+        userErrorPersistState();
+        return null;
+      }
+
+      fingerprints[normalizedFingerprint] = now;
+      const recentEntries = Object.entries(fingerprints)
+        .filter(([, stamp]) => now - Number(stamp) < 24 * 60 * 60 * 1000)
+        .slice(-80);
+      const reference = userErrorReference(normalizedFingerprint);
+      const context = userErrorBuildContext(input, normalizedFingerprint, reference);
+      userErrorState = {
+        fingerprints: Object.fromEntries(recentEntries),
+        notices: [...notices, now]
+      };
+      userErrorPersistState();
+      try {
+        sessionStorage.setItem(USER_ERROR_CONTEXT_KEY, JSON.stringify(context));
+      } catch {}
+      emit('nexlab:user-error', context);
+      return context;
+    } catch {
+      return null;
+    }
+  }
+
+  function reportDetectedUserError(input){
+    const raw = input && typeof input === 'object' ? input : { message:String(input || '') };
+    if (userErrorExcluded(raw)) return null;
+    const moduleName = raw.module || document.body?.dataset?.nexlabPage || '';
+    const fingerprint = observabilityHash(
+      raw.fingerprint ||
+      `${raw.source || 'client'}|${moduleName}|${String(raw.message || '').slice(0,300)}`
+    );
+    const reference = userErrorReference(fingerprint);
+    observabilityQueueEvent({
+      ...raw,
+      module: moduleName,
+      fingerprint,
+      metadata: {
+        ...(raw.metadata && typeof raw.metadata === 'object' ? raw.metadata : {}),
+        user_notice_reference: reference,
+        user_notice_shown: true
+      }
+    });
+    return userErrorNotify(raw, fingerprint);
+  }
+
+  window.nexlabReportUserError = reportDetectedUserError;
+  window.__NEXLAB_ERROR_ASSIST__ = Object.freeze({
+    version: APP_VERSION,
+    contextKey: USER_ERROR_CONTEXT_KEY,
+    report: reportDetectedUserError
+  });
+
   window.addEventListener('error', (event) => {
     const cause = event.error?.cause || event.error;
-    observabilityQueueEvent({
+    reportDetectedUserError({
       source: 'window.error',
       severity: 'error',
       message: cause?.message || event.message || 'Erro JavaScript não tratado.',
       stack: cause?.stack || event.error?.stack || '',
+      error: cause,
       metadata: {
         filename: observabilitySanitize(event.filename || '', 300),
         line: Number(event.lineno || 0),
@@ -595,11 +737,12 @@
       event.preventDefault();
       return;
     }
-    observabilityQueueEvent({
+    reportDetectedUserError({
       source: 'unhandledrejection',
       severity: 'error',
       message: reason?.message || String(reason || 'Promise rejeitada sem tratamento.'),
-      stack: reason?.stack || ''
+      stack: reason?.stack || '',
+      error: reason
     });
   });
 
@@ -616,7 +759,7 @@
     const occurrences = recent.length;
     const serious = /removeChild|Maximum call stack|recursion|Maximum update depth|Minified React error #185/i.test(combined);
     const chunkMatch = combined.match(/assets\/(nexlab-[^\s):]+\.js|index-[^\s):]+\.js)/i);
-    observabilityQueueEvent({
+    const recoverablePayload = {
       source: 'react-recoverable',
       severity: serious || occurrences >= 3 ? 'critical' : 'warning',
       message: detail.message || 'O React recuperou uma falha de renderização concorrente.',
@@ -628,7 +771,9 @@
         occurrences,
         chunk: observabilitySanitize(chunkMatch?.[1] || '', 180)
       }
-    });
+    };
+    if (serious || occurrences >= 3) reportDetectedUserError(recoverablePayload);
+    else observabilityQueueEvent(recoverablePayload);
   });
 
   window.addEventListener('nexlab:realtime-cleanup-error', (event) => {
@@ -644,12 +789,13 @@
   });
 
   window.addEventListener('nexlab:module-render-error', (event) => {
-    observabilityQueueEvent({
+    reportDetectedUserError({
       source: 'module-render',
       severity: 'critical',
       message: event.detail?.message || 'Falha protegida de renderização.',
       stack: event.detail?.stack || '',
       module: event.detail?.module || document.body?.dataset?.nexlabPage || '',
+      action: 'abrir ou renderizar o módulo',
       metadata: {
         component: observabilitySanitize(event.detail?.component || '', 160)
       }
@@ -669,6 +815,36 @@
       }
     });
   });
+
+
+  const nativeConsoleError = console.error.bind(console);
+  console.error = function(...args){
+    nativeConsoleError(...args);
+    try {
+      const leadingText = args
+        .filter((item) => typeof item === 'string')
+        .join(' ')
+        .slice(0, 1000);
+      const errorObject = args.find((item) => item instanceof Error)
+        || args.find((item) => item && typeof item === 'object' && typeof item.message === 'string');
+      const message = errorObject?.message
+        ? `${leadingText ? leadingText + ' ' : ''}${errorObject.message}`
+        : leadingText;
+      if (
+        message &&
+        /(?:^|\s)(?:erro ao|falha ao|não foi possível|erro inesperado|falha inesperada)/i.test(message)
+      ) {
+        reportDetectedUserError({
+          source: 'caught-error',
+          severity: 'error',
+          message,
+          stack: errorObject?.stack || '',
+          error: errorObject,
+          action: 'concluir a ação solicitada'
+        });
+      }
+    } catch {}
+  };
 
   const COMPATIBILITY_MARKER_KEY = 'nexlab:compatibility-asset:last';
   function reportCompatibilityAsset(detail){
@@ -705,7 +881,7 @@
     }
   } catch {}
 
-  const PERFORMANCE_ALERT_STATE_KEY = 'nexlab:performance-alert-state:v0.26.18';
+  const PERFORMANCE_ALERT_STATE_KEY = 'nexlab:performance-alert-state:v0.26.19';
   const PERFORMANCE_ALERT_MIN_INTERVAL_MS = 10 * 60 * 1000;
   let performanceAlertState = observabilityReadJson(PERFORMANCE_ALERT_STATE_KEY, {
     degraded: false,
@@ -807,7 +983,7 @@
     performanceState.capturedAt = new Date().toISOString();
     window.__NEXLAB_PERFORMANCE__ = Object.freeze({ ...performanceState });
     try {
-      sessionStorage.setItem('nexlab:performance:v0.26.18', JSON.stringify(performanceState));
+      sessionStorage.setItem('nexlab:performance:v0.26.19', JSON.stringify(performanceState));
     } catch {}
     emit('nexlab:performance-metrics', { ...performanceState });
   }
