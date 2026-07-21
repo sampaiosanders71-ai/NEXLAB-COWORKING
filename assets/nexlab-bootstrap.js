@@ -2,11 +2,16 @@
   if (window.__NEXLAB_BOOTSTRAP_V26_7__) return;
   window.__NEXLAB_BOOTSTRAP_V26_7__ = true;
 
-  const BUILD_IDENTITY = window.__NEXLAB_BUILD_IDENTITY__ || Object.freeze({version:'0.26.22',release:'Beta',revision:'beta-0-26-22-feedback-resolved-bulk-delete',assetRevision:'app-beta-0-26-22-feedback-resolved-bulk-delete',cacheName:'nexlab-beta-0-26-22-feedback-resolved-bulk-delete',generatedAt:'2026-07-21T05:43:57Z'});
+  const BUILD_IDENTITY = window.__NEXLAB_BUILD_IDENTITY__ || Object.freeze({version:'0.26.22',release:'Beta',revision:'beta-0-26-22-ui-clarity',assetRevision:'app-beta-0-26-22-ui-clarity',cacheName:'nexlab-beta-0-26-22-ui-clarity',generatedAt:'2026-07-21T14:36:20Z'});
   const APP_VERSION = BUILD_IDENTITY.version;
   const APP_RELEASE = BUILD_IDENTITY.release;
   const APP_REVISION = BUILD_IDENTITY.revision;
   window.__NEXLAB_RELEASE__ = BUILD_IDENTITY;
+
+  window.setTimeout(() => {
+    const recovery = document.getElementById('nexlab-startup-recovery');
+    if (recovery) recovery.classList.add('is-visible');
+  }, 8000);
 
   const nativeFetch = window.fetch ? window.fetch.bind(window) : null;
   const nativeAlert = window.alert ? window.alert.bind(window) : function(){};
@@ -159,6 +164,45 @@
     }
   };
 
+  async function nexlabFetchWithDeadline(input, init, timeoutMs){
+    const deadline = Math.max(1000, Number(timeoutMs) || 0);
+    if (!deadline || typeof AbortController === 'undefined' || signalFrom(input, init)) {
+      return nativeFetch(input, init);
+    }
+    const controller = new AbortController();
+    const timer = window.setTimeout(() => {
+      try { controller.abort(new DOMException('Tempo de comunicação excedido.', 'TimeoutError')); }
+      catch { controller.abort(); }
+    }, deadline);
+    try {
+      return await nativeFetch(input, Object.assign({}, init || {}, { signal: controller.signal }));
+    } finally {
+      window.clearTimeout(timer);
+    }
+  }
+
+  // Impede que uma trava interna do armazenamento de sessão mantenha a PWA
+  // indefinidamente na tela nativa de abertura.
+  window.nexlabAuthSessionWithTimeout = async function(authClient, timeoutMs = 4500){
+    let timer = null;
+    try {
+      return await Promise.race([
+        authClient.getSession(),
+        new Promise((resolve) => {
+          timer = window.setTimeout(() => resolve({
+            data: { session: null },
+            error: { name: 'NexlabStartupTimeout', message: 'A restauração da sessão excedeu o tempo seguro.' },
+            nexlabTimedOut: true
+          }), Math.max(2500, Number(timeoutMs) || 4500));
+        })
+      ]);
+    } catch (error) {
+      return { data: { session: null }, error, nexlabFailed: true };
+    } finally {
+      if (timer) window.clearTimeout(timer);
+    }
+  };
+
   async function fetchAndMonitor(input, init, target, method, isSupabase){
     const requestClass = isSupabase ? classifySupabaseRequest(target, method) : { readOnly:false, background:false, mutating:false, rpcName:"" };
     const isMutatingSupabase = isSupabase && requestClass.mutating;
@@ -174,7 +218,12 @@
     }
 
     try {
-      const response = await nativeFetch(input, init);
+      const deadlineMs = isSupabase
+        ? (requestClass.background ? 7000 : (requestClass.readOnly ? 8000 : 30000))
+        : 0;
+      const response = deadlineMs
+        ? await nexlabFetchWithDeadline(input, init, deadlineMs)
+        : await nativeFetch(input, init);
       if (isSupabase) {
         if (response.status === 0 || response.status === 502 || response.status === 503 || response.status === 504 || response.status >= 500) {
           if (!target.includes('/rpc/nexlab_record_client_error_v26_7_4') && !target.includes('/rpc/nexlab_record_client_error_v26_7')) {

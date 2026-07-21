@@ -6227,3 +6227,72 @@ html.nexlab-push-consent-open body{overflow:hidden}
 .nexlab-evidence-admin-actions{display:flex;gap:7px;flex-wrap:wrap}.nexlab-evidence-admin-actions button{border:1px solid #cbd5e1;background:#fff;color:#0e1f3d;border-radius:9px;padding:7px 9px;font-size:.65rem;font-weight:800;cursor:pointer}.nexlab-evidence-admin-actions button.danger{color:#b42318;border-color:#fecaca}.nexlab-evidence-admin-actions button:disabled{opacity:.55;cursor:wait}
 .nexlab-evidence-global-status{position:fixed;right:18px;bottom:18px;z-index:10050;max-width:min(420px,calc(100vw - 36px));border-radius:14px;padding:12px 14px;background:#0e1f3d;color:#fff;box-shadow:0 16px 38px rgba(15,23,42,.25);font-size:.76rem;font-weight:750;line-height:1.45}.nexlab-evidence-global-status[data-type="error"]{background:#8f1d1d}.nexlab-evidence-global-status[data-type="success"]{background:#12633d}
 @media(max-width:640px){.nexlab-evidence-heading,.nexlab-evidence-admin-item{align-items:stretch}.nexlab-evidence-admin-actions{width:100%}.nexlab-evidence-admin-actions button{flex:1}.nexlab-evidence-global-status{left:18px;right:18px}}
+
+/* Beta 0.26.22 — clareza visual, campos consistentes e ajuda contextual */
+.nexlab-module-help-host{position:relative!important;padding-right:4.25rem!important;}
+.nexlab-module-help-button{
+  position:absolute!important;top:1rem!important;right:1rem!important;z-index:8!important;
+  width:2.55rem!important;height:2.55rem!important;min-width:2.55rem!important;min-height:2.55rem!important;
+  display:grid!important;place-items:center!important;border-radius:999px!important;
+  border:1px solid rgba(14,31,61,.18)!important;background:rgba(255,255,255,.96)!important;
+  color:#0E1F3D!important;font:900 1.05rem/1 system-ui,sans-serif!important;
+  box-shadow:0 8px 22px rgba(14,31,61,.13)!important;cursor:pointer!important;
+  transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease!important;
+}
+.nexlab-module-help-button:hover{transform:translateY(-1px)!important;border-color:rgba(10,107,255,.45)!important;box-shadow:0 10px 28px rgba(10,107,255,.16)!important;}
+.nexlab-module-help-button:focus-visible{outline:3px solid rgba(10,107,255,.25)!important;outline-offset:3px!important;}
+body[data-nexlab-page="dashboard"] .module-header .nexlab-module-help-button{background:rgba(255,255,255,.13)!important;color:#fff!important;border-color:rgba(255,255,255,.30)!important;backdrop-filter:blur(10px)!important;}
+.nexlab-module-intro-collapsed{display:none!important;}
+
+main .nexlab-visible-field,
+main input:not([type]):not([hidden]),
+main input:is([type="text"],[type="email"],[type="password"],[type="search"],[type="tel"],[type="url"],[type="number"],[type="date"],[type="time"],[type="datetime-local"],[type="month"],[type="week"],[type="file"]),
+main select,main textarea,main [contenteditable="true"]{
+  box-sizing:border-box!important;min-height:44px!important;
+  border:1.5px solid rgba(51,65,85,.34)!important;border-radius:12px!important;
+  background:#fff!important;color:#0F172A!important;
+  box-shadow:0 1px 2px rgba(15,23,42,.05),inset 0 0 0 1px rgba(255,255,255,.42)!important;
+  transition:border-color .15s ease,box-shadow .15s ease,background .15s ease!important;
+}
+main textarea.nexlab-visible-field,main textarea{min-height:112px!important;resize:vertical!important;}
+main input[type="file"].nexlab-visible-field,main input[type="file"]{padding:.5rem!important;}
+main input[type="file"]::file-selector-button{border:0!important;border-radius:9px!important;padding:.55rem .75rem!important;margin-right:.65rem!important;background:#EAF2FF!important;color:#0751C9!important;font-weight:800!important;cursor:pointer!important;}
+main .nexlab-visible-field:hover:not(:disabled):not([aria-disabled="true"]),
+main input:not([type]):not([hidden]):hover:not(:disabled),
+main input:is([type="text"],[type="email"],[type="password"],[type="search"],[type="tel"],[type="url"],[type="number"],[type="date"],[type="time"],[type="datetime-local"],[type="month"],[type="week"],[type="file"]):hover:not(:disabled),
+main select:hover:not(:disabled),main textarea:hover:not(:disabled){border-color:rgba(10,107,255,.55)!important;}
+main .nexlab-visible-field:focus,main .nexlab-visible-field:focus-visible,
+main input:not([type]):not([hidden]):focus,
+main input:is([type="text"],[type="email"],[type="password"],[type="search"],[type="tel"],[type="url"],[type="number"],[type="date"],[type="time"],[type="datetime-local"],[type="month"],[type="week"],[type="file"]):focus,
+main select:focus,main textarea:focus,main [contenteditable="true"]:focus{
+  outline:none!important;border-color:#0A6BFF!important;
+  box-shadow:0 0 0 4px rgba(10,107,255,.15),0 2px 5px rgba(15,23,42,.07)!important;
+}
+main .nexlab-visible-field[aria-invalid="true"],main input[aria-invalid="true"],main select[aria-invalid="true"],main textarea[aria-invalid="true"]{border-color:#DC2626!important;box-shadow:0 0 0 3px rgba(220,38,38,.12)!important;}
+main .nexlab-visible-field:disabled,main .nexlab-visible-field[aria-disabled="true"],main input:disabled,main select:disabled,main textarea:disabled{background:#F1F5F9!important;color:#64748B!important;border-color:rgba(100,116,139,.24)!important;opacity:1!important;cursor:not-allowed!important;}
+main :where(label,.form-label)[for]{color:#1E293B!important;font-weight:750!important;}
+main :where(input,textarea)::placeholder{color:#7C8A9E!important;opacity:1!important;}
+
+.nexlab-module-help-backdrop{position:fixed;inset:0;z-index:2147483200;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(2,8,23,.58);backdrop-filter:blur(9px);}
+.nexlab-module-help-card{width:min(620px,100%);max-height:min(82vh,760px);display:flex;flex-direction:column;overflow:hidden;border-radius:24px;background:#fff;color:#0F172A;border:1px solid rgba(14,31,61,.12);box-shadow:0 28px 90px rgba(2,8,23,.32);}
+.nexlab-module-help-head{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;padding:1.3rem 1.35rem 1rem;border-bottom:1px solid rgba(14,31,61,.08);background:linear-gradient(135deg,#F8FAFC,#EFF6FF);}
+.nexlab-module-help-kicker{display:block;margin-bottom:.25rem;color:#0751C9;font-size:.72rem;font-weight:900;letter-spacing:.11em;text-transform:uppercase;}
+.nexlab-module-help-head h2{margin:0!important;color:#0E1F3D!important;font-size:1.35rem!important;line-height:1.2!important;letter-spacing:-.02em!important;}
+.nexlab-module-help-close{flex:none;width:2.6rem!important;height:2.6rem!important;min-width:2.6rem!important;display:grid!important;place-items:center!important;border-radius:999px!important;border:1px solid rgba(14,31,61,.12)!important;background:#fff!important;color:#334155!important;font:500 1.55rem/1 system-ui,sans-serif!important;box-shadow:0 4px 14px rgba(15,23,42,.08)!important;cursor:pointer!important;}
+.nexlab-module-help-close:focus-visible{outline:3px solid rgba(10,107,255,.25)!important;outline-offset:2px!important;}
+.nexlab-module-help-body{overflow:auto;padding:1.15rem 1.35rem 1.4rem;overscroll-behavior:contain;}
+.nexlab-module-help-purpose,.nexlab-module-help-section{padding:.95rem 1rem;border-radius:16px;background:#F8FAFC;border:1px solid rgba(14,31,61,.08);}
+.nexlab-module-help-section{margin-top:.75rem;}
+.nexlab-module-help-purpose h3,.nexlab-module-help-section h3{margin:0 0 .45rem!important;color:#0E1F3D!important;font-size:.92rem!important;font-weight:900!important;}
+.nexlab-module-help-purpose p{margin:0!important;color:#475569!important;line-height:1.55!important;font-size:.91rem!important;}
+.nexlab-module-help-section ul{margin:0!important;padding-left:1.2rem!important;color:#475569!important;}
+.nexlab-module-help-section li{margin:.35rem 0!important;line-height:1.48!important;font-size:.9rem!important;}
+
+@media(max-width:640px){
+  .nexlab-module-help-host{padding-right:3.8rem!important;}
+  .nexlab-module-help-button{top:.75rem!important;right:.75rem!important;width:2.45rem!important;height:2.45rem!important;min-width:2.45rem!important;min-height:2.45rem!important;}
+  .nexlab-module-help-backdrop{align-items:flex-end;padding:0;background:rgba(2,8,23,.55);}
+  .nexlab-module-help-card{width:100%;max-height:88vh;border-radius:24px 24px 0 0;border-bottom:0;}
+  .nexlab-module-help-head{padding:1.1rem 1rem .9rem;}
+  .nexlab-module-help-body{padding:1rem 1rem calc(1.2rem + env(safe-area-inset-bottom));}
+}

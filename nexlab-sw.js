@@ -1,5 +1,5 @@
 importScripts('./assets/nexlab-release-identity.js');
-const BUILD_IDENTITY=self.__NEXLAB_BUILD_IDENTITY__||Object.freeze({version:'0.26.22',release:'Beta',revision:'beta-0-26-22-feedback-resolved-bulk-delete',assetRevision:'app-beta-0-26-22-feedback-resolved-bulk-delete',cacheName:'nexlab-beta-0-26-22-feedback-resolved-bulk-delete',generatedAt:'2026-07-21T05:43:57Z'});
+const BUILD_IDENTITY=self.__NEXLAB_BUILD_IDENTITY__||Object.freeze({version:'0.26.22',release:'Beta',revision:'beta-0-26-22-ui-clarity',assetRevision:'app-beta-0-26-22-ui-clarity',cacheName:'nexlab-beta-0-26-22-ui-clarity',generatedAt:'2026-07-21T14:36:20Z'});
 const APP_VERSION=BUILD_IDENTITY.version;
 const APP_RELEASE=BUILD_IDENTITY.release;
 const APP_REVISION=BUILD_IDENTITY.revision;
@@ -7,7 +7,8 @@ const GENERATED_AT=BUILD_IDENTITY.generatedAt;
 const ASSET_REVISION=BUILD_IDENTITY.assetRevision;
 const CACHE_NAME=BUILD_IDENTITY.cacheName;
 const CACHE_PREFIX='nexlab-';
-const NETWORK_TIMEOUT_MS=6000;
+const NETWORK_TIMEOUT_MS=3500;
+const APP_ENTRY_NETWORK_TIMEOUT_MS=1800;
 const MAIN_BUNDLE='index-beta-0-26-12.js';
 const VENDOR_BUNDLE='nexlab-vendor-beta-0-26-12.js';
 const SHARED_BUNDLE='nexlab-app-shared-beta-0-26-12.js';
@@ -169,6 +170,14 @@ function timeout(milliseconds){
   return new Promise((_,reject)=>setTimeout(()=>reject(new Error('Tempo de rede excedido.')),milliseconds));
 }
 
+async function fetchWithTimeout(request,milliseconds){
+  if(typeof AbortController==='undefined')return Promise.race([fetch(request),timeout(milliseconds)]);
+  const controller=new AbortController();
+  const timer=setTimeout(()=>{try{controller.abort();}catch{}},milliseconds);
+  try{return await fetch(new Request(request,{signal:controller.signal}));}
+  finally{clearTimeout(timer);}
+}
+
 function expectedKind(request,url){
   const destination=request.destination;
   if(destination==='script'||/\.js$/i.test(url.pathname))return 'script';
@@ -293,7 +302,7 @@ async function cacheValidResponse(request,response,kind){
 
 async function networkFirst(request,{timeoutMs=NETWORK_TIMEOUT_MS,fallback,kind}={}){
   try{
-    const response=await Promise.race([fetch(new Request(request,{cache:'no-store'})),timeout(timeoutMs)]);
+    const response=await fetchWithTimeout(new Request(request,{cache:'no-store'}),timeoutMs);
     await cacheValidResponse(request,response,kind);
     return response;
   }catch(error){
@@ -311,10 +320,9 @@ async function networkFirst(request,{timeoutMs=NETWORK_TIMEOUT_MS,fallback,kind}
 async function cacheFirst(request,kind){
   const current=await currentCacheMatch(request,{ignoreSearch:false});
   if(current)return current;
-  if(isRequiredShellRequest(request))throw new Error(`Arquivo obrigatório ausente no cache atual: ${request.url}`);
   const compatible=await compatibleAssetMatch(request,{ignoreSearch:false});
   if(compatible)return compatible;
-  const response=await fetch(new Request(request,{cache:'no-store'}));
+  const response=await fetchWithTimeout(new Request(request,{cache:'no-store'}),NETWORK_TIMEOUT_MS);
   if(!(await cacheValidResponse(request,response,kind)))throw new Error(`Ativo inválido: ${request.url}`);
   return response;
 }
@@ -330,14 +338,21 @@ function isAppEntryNavigation(url){
 }
 
 async function appEntryNavigation(request,event){
-  const cachedIndex=await currentCacheMatch(INDEX_URL,{ignoreSearch:true});
+  // A abertura pelo ícone nunca deve esperar a rede quando existe shell local.
+  const cachedIndex=await currentCacheMatch(INDEX_URL,{ignoreSearch:true})
+    || await compatibleAssetMatch(INDEX_URL,{ignoreSearch:true});
+  if(cachedIndex){
+    // A verificação remota ocorre em segundo plano; o gerenciador de atualização
+    // continua responsável por ativar uma nova revisão sem misturar caches.
+    event.waitUntil(fetchWithTimeout(new Request(request,{cache:'no-store'}),APP_ENTRY_NETWORK_TIMEOUT_MS).catch(()=>null));
+    return cachedIndex;
+  }
   try{
-    const response=await Promise.race([fetch(new Request(request,{cache:'no-store'})),timeout(NETWORK_TIMEOUT_MS)]);
+    const response=await fetchWithTimeout(new Request(request,{cache:'no-store'}),APP_ENTRY_NETWORK_TIMEOUT_MS);
     if(!(await isCanonicalAppShell(response)))throw new Error('O index.html da rede é inválido ou pertence a outra revisão.');
-    return cachedIndex||response;
+    return response;
   }catch{
-    return cachedIndex
-      || (await currentCacheMatch(OFFLINE_URL,{ignoreSearch:true}))
+    return (await compatibleAssetMatch(OFFLINE_URL,{ignoreSearch:true}))
       || new Response('<!doctype html><meta charset="utf-8"><title>NEXLAB offline</title><h1>NEXLAB offline</h1><p>Reconecte-se e tente novamente.</p>',{status:503,headers:{'Content-Type':'text/html; charset=utf-8'}});
   }
 }
@@ -346,7 +361,7 @@ async function documentNavigation(request,event){
   const cached=await currentCacheMatch(request,{ignoreSearch:false});
   if(isRequiredShellRequest(request)&&cached)return cached;
   try{
-    const response=await Promise.race([fetch(new Request(request,{cache:'no-store'})),timeout(NETWORK_TIMEOUT_MS)]);
+    const response=await fetchWithTimeout(new Request(request,{cache:'no-store'}),NETWORK_TIMEOUT_MS);
     if(!responseIsCacheable(request,response,'html'))throw new Error('Documento HTML inválido.');
     if(!isRequiredShellRequest(request)){const cache=await caches.open(CACHE_NAME);await cache.put(request,response.clone());}
     return response;

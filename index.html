@@ -10,38 +10,63 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="NEXLAB" />
-    <meta name="description" content="Gestão interna do Coworking Space UEMA Timon — Beta 0.26.22 com evidências visuais privadas no Feedback, autenticação segura e notificações guiadas." />
+    <meta name="description" content="Gestão interna do Coworking Space UEMA Timon — Beta 0.26.22 com formulários padronizados, interface mais objetiva e ajuda contextual por módulo." />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; frame-ancestors 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://*.supabase.co; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.r2.cloudflarestorage.com; worker-src 'self'; manifest-src 'self'; media-src 'none';" />
     <title>NEXLAB Beta 0.26.22</title>
-    <!-- NEXLAB Beta 0.26.22: evidências visuais privadas no Feedback, autenticação segura e Push guiado. -->
+    <style id="nexlab-startup-shell-style">
+      html,body,#root{min-height:100%;margin:0}body{background:#f5f6f8;color:#10233f;font-family:Arial,sans-serif}
+      .nexlab-startup-shell{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:28px;box-sizing:border-box;text-align:center}
+      .nexlab-startup-card{width:min(360px,100%);display:grid;justify-items:center;gap:14px}
+      .nexlab-startup-logo{width:112px;height:112px;object-fit:contain;border-radius:26px}
+      .nexlab-startup-title{margin:0;font-size:22px}.nexlab-startup-status{margin:0;color:#52637b;line-height:1.5}
+      .nexlab-startup-spinner{width:30px;height:30px;border:3px solid #d8e0eb;border-top-color:#0b2a63;border-radius:50%;animation:nexlabStartupSpin .8s linear infinite}
+      .nexlab-startup-recovery{display:none;margin-top:4px;padding:14px;border:1px solid #d9e1eb;border-radius:14px;background:#fff}
+      .nexlab-startup-recovery.is-visible{display:block}.nexlab-startup-retry{display:inline-block;margin-top:10px;padding:10px 16px;border-radius:10px;background:#0b2a63;color:#fff;text-decoration:none;font-weight:700}
+      @keyframes nexlabStartupSpin{to{transform:rotate(360deg)}}@media(prefers-reduced-motion:reduce){.nexlab-startup-spinner{animation:none}}
+    </style>
+    <!-- NEXLAB Beta 0.26.22: clareza visual, campos consistentes e ajuda contextual por módulo. -->
     <link rel="icon" type="image/png" sizes="192x192" href="./icons/nexlab-favicon-rounded.png?v=brand-r38" />
     <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png?v=brand-r38" />
-    <script src="./assets/nexlab-release-identity.js?v=app-beta-0-26-22-feedback-resolved-bulk-delete"></script>
-    <link rel="manifest" href="./manifest.webmanifest?v=app-beta-0-26-22-feedback-resolved-bulk-delete" />
+    <script src="./assets/nexlab-release-identity.js?v=app-beta-0-26-22-ui-clarity"></script>
+    <link rel="manifest" href="./manifest.webmanifest?v=app-beta-0-26-22-ui-clarity" />
     <link rel="dns-prefetch" href="//eahldhabwulnwhuwrhvc.supabase.co" />
     <link rel="preconnect" href="https://eahldhabwulnwhuwrhvc.supabase.co" crossorigin />
-    <link rel="modulepreload" href="./assets/nexlab-vendor-beta-0-26-12.js?v=app-beta-0-26-22-feedback-resolved-bulk-delete" />
-    <link rel="modulepreload" href="./assets/nexlab-app-shared-beta-0-26-12.js?v=app-beta-0-26-22-feedback-resolved-bulk-delete" />
+    <link rel="modulepreload" href="./assets/nexlab-vendor-beta-0-26-12.js?v=app-beta-0-26-22-ui-clarity" />
+    <link rel="modulepreload" href="./assets/nexlab-app-shared-beta-0-26-12.js?v=app-beta-0-26-22-ui-clarity" />
     <link rel="stylesheet" crossorigin href="./assets/index-B1u8eynw.css?v=brand-r38" />
-    <link rel="stylesheet" href="./assets/nexlab-visual.css?v=app-beta-0-26-22-feedback-resolved-bulk-delete" />
-    <script src="./assets/nexlab-bootstrap.js?v=app-beta-0-26-22-feedback-resolved-bulk-delete"></script>
-    <script src="./assets/nexlab-dialogs.js?v=app-beta-0-26-22-feedback-resolved-bulk-delete"></script>
-    <script src="./assets/nexlab-realtime-core-beta-0-26-12.js?v=app-beta-0-26-22-feedback-resolved-bulk-delete"></script>
-    <script defer src="./assets/nexlab-update-manager.js?v=app-beta-0-26-22-feedback-resolved-bulk-delete"></script>
-    <script src="./assets/nexlab-realtime-hub-beta-0-26-12.js?v=app-beta-0-26-22-feedback-resolved-bulk-delete"></script>
-    <script defer src="./assets/nexlab-push-navigation.js?v=app-beta-0-26-22-feedback-resolved-bulk-delete"></script>
-    <script defer src="./assets/nexlab-device-homologation.js?v=app-beta-0-26-22-feedback-resolved-bulk-delete"></script>
-    <script type="module" crossorigin src="./assets/index-beta-0-26-12.js?v=app-beta-0-26-22-feedback-resolved-bulk-delete"></script>
-    <script defer src="./assets/nexlab-pwa-readiness.js?v=app-beta-0-26-22-feedback-resolved-bulk-delete"></script>
-    <script defer src="./assets/nexlab-visual.js?v=app-beta-0-26-22-feedback-resolved-bulk-delete"></script>
-    <script defer src="./assets/nexlab-auth-security.js?v=app-beta-0-26-22-feedback-resolved-bulk-delete"></script>
-    <script defer src="./assets/nexlab-vapid-rotation.js?v=app-beta-0-26-22-feedback-resolved-bulk-delete"></script>
-    <script defer src="./assets/nexlab-push-consent.js?v=app-beta-0-26-22-feedback-resolved-bulk-delete"></script>
-    <script defer src="./assets/nexlab-feedback-evidence.js?v=app-beta-0-26-22-feedback-resolved-bulk-delete"></script>
+    <link rel="stylesheet" href="./assets/nexlab-visual.css?v=app-beta-0-26-22-ui-clarity" />
+    <script src="./assets/nexlab-bootstrap.js?v=app-beta-0-26-22-ui-clarity"></script>
+    <script src="./assets/nexlab-dialogs.js?v=app-beta-0-26-22-ui-clarity"></script>
+    <script src="./assets/nexlab-realtime-core-beta-0-26-12.js?v=app-beta-0-26-22-ui-clarity"></script>
+    <script defer src="./assets/nexlab-update-manager.js?v=app-beta-0-26-22-ui-clarity"></script>
+    <script src="./assets/nexlab-realtime-hub-beta-0-26-12.js?v=app-beta-0-26-22-ui-clarity"></script>
+    <script defer src="./assets/nexlab-push-navigation.js?v=app-beta-0-26-22-ui-clarity"></script>
+    <script defer src="./assets/nexlab-device-homologation.js?v=app-beta-0-26-22-ui-clarity"></script>
+    <script type="module" crossorigin src="./assets/index-beta-0-26-12.js?v=app-beta-0-26-22-ui-clarity"></script>
+    <script defer src="./assets/nexlab-pwa-readiness.js?v=app-beta-0-26-22-ui-clarity"></script>
+    <script defer src="./assets/nexlab-visual.js?v=app-beta-0-26-22-ui-clarity"></script>
+    <script defer src="./assets/nexlab-auth-security.js?v=app-beta-0-26-22-ui-clarity"></script>
+    <script defer src="./assets/nexlab-vapid-rotation.js?v=app-beta-0-26-22-ui-clarity"></script>
+    <script defer src="./assets/nexlab-push-consent.js?v=app-beta-0-26-22-ui-clarity"></script>
+    <script defer src="./assets/nexlab-feedback-evidence.js?v=app-beta-0-26-22-ui-clarity"></script>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <main id="nexlab-startup-shell" class="nexlab-startup-shell" aria-live="polite">
+        <section class="nexlab-startup-card">
+          <img class="nexlab-startup-logo" src="./brand/nexlab-icon.webp?v=brand-r38" alt="NEXLAB" width="112" height="112" />
+          <h1 class="nexlab-startup-title">Abrindo o NEXLAB</h1>
+          <div class="nexlab-startup-spinner" aria-hidden="true"></div>
+          <p class="nexlab-startup-status">Carregando a interface salva no aparelho...</p>
+          <div id="nexlab-startup-recovery" class="nexlab-startup-recovery">
+            <strong>A abertura demorou mais que o esperado.</strong>
+            <p>O NEXLAB interrompeu a espera para não permanecer travado. Tente novamente; seus dados não serão apagados.</p>
+            <a class="nexlab-startup-retry" href="./index.html?nexlabStartupRetry=1">Tentar novamente</a>
+          </div>
+        </section>
+      </main>
+    </div>
     <noscript>O NEXLAB precisa do JavaScript ativado para funcionar.</noscript>
   </body>
 </html>

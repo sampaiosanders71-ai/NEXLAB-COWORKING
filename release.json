@@ -3,11 +3,11 @@
   "display_version": "NEXLAB Beta 0.26.22",
   "release": "Beta",
   "channel": "beta",
-  "revision": "beta-0-26-22-feedback-resolved-bulk-delete",
-  "asset_revision": "app-beta-0-26-22-feedback-resolved-bulk-delete",
-  "generated_at": "2026-07-21T05:43:57Z",
-  "title": "Beta 0.26.22 — exclusão em lote de Feedbacks resolvidos",
-  "cache_name": "nexlab-beta-0-26-22-feedback-resolved-bulk-delete",
+  "revision": "beta-0-26-22-ui-clarity",
+  "asset_revision": "app-beta-0-26-22-ui-clarity",
+  "generated_at": "2026-07-21T14:36:20Z",
+  "title": "Beta 0.26.22 — clareza visual e ajuda contextual",
+  "cache_name": "nexlab-beta-0-26-22-ui-clarity",
   "entry": "index.html",
   "core_files": [
     "index.html",
@@ -106,7 +106,7 @@
     "administrator_receipt_required": true,
     "manual_approval_allowed": false,
     "status": "pending_real_installed_device_for_0.26.22",
-    "build_revision": "beta-0-26-22-feedback-resolved-bulk-delete",
+    "build_revision": "beta-0-26-22-ui-clarity",
     "evidence_revision": "beta-0-26-22-feedback-resolved-bulk-delete",
     "evidence_storage_scoped_by_build_revision": true
   },
@@ -137,7 +137,7 @@
     "feedback_attachment_rls_consolidated": true
   },
   "validation": {
-    "runtime_only": "Bulk deletion with real R2 evidence and physical installed-PWA homologation require post-publication testing.",
+    "runtime_only": "A clareza dos campos, a redução dos textos e a ajuda contextual devem ser confirmadas em aparelho físico após a publicação; a abertura instalada e os testes externos do R2 continuam pendentes.",
     "source_maps_in_public_package": false,
     "sql_in_public_package": false,
     "reports_in_public_package": false,
@@ -149,16 +149,16 @@
     "javascript_imports_verified": true,
     "database_version_verified": true,
     "database_changes_applied": true,
-    "physical_device_test": "pending_real_installed_device_for_0.26.22",
+    "physical_device_test": "pending_installed_pwa_ui_clarity_and_startup_retest",
     "fully_homologated": false,
     "frontend_rpc_contracts_verified": 99,
     "mandatory_shell_files": 44,
     "package_files_including_release_json": 52,
     "inventory_files": 51,
-    "package_uncompressed_bytes": 3093667,
+    "package_uncompressed_bytes": 3129591,
     "direct_replacement_filenames": true,
     "node_syntax_files": 34,
-    "html_local_references_checked": 29,
+    "html_local_references_checked": 31,
     "javascript_local_imports_checked": 38,
     "frontend_rpc_contracts_missing": [],
     "frontend_rpc_contracts_blocked": [],
@@ -186,7 +186,7 @@
     "active_bundle_paths_match_previous_package": true,
     "new_files": [],
     "old_paths_preserved": true,
-    "stale_version_references": 0,
+    "stale_version_references": "0 unintended; the public version remains 0.26.22 and only the internal revision/cache changed.",
     "security_advisor_run": true,
     "security_advisor_new_table_direct_access": "admin_safe_metadata_columns_only; object key, hash and external credentials are not granted",
     "push_onboarding_static_contracts": {
@@ -267,7 +267,20 @@
     "security_advisor_new_rpc": "intentional SECURITY DEFINER; auth.uid, active profile and Administrator role validated internally; anon/public execute revoked",
     "feedback_attachment_rls_consolidated": true,
     "feedback_attachment_rls_initplan_warning_resolved": true,
-    "feedback_attachment_multiple_select_policies_resolved": true
+    "feedback_attachment_multiple_select_policies_resolved": true,
+    "ui_clarity_static_contracts": {
+      "consistent_text_email_password_search_tel_url_number_date_time_file_select_textarea_fields": true,
+      "visible_idle_border": true,
+      "focus_ring": true,
+      "invalid_and_disabled_states": true,
+      "module_help_button": true,
+      "module_help_mobile_bottom_sheet": true,
+      "module_help_keyboard_escape_and_focus_trap": true,
+      "module_access_information_omitted": true,
+      "redundant_module_header_descriptions_collapsed": true,
+      "alerts_errors_deadlines_and_required_guidance_preserved": true
+    },
+    "ui_clarity_runtime_test": "pending_physical_mobile_validation"
   },
   "files": [
     {
@@ -528,11 +541,11 @@
   ],
   "build_identity": {
     "version": "0.26.22",
-    "revision": "beta-0-26-22-feedback-resolved-bulk-delete",
+    "revision": "beta-0-26-22-ui-clarity",
     "homologation_revision": "beta-0-26-22-feedback-resolved-bulk-delete",
-    "asset_revision": "app-beta-0-26-22-feedback-resolved-bulk-delete",
-    "cache_name": "nexlab-beta-0-26-22-feedback-resolved-bulk-delete",
-    "generated_at": "2026-07-21T05:43:57Z"
+    "asset_revision": "app-beta-0-26-22-ui-clarity",
+    "cache_name": "nexlab-beta-0-26-22-ui-clarity",
+    "generated_at": "2026-07-21T14:36:20Z"
   },
   "external_feedback_evidence": {
     "provider": "cloudflare_r2",
@@ -605,5 +618,276 @@
     "public_execute": false,
     "audit_action": "feedback_status_updated with operation bulk_delete_resolved",
     "runtime_test": "pending_post_publication_admin_test"
-  }
+  },
+  "pwa_startup_hotfix": {
+    "installed_app_entry": "cache_first_immediate",
+    "network_refresh": "background_non_blocking",
+    "app_entry_network_timeout_ms": 1800,
+    "general_same_origin_network_timeout_ms": 3500,
+    "supabase_read_timeout_ms": 8000,
+    "supabase_background_timeout_ms": 7000,
+    "supabase_mutation_timeout_ms": 30000,
+    "auth_session_restore_timeout_ms": 4500,
+    "static_startup_shell": true,
+    "startup_recovery_visible_after_ms": 8000,
+    "compatible_previous_cache_fallback": true,
+    "user_data_cleared_on_timeout": false
+  },
+  "inventory": [
+    {
+      "path": ".nojekyll",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "404.html",
+      "bytes": 1417,
+      "sha256": "1256576a3997746652ed7bff7411ab6ff022811bdf61559335a389cee52c82a4"
+    },
+    {
+      "path": "assets/index-B1u8eynw.css",
+      "bytes": 120457,
+      "sha256": "0127846715ea8ec958303505dca6f7aa92bd9b4be1414ccb21fb7c9a1170ba0e"
+    },
+    {
+      "path": "assets/index-R56v263122rc17.js",
+      "bytes": 867,
+      "sha256": "131f082221b6824a623a4b4b947e0aa769e0527aaa13d38cc8e3f33772fac73e"
+    },
+    {
+      "path": "assets/index-beta-0-26-11.js",
+      "bytes": 861,
+      "sha256": "14acceb8cf016707d17a13e93de5018af3664525322aa6d5f5e430c1924b1933"
+    },
+    {
+      "path": "assets/index-beta-0-26-12.js",
+      "bytes": 61131,
+      "sha256": "fa1029093bd6328b16ac7b09765a0a85ad01e7a74b347464fa4796ed64a53824"
+    },
+    {
+      "path": "assets/nexlab-app-shared-beta-0-26-11.js",
+      "bytes": 683,
+      "sha256": "9784292faf229d9ed52c20c13d5b865ffc9f341c27c077e14a8684cce84e9dc3"
+    },
+    {
+      "path": "assets/nexlab-app-shared-beta-0-26-12.js",
+      "bytes": 224132,
+      "sha256": "0a4e0569a9d7f4f04ef44cc8e2984147644461f403925d98636966bd6fe24efc"
+    },
+    {
+      "path": "assets/nexlab-app-shared-r56022rc17.js",
+      "bytes": 685,
+      "sha256": "e5fc9a51d98901e635f95006f30af5e3c27634e045ccec1a2ee31e97ea9adbb4"
+    },
+    {
+      "path": "assets/nexlab-auth-security.js",
+      "bytes": 12013,
+      "sha256": "5ce3f203a7c4a0cca8038df4a5660ac5e2ef4d5c09db3c1f3dd02eaaa3551036"
+    },
+    {
+      "path": "assets/nexlab-bootstrap.js",
+      "bytes": 43387,
+      "sha256": "07271f6182555207aab78faf5904ca4346a6eafaf84570ac93a0ccaf855c5d58"
+    },
+    {
+      "path": "assets/nexlab-device-homologation.js",
+      "bytes": 9596,
+      "sha256": "a39d318cdd9013d64ecf794e6d2380820a2b5ef3c0224612467c26688d904058"
+    },
+    {
+      "path": "assets/nexlab-dialogs.js",
+      "bytes": 5969,
+      "sha256": "9e9f605129c86f05c6334a769b40d8dcc293e2a8ff8cc695314d0428f3f4c1f4"
+    },
+    {
+      "path": "assets/nexlab-export-vendor-beta-0-26-11.js",
+      "bytes": 689,
+      "sha256": "a96aa2e6ccd8d5b2e3ac5da08d138f71d5a632313fa90a27570ad724ab9b6ead"
+    },
+    {
+      "path": "assets/nexlab-export-vendor-beta-0-26-12.js",
+      "bytes": 853209,
+      "sha256": "9736b987d47225cb1d2093bce9b648ad7771cc8cb2ff50e25d188f45c1992822"
+    },
+    {
+      "path": "assets/nexlab-export-vendor.js",
+      "bytes": 680,
+      "sha256": "47849a2303ff6d15e9fa34fd743a4e571ad317ceb16598eb5b8ebbbb0c499764"
+    },
+    {
+      "path": "assets/nexlab-feature-modules-beta-0-26-11.js",
+      "bytes": 693,
+      "sha256": "5ff91c64364f3944c82d1a41f41d149ad556a26e050c620ba706ad26ceb59126"
+    },
+    {
+      "path": "assets/nexlab-feature-modules-beta-0-26-12.js",
+      "bytes": 533855,
+      "sha256": "3ae65bfcc5035f4b09f7ba7899ae35b761fa014a907282169c7e91c222eac415"
+    },
+    {
+      "path": "assets/nexlab-feature-modules-r56022rc17.js",
+      "bytes": 695,
+      "sha256": "63ee45eec9c75583fb0a6429d7da2581d72e7868fa022ee6578049e1712489c0"
+    },
+    {
+      "path": "assets/nexlab-feedback-evidence.js",
+      "bytes": 22947,
+      "sha256": "e7ea4640d5f3a326dd6326539a13d8b2bd6a1b67bf5ad9678a4936b2f41ef2d4"
+    },
+    {
+      "path": "assets/nexlab-push-consent.js",
+      "bytes": 13289,
+      "sha256": "dcdeb0ff7634d75721fb2b993060bc9f5cdb2df7e51abe3caf9b7a27b2b8ffce"
+    },
+    {
+      "path": "assets/nexlab-push-navigation.js",
+      "bytes": 8667,
+      "sha256": "df1dbd98cac018dc0d5b0536d7536bbfbffa5429be8dfd321df9b71298f96671"
+    },
+    {
+      "path": "assets/nexlab-pwa-readiness.js",
+      "bytes": 25135,
+      "sha256": "355dd09a6f0409f958b8c11e8060b1be78239797bcd3cda9316ca8630fddb95a"
+    },
+    {
+      "path": "assets/nexlab-realtime-core-beta-0-26-11.js",
+      "bytes": 11721,
+      "sha256": "45b43712946347b3acf67e37af4ad4aaba7dce7cbe52d8c721de90eaf84bc489"
+    },
+    {
+      "path": "assets/nexlab-realtime-core-beta-0-26-12.js",
+      "bytes": 11154,
+      "sha256": "6b9dd6548e7b5ddf7cf5f53e9c844c9cf82cd3197dcfeea2e0e3a6b687a3fa31"
+    },
+    {
+      "path": "assets/nexlab-realtime-core-r56022rc17.js",
+      "bytes": 11805,
+      "sha256": "8878bc874e6216bf50bed1a5b7bed37f2af8c828148eecd2379bdd9b11d1a3bf"
+    },
+    {
+      "path": "assets/nexlab-realtime-hub-beta-0-26-11.js",
+      "bytes": 3807,
+      "sha256": "a007aee578dc1721cd292400a699338934edb551ffa368a617de4b94dbdaa306"
+    },
+    {
+      "path": "assets/nexlab-realtime-hub-beta-0-26-12.js",
+      "bytes": 3241,
+      "sha256": "9f1102a27e7cbba6df874732493915226e4ddbaa8625c26146aca185123eb7e1"
+    },
+    {
+      "path": "assets/nexlab-realtime-hub-r56022rc17.js",
+      "bytes": 3891,
+      "sha256": "9e7475242070da8432f21e9cca411eac839e2f4e0ce1af27fd41acdabe128e09"
+    },
+    {
+      "path": "assets/nexlab-release-identity.js",
+      "bytes": 688,
+      "sha256": "a7f953b540e6bbd255bc30cef2815c5a576f1eedb60ce4603119eff0e2c76fdb"
+    },
+    {
+      "path": "assets/nexlab-update-manager.js",
+      "bytes": 20752,
+      "sha256": "75c94a2915853be208182c81e0aa2e77199824147f836122da3353b142a5ecf3"
+    },
+    {
+      "path": "assets/nexlab-vapid-rotation.js",
+      "bytes": 5530,
+      "sha256": "2219abb2647da2f3bff9ace79ff95c9eae91ca37b9ae1608bb38c8820d6cc0e8"
+    },
+    {
+      "path": "assets/nexlab-vendor-beta-0-26-11.js",
+      "bytes": 675,
+      "sha256": "ac311279d102afeffb812bf73153413af9d5f335c7ebbc42d0fb9cb18a75eabb"
+    },
+    {
+      "path": "assets/nexlab-vendor-beta-0-26-12.js",
+      "bytes": 426242,
+      "sha256": "9b16549729ceaae60c38bf0c73db676d6b6180aa278d48c4746cd1a90758cc58"
+    },
+    {
+      "path": "assets/nexlab-vendor-r56022rc17.js",
+      "bytes": 677,
+      "sha256": "a783f8390edd1e2e104ac0f3632c91393d6e8f6a3fd4cdc666a372e9763d2dac"
+    },
+    {
+      "path": "assets/nexlab-visual.css",
+      "bytes": 171707,
+      "sha256": "24c137d35408df02b6911904ea60445c7e57d2dafc7d4c0372c48de079bd0c1d"
+    },
+    {
+      "path": "assets/nexlab-visual.js",
+      "bytes": 52475,
+      "sha256": "910841a67d922b1f612bc1fcceda523f485e95f620e8d4fef60fa94fc8db2d59"
+    },
+    {
+      "path": "brand/nexlab-icon.webp",
+      "bytes": 43576,
+      "sha256": "30f5c7e9953f77fd3ab91ddaa68ee5c7b44594673205ef0f8785ad1235e5851b"
+    },
+    {
+      "path": "brand/nexlab-logo-dark.webp",
+      "bytes": 32248,
+      "sha256": "7e56e9cd431475e9b0832136d99483546d1892b0bd9a01e9abe412776a235cac"
+    },
+    {
+      "path": "brand/nexlab-logo-light.webp",
+      "bytes": 19668,
+      "sha256": "d49a57ae415cb2be23363ab1db487cb410ac99eeb7f4a18e046a541fa07ce4be"
+    },
+    {
+      "path": "icons/apple-touch-icon.png",
+      "bytes": 18733,
+      "sha256": "b515e55114ce9359427e1dd593f4e6ea1c897112b268689bad409f282418da0f"
+    },
+    {
+      "path": "icons/nexlab-192.png",
+      "bytes": 19050,
+      "sha256": "9864fd76034f4566298d7ed9763f2ca3cc065364ce46246a7eb81a832ab767aa"
+    },
+    {
+      "path": "icons/nexlab-512.png",
+      "bytes": 92518,
+      "sha256": "b5d2b6a42fce60990cf4fc0d8fba4f8ba533582a62d73886e2e71953e174cb77"
+    },
+    {
+      "path": "icons/nexlab-favicon-rounded.png",
+      "bytes": 49631,
+      "sha256": "34444153e4be331ef77c64618cc04ff28b8d40dab0ba20ed0e124e2c8efbf592"
+    },
+    {
+      "path": "icons/nexlab-maskable-192.png",
+      "bytes": 15897,
+      "sha256": "69095b30dfa5df9091c3f6d62792074660bbf035071a56bafcac73d3fa7fe7be"
+    },
+    {
+      "path": "icons/nexlab-maskable-512.png",
+      "bytes": 76408,
+      "sha256": "c55135cbb263a64178443e06221f956f075fc8ce03d10dcd640d296f068723f5"
+    },
+    {
+      "path": "index.html",
+      "bytes": 6372,
+      "sha256": "7be367c4ea71ea57801c28b98faf2fc635ebf63866c9ebd6e616495865b5db5e"
+    },
+    {
+      "path": "manifest.webmanifest",
+      "bytes": 1137,
+      "sha256": "e01c8dd2d506fd05ec98bfb11e238af74892b58d4ae8ea4994702a04c95f68f4"
+    },
+    {
+      "path": "nexlab-sw.js",
+      "bytes": 26108,
+      "sha256": "f2c71ac1c2521b5e7cbcae37a3237456c1c652599c8b2f2db580e2fed7499dd0"
+    },
+    {
+      "path": "offline.html",
+      "bytes": 935,
+      "sha256": "c07834af8c856f56309e31db1dc8c4ce55dfebed38c434e51e89eed18b685532"
+    },
+    {
+      "path": "pwa-check.html",
+      "bytes": 6812,
+      "sha256": "67f5ca78dad1f30079fc7869680cc3517af9e36f841ad607dfa708ff2f8b7a2a"
+    }
+  ]
 }

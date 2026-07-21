@@ -1293,4 +1293,178 @@
   window.addEventListener('nexlab:module-partial-clear',v261ClearPartial);
   window.addEventListener('nexlab:module-render-error',event=>v261ShowRenderError(event.detail));
 
+  /* Beta 0.26.22 — clareza visual, formulários e ajuda contextual */
+  const MODULE_HELP_CONTENT = Object.freeze({
+    dashboard:{title:'Dashboard',purpose:'Resume a situação atual do laboratório e destaca itens que precisam de atenção.',steps:['Use os indicadores para identificar pendências e movimentações recentes.','Toque nos cartões e atalhos para abrir o módulo relacionado.'],rules:['Os indicadores dependem dos dados já sincronizados no aparelho e no Supabase.','Em conexão instável, valores anteriores podem permanecer visíveis até a próxima atualização.']},
+    pendencias:{title:'Pendências',purpose:'Reúne solicitações e registros que ainda precisam de análise ou conclusão.',steps:['Use os filtros para localizar o tipo de pendência.','Abra um item para conferir os detalhes antes de decidir.'],statuses:['Pendente: aguarda análise.','Em andamento: já está sendo tratado.','Concluído: nenhuma ação adicional é necessária.'],rules:['Confirme os dados antes de aprovar, rejeitar ou concluir um item.']},
+    agenda:{title:'Agenda',purpose:'Mostra reservas, reuniões e compromissos organizados por período.',steps:['Altere o período para consultar outras datas.','Toque em um compromisso para abrir os detalhes.'],statuses:['Pendente: ainda depende de confirmação.','Confirmado: compromisso validado.','Cancelado ou arquivado: não ocupa o horário.'],rules:['Conflitos são calculados conforme espaço, horário e participantes disponíveis.']},
+    notificacoes:{title:'Notificações',purpose:'Centraliza avisos do NEXLAB e permite configurar lembretes e Push.',steps:['Abra uma notificação para acessar o registro relacionado.','Use as configurações para ajustar canais e horários de silêncio.'],statuses:['Não lida: ainda não foi aberta.','Lida: já foi visualizada.'],rules:['Notificações internas continuam disponíveis mesmo quando o Push está desativado.']},
+    participantes:{title:'Usuários',purpose:'Permite consultar e administrar os perfis cadastrados no NEXLAB.',steps:['Pesquise pelo nome ou filtre por situação.','Abra um perfil para revisar ou atualizar os dados disponíveis.'],statuses:['Ativo: acesso normal.','Pendente: cadastro aguardando análise.','Inativo: acesso suspenso.'],rules:['Alterações importantes devem ter uma justificativa clara.']},
+    permissoes:{title:'Permissões',purpose:'Define quais ações cada perfil pode executar e permite exceções individuais.',steps:['Selecione um perfil para revisar o padrão.','Use a área individual apenas quando houver necessidade específica.'],rules:['Permissões individuais prevalecem sobre o padrão do perfil.','Revise dependências antes de retirar uma permissão.']},
+    equipes:{title:'Equipes',purpose:'Organiza participantes em grupos de trabalho e relaciona atividades do laboratório.',steps:['Crie ou abra uma equipe para editar seus dados.','Adicione participantes e vínculos conforme a necessidade.'],statuses:['Ativa: disponível para uso.','Arquivada: preservada somente para consulta.'],rules:['Arquivar preserva o histórico; excluir remove o registro quando permitido.']},
+    perfil:{title:'Meu Perfil',purpose:'Reúne seus dados pessoais, preferências e opções de segurança da conta.',steps:['Atualize apenas as informações necessárias.','Use Segurança da conta para trocar a senha ou encerrar outras sessões.'],rules:['Nunca compartilhe sua senha ou códigos de recuperação.']},
+    projetos:{title:'Projetos',purpose:'Acompanha iniciativas, responsáveis, prazos, tarefas e vínculos do laboratório.',steps:['Crie um projeto ou abra um cartão existente.','Atualize status, responsáveis e tarefas conforme o andamento.'],statuses:['Planejado: ainda não iniciado.','Em andamento: execução ativa.','Concluído: objetivo finalizado.','Arquivado: mantido apenas para histórico.'],rules:['Mantenha responsáveis e prazos atualizados para evitar indicadores incorretos.']},
+    inventario:{title:'Estoque e Patrimônio',purpose:'Centraliza bens patrimoniais, itens de estoque e suas movimentações.',steps:['Escolha a área de patrimônio ou estoque.','Pesquise o item antes de criar um novo registro.'],statuses:['Disponível: pronto para uso.','Em manutenção: temporariamente indisponível.','Danificado ou baixado: requer atenção ou não está mais em uso.'],rules:['Movimentações devem refletir a quantidade e a localização reais.']},
+    reserva:{title:'Reservas e Reuniões',purpose:'Organiza o uso dos espaços e os encontros do laboratório.',steps:['Escolha entre reserva ou reunião.','Informe data, horário, espaço e participantes.','Confira conflitos antes de concluir.'],statuses:['Pendente: aguarda análise ou confirmação.','Confirmada: horário reservado.','Cancelada ou arquivada: não ocupa o espaço.'],rules:['Horários conflitantes não devem ser confirmados.','Participantes indisponíveis precisam ser revisados antes do envio.']},
+    marketing:{title:'Marketing',purpose:'Organiza datas, ações e conteúdos de comunicação do laboratório.',steps:['Use o calendário para localizar a data.','Abra ou crie uma ação com as informações essenciais.'],statuses:['Planejada: ainda não executada.','Em produção: conteúdo em preparação.','Publicada ou concluída: ação finalizada.'],rules:['Evite criar ações duplicadas para a mesma data e finalidade.']},
+    eventos:{title:'Eventos',purpose:'Registra e acompanha eventos promovidos ou relacionados ao laboratório.',steps:['Cadastre os dados principais do evento.','Atualize data, local e situação quando houver mudanças.'],statuses:['Planejado: organização inicial.','Confirmado: realização validada.','Concluído: evento encerrado.','Cancelado: não será realizado.'],rules:['Datas e locais devem ser conferidos antes da divulgação.']},
+    mural:{title:'Mural Interno',purpose:'Compartilha comunicados e informações relevantes com os participantes.',steps:['Leia os avisos recentes.','Crie uma publicação objetiva quando houver algo relevante para compartilhar.'],rules:['Evite dados sensíveis e publicações duplicadas.','Arquive conteúdos que não precisam mais ficar em destaque.']},
+    feedback:{title:'Feedback',purpose:'Permite relatar erros, sugestões, elogios e reclamações sobre o NEXLAB.',steps:['Escolha a categoria e descreva o que aconteceu.','Em erros, informe a ação realizada e o resultado esperado.','Anexe imagens apenas quando ajudarem a entender o problema.'],statuses:['Novo: ainda não analisado.','Em análise: atendimento iniciado.','Resolvido: correção ou resposta concluída.','Arquivado: mantido apenas para histórico.'],rules:['Não inclua senhas, tokens ou outros dados secretos nas imagens e no texto.']},
+    relatorios:{title:'Relatórios',purpose:'Gera consultas e arquivos consolidados a partir dos dados do NEXLAB.',steps:['Escolha o relatório e os filtros necessários.','Confira o período antes de exportar.'],rules:['Relatórios refletem os dados disponíveis no momento da geração.','Arquivos confidenciais devem ser armazenados com cuidado.']},
+    'saude-sistema':{title:'Saúde do Sistema',purpose:'Apresenta diagnósticos técnicos, prontidão e ocorrências do aplicativo.',steps:['Verifique os indicadores antes de executar testes.','Abra os detalhes para identificar a origem de um alerta.'],statuses:['Saudável: verificação aprovada.','Atenção: requer acompanhamento.','Falha: precisa de correção.'],rules:['Não considere a versão homologada enquanto houver testes obrigatórios pendentes.']},
+    logs:{title:'Central de Atividades',purpose:'Exibe registros de ações, eventos técnicos e alterações importantes.',steps:['Use filtros para localizar a atividade.','Abra o registro para consultar contexto e referência.'],rules:['A limpeza de registros deve respeitar a necessidade de auditoria e diagnóstico.']}
+  });
+
+  let moduleHelpDialog = null;
+  let moduleHelpPreviousFocus = null;
+
+  function escapeHelpText(value){
+    return String(value || '').replace(/[&<>\"']/g, (character) => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[character]));
+  }
+
+  function helpSection(title, values){
+    const items = Array.isArray(values) ? values.filter(Boolean) : [];
+    if (!items.length) return '';
+    return `<section class="nexlab-module-help-section"><h3>${escapeHelpText(title)}</h3><ul>${items.map((item) => `<li>${escapeHelpText(item)}</li>`).join('')}</ul></section>`;
+  }
+
+  function closeModuleHelp(){
+    if (!moduleHelpDialog) return;
+    document.removeEventListener('keydown', trapModuleHelpFocus, true);
+    const previous = moduleHelpPreviousFocus;
+    moduleHelpDialog.remove();
+    moduleHelpDialog = null;
+    moduleHelpPreviousFocus = null;
+    if (previous?.isConnected) requestAnimationFrame(() => previous.focus({preventScroll:true}));
+  }
+
+  function trapModuleHelpFocus(event){
+    if (!moduleHelpDialog) return;
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      closeModuleHelp();
+      return;
+    }
+    if (event.key !== 'Tab') return;
+    const focusable = Array.from(moduleHelpDialog.querySelectorAll('button,[href],[tabindex]:not([tabindex="-1"])')).filter((element) => !element.disabled && element.offsetParent !== null);
+    if (!focusable.length) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  }
+
+  function openModuleHelp(page){
+    const content = MODULE_HELP_CONTENT[page];
+    if (!content) return;
+    closeModuleHelp();
+    moduleHelpPreviousFocus = document.activeElement;
+    const backdrop = document.createElement('div');
+    backdrop.className = 'nexlab-module-help-backdrop';
+    backdrop.setAttribute('role','dialog');
+    backdrop.setAttribute('aria-modal','true');
+    backdrop.setAttribute('aria-labelledby','nexlab-module-help-title');
+    backdrop.innerHTML = `<article class="nexlab-module-help-card"><header class="nexlab-module-help-head"><div><span class="nexlab-module-help-kicker">Ajuda do módulo</span><h2 id="nexlab-module-help-title">${escapeHelpText(content.title)}</h2></div><button type="button" class="nexlab-module-help-close" aria-label="Fechar ajuda">×</button></header><div class="nexlab-module-help-body"><section class="nexlab-module-help-purpose"><h3>Para que serve</h3><p>${escapeHelpText(content.purpose)}</p></section>${helpSection('Como utilizar',content.steps)}${helpSection('Status e indicadores',content.statuses)}${helpSection('Regras e limitações',content.rules)}</div></article>`;
+    backdrop.querySelector('.nexlab-module-help-close')?.addEventListener('click',closeModuleHelp);
+    backdrop.addEventListener('click',(event)=>{if(event.target===backdrop)closeModuleHelp();});
+    document.body.appendChild(backdrop);
+    moduleHelpDialog = backdrop;
+    document.addEventListener('keydown',trapModuleHelpFocus,true);
+    requestAnimationFrame(()=>backdrop.querySelector('.nexlab-module-help-close')?.focus());
+  }
+
+  function visibleElement(element){
+    if (!element) return false;
+    const style = getComputedStyle(element);
+    return style.display !== 'none' && style.visibility !== 'hidden' && element.getClientRects().length > 0;
+  }
+
+  function findHelpHost(){
+    const moduleHeader = Array.from(document.querySelectorAll('main .module-header')).find(visibleElement);
+    if (moduleHeader) return moduleHeader;
+    const heading = Array.from(document.querySelectorAll('main h1, main h2')).find((element) => visibleElement(element) && normalized(element.textContent).length > 1);
+    if (!heading) return null;
+    return heading.parentElement || heading;
+  }
+
+  function collapseRedundantModuleIntro(host){
+    if (!host) return;
+    const candidates = host.classList.contains('module-header')
+      ? Array.from(host.querySelectorAll('p'))
+      : Array.from(host.children).filter((element) => element.tagName === 'P');
+    for (const paragraph of candidates) {
+      if (paragraph.closest('[role="alert"], [role="status"], .nexlab-v261-partial-banner, .nexlab-user-error-card')) continue;
+      const text = normalized(paragraph.textContent);
+      if (text.length < 28) continue;
+      if (/erro|atenção|obrigatóri|indisponível|offline|falha|pendente|prazo|expira/.test(text)) continue;
+      paragraph.classList.add('nexlab-module-intro-collapsed');
+      paragraph.setAttribute('aria-hidden','true');
+    }
+  }
+
+  function installModuleHelp(){
+    const page = markPage();
+    const content = MODULE_HELP_CONTENT[page];
+    document.querySelectorAll('.nexlab-module-help-button').forEach((button) => {
+      if (!content || button.dataset.nexlabHelpPage !== page || !button.closest('main')) button.remove();
+    });
+    if (!content) return;
+    const host = findHelpHost();
+    if (!host) return;
+    collapseRedundantModuleIntro(host);
+    host.classList.add('nexlab-module-help-host');
+    if (host.querySelector(`:scope > .nexlab-module-help-button[data-nexlab-help-page="${page}"]`)) return;
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'nexlab-module-help-button';
+    button.dataset.nexlabHelpPage = page;
+    button.setAttribute('aria-label',`Como funciona o módulo ${content.title}`);
+    button.setAttribute('title',`Como funciona o módulo ${content.title}`);
+    button.textContent = '?';
+    button.addEventListener('click',(event)=>{event.preventDefault();event.stopPropagation();openModuleHelp(page);});
+    host.appendChild(button);
+  }
+
+  function enhanceFormFieldVisibility(){
+    const selector = [
+      'main input:not([type])',
+      'main input[type="text"]','main input[type="email"]','main input[type="password"]',
+      'main input[type="search"]','main input[type="tel"]','main input[type="url"]',
+      'main input[type="number"]','main input[type="date"]','main input[type="time"]',
+      'main input[type="datetime-local"]','main input[type="month"]','main input[type="week"]',
+      'main input[type="file"]','main select','main textarea','main [contenteditable="true"]'
+    ].join(',');
+    document.querySelectorAll(selector).forEach((field) => {
+      field.classList.add('nexlab-visible-field');
+      if (!field.hasAttribute('aria-label') && !field.id && !field.closest('label')) {
+        const nearbyLabel = field.parentElement?.querySelector(':scope > label, :scope > span.font-medium, :scope > span.font-semibold');
+        const labelText = String(nearbyLabel?.textContent || field.getAttribute('placeholder') || '').trim();
+        if (labelText) field.setAttribute('aria-label',labelText.slice(0,120));
+      }
+    });
+  }
+
+  function applyUiClarity(){
+    installModuleHelp();
+    enhanceFormFieldVisibility();
+  }
+
+  let uiClarityScheduled = false;
+  function scheduleUiClarity(){
+    if (uiClarityScheduled) return;
+    uiClarityScheduled = true;
+    requestAnimationFrame(()=>{uiClarityScheduled=false;applyUiClarity();});
+  }
+
+  window.addEventListener('nexlab:navigate-record',scheduleUiClarity);
+  window.addEventListener('popstate',scheduleUiClarity);
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded',scheduleUiClarity,{once:true});
+  else scheduleUiClarity();
+  new MutationObserver(scheduleUiClarity).observe(document.getElementById('root') || document.body,{childList:true,subtree:true});
+
 })();
