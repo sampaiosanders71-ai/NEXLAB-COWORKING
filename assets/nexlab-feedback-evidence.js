@@ -3,14 +3,15 @@
   if(window.__NEXLAB_FEEDBACK_EVIDENCE_02621__)return;
   window.__NEXLAB_FEEDBACK_EVIDENCE_02621__=true;
 
-  const BUILD=globalThis.__NEXLAB_BUILD_IDENTITY__||Object.freeze({version:'0.26.21',revision:'beta-0-26-21-feedback-external-evidence'});
+  const BUILD=globalThis.__NEXLAB_BUILD_IDENTITY__||Object.freeze({version:'0.26.21',revision:'beta-0-26-21-feedback-external-evidence-picker-stability'});
   const FUNCTION_NAME='nexlab-feedback-evidence';
   const MAX_FILES=3;
   const MAX_ORIGINAL_BYTES=5*1024*1024;
   const MAX_PROCESSED_BYTES=Math.floor(1.5*1024*1024);
   const MAX_DIMENSION=1920;
   const ALLOWED_TYPES=new Set(['image/png','image/jpeg','image/webp']);
-  const state={configured:null,statusCheckedAt:0,pending:[],processing:Promise.resolve(),role:null,userId:null,listCache:new Map(),listLoading:false};
+  const DRAFT_KEY='nexlab:feedback-draft:v0.26.21';
+  const state={configured:null,statusCheckedAt:0,pending:[],processing:Promise.resolve(),processingActive:false,pickerActive:false,pickerReleaseTimer:null,role:null,userId:null,listCache:new Map(),listLoading:false};
 
   function client(){return globalThis.__NEXLAB_SUPABASE__||null;}
   function isFeedbackPage(){return document.body?.dataset?.nexlabPage==='feedback'||Boolean(findFeedbackForm())||Boolean(document.querySelector('[data-nexlab-record-id]'));}
@@ -21,6 +22,44 @@
     if(!box){box=document.createElement('div');box.id='nexlab-feedback-evidence-global-status';box.className='nexlab-evidence-global-status';box.setAttribute('role','status');box.setAttribute('aria-live','polite');document.body.appendChild(box);}
     box.dataset.type=type;box.textContent=message;box.hidden=false;
     clearTimeout(announce.timer);announce.timer=setTimeout(()=>{box.hidden=true;},7000);
+  }
+
+  function formFields(form){
+    if(!form)return{};
+    const textarea=[...form.querySelectorAll('textarea')].find(el=>/Descreva sua observação/i.test(el.placeholder||''))||form.querySelector('textarea');
+    const subject=[...form.querySelectorAll('input[type="text"],input:not([type])')].find(el=>/Assunto|Conectividade|Ergonomia/i.test(`${el.placeholder||''} ${el.getAttribute('aria-label')||''}`))||form.querySelector('input[type="text"]');
+    const category=[...form.querySelectorAll('select')].find(el=>[...el.options||[]].some(option=>/Sugestão de melhoria|Reportar falha/i.test(option.textContent||'')))||form.querySelector('select');
+    return{textarea,subject,category};
+  }
+  function draftFromForm(form){const{textarea,subject,category}=formFields(form);return{message:String(textarea?.value||''),subject:String(subject?.value||''),category:String(category?.value||'Sugestão'),savedAt:Date.now()};}
+  function persistDraft(form){
+    try{const draft=draftFromForm(form);if(draft.message||draft.subject||draft.category!=='Sugestão')sessionStorage.setItem(DRAFT_KEY,JSON.stringify(draft));else sessionStorage.removeItem(DRAFT_KEY);}catch{}
+  }
+  function readDraft(){try{const value=JSON.parse(sessionStorage.getItem(DRAFT_KEY)||'null');return value&&typeof value==='object'?value:null;}catch{return null;}}
+  function setControlledValue(element,value,eventName='input'){
+    if(!element)return;
+    const prototype=element instanceof HTMLTextAreaElement?HTMLTextAreaElement.prototype:element instanceof HTMLSelectElement?HTMLSelectElement.prototype:HTMLInputElement.prototype;
+    const setter=Object.getOwnPropertyDescriptor(prototype,'value')?.set;
+    if(setter)setter.call(element,value);else element.value=value;
+    element.dispatchEvent(new Event(eventName,{bubbles:true}));
+  }
+  function restoreDraft(form){
+    if(!form||form.dataset.nexlabEvidenceDraftRestored==='true')return;
+    form.dataset.nexlabEvidenceDraftRestored='true';
+    const draft=readDraft();if(!draft)return;
+    requestAnimationFrame(()=>{
+      const{textarea,subject,category}=formFields(form);
+      if(subject&&!subject.value&&draft.subject)setControlledValue(subject,draft.subject,'input');
+      if(textarea&&!textarea.value&&draft.message)setControlledValue(textarea,draft.message,'input');
+      if(category&&draft.category&&category.value!==draft.category)setControlledValue(category,draft.category,'change');
+    });
+  }
+  function clearDraft(){try{sessionStorage.removeItem(DRAFT_KEY);}catch{}}
+  function setPickerGuard(active){state.pickerActive=Boolean(active);globalThis.__NEXLAB_FILE_PICKER_ACTIVE__=Boolean(active);document.documentElement?.toggleAttribute('data-nexlab-file-picker-active',Boolean(active));}
+  function beginPicker(form){persistDraft(form);if(state.pickerReleaseTimer)clearTimeout(state.pickerReleaseTimer);setPickerGuard(true);}
+  function endPicker(delay=900){
+    if(state.pickerReleaseTimer)clearTimeout(state.pickerReleaseTimer);
+    state.pickerReleaseTimer=setTimeout(()=>{if(state.processingActive)return endPicker(500);setPickerGuard(false);state.pickerReleaseTimer=null;schedule();},delay);
   }
 
   async function invoke(body){
@@ -112,10 +151,11 @@
   }
 
   async function selectFiles(input,container){
-    const selected=[...input.files||[]];input.value='';
-    if(!selected.length)return;
-    if(state.pending.length+selected.length>MAX_FILES){announce('É permitido anexar no máximo três imagens por Feedback.','error');return;}
+    const selected=[...input.files||[]];
+    if(!selected.length){input.value='';return;}
+    if(state.pending.length+selected.length>MAX_FILES){input.value='';announce('É permitido anexar no máximo três imagens por Feedback.','error');return;}
     const status=container.querySelector('[data-evidence-status]');
+    state.processingActive=true;
     state.processing=(async()=>{
       status.textContent='Processando as imagens no aparelho...';status.dataset.type='loading';
       for(const file of selected){
@@ -124,7 +164,7 @@
       }
       renderPending(container);status.textContent=state.pending.length?'As imagens estão prontas para envio. Metadados EXIF foram removidos.':'Nenhuma imagem selecionada.';status.dataset.type=state.pending.length?'ready':'idle';
     })();
-    await state.processing;
+    try{await state.processing;}finally{state.processingActive=false;input.value='';endPicker(700);}
   }
 
   async function injectUploader(){
@@ -135,7 +175,14 @@
     wrap.innerHTML=`<div class="nexlab-evidence-heading"><div><h4>Adicionar evidências do problema</h4><p>Até 3 imagens em PNG, JPEG ou WebP. Máximo de 5 MB por arquivo antes do processamento.</p></div><span data-evidence-count>0/3</span></div><div class="nexlab-evidence-controls"><input type="file" accept="image/png,image/jpeg,image/webp" multiple hidden data-evidence-input><button type="button" data-evidence-select>Selecionar imagens</button><span data-evidence-status data-type="loading">Verificando armazenamento externo...</span></div><div data-evidence-pending-list class="nexlab-evidence-pending-list"></div><p class="nexlab-evidence-privacy">As imagens são comprimidas no aparelho, armazenadas fora do Supabase e abertas pelos Administradores somente por acesso temporário.</p>`;
     anchor.insertAdjacentElement('afterend',wrap);
     const button=wrap.querySelector('[data-evidence-select]'),input=wrap.querySelector('[data-evidence-input]'),status=wrap.querySelector('[data-evidence-status]');
-    button.addEventListener('click',()=>input.click());input.addEventListener('change',()=>selectFiles(input,wrap));
+    if(form.dataset.nexlabEvidenceDraftBound!=='true'){
+      form.dataset.nexlabEvidenceDraftBound='true';
+      form.addEventListener('input',()=>persistDraft(form),true);
+      form.addEventListener('change',()=>persistDraft(form),true);
+    }
+    restoreDraft(form);
+    button.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();beginPicker(form);setTimeout(()=>input.click(),0);});
+    input.addEventListener('change',async event=>{event.preventDefault();event.stopPropagation();persistDraft(form);try{await selectFiles(input,wrap);}finally{endPicker(900);}});
     const configured=await checkStatus();
     button.disabled=!configured;
     status.textContent=configured?'Armazenamento privado disponível.':'Armazenamento externo ainda não configurado. O Feedback pode ser enviado sem imagens.';
@@ -204,14 +251,16 @@
 
   let scheduled=false;
   async function scan(){
-    scheduled=false;if(!isFeedbackPage())return;
+    scheduled=false;if(state.pickerActive||state.processingActive||!isFeedbackPage())return;
     if(state.role===null)await loadSession();
     await injectUploader();
     if(state.role==='admin')await refreshAdminEvidence();
   }
-  function schedule(){if(scheduled)return;scheduled=true;setTimeout(scan,80);}
+  function schedule(){if(scheduled||state.pickerActive||state.processingActive)return;scheduled=true;setTimeout(scan,80);}
   new MutationObserver(schedule).observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:['data-nexlab-page']});
-  window.addEventListener('nexlab:navigate-record',schedule);window.addEventListener('focus',schedule);document.addEventListener('visibilitychange',()=>{if(!document.hidden)schedule();});
-  window.NexLabFeedbackEvidence=Object.freeze({version:BUILD.version,uploadPending,refresh:()=>refreshAdminEvidence(true),status:()=>checkStatus(true)});
+  window.addEventListener('nexlab:navigate-record',schedule);
+  window.addEventListener('focus',()=>{if(state.pickerActive)endPicker(1200);else schedule();});
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden){if(state.pickerActive)endPicker(1200);else schedule();}});
+  window.NexLabFeedbackEvidence=Object.freeze({version:BUILD.version,uploadPending,refresh:()=>refreshAdminEvidence(true),status:()=>checkStatus(true),clearDraft,persistDraft:()=>persistDraft(findFeedbackForm())});
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',schedule,{once:true});else schedule();
 })();
