@@ -1,16 +1,17 @@
 (function(){
   'use strict';
-  if(window.__NEXLAB_FEEDBACK_EVIDENCE_02622__)return;
-  window.__NEXLAB_FEEDBACK_EVIDENCE_02622__=true;
+  if(window.__NEXLAB_FEEDBACK_EVIDENCE_02628__)return;
+  window.__NEXLAB_FEEDBACK_EVIDENCE_02628__=true;
 
-  const BUILD=globalThis.__NEXLAB_BUILD_IDENTITY__||Object.freeze({version:'0.26.22',revision:'beta-0-26-22-help-icon-compact-corner'});
+  const BUILD=globalThis.__NEXLAB_BUILD_IDENTITY__||Object.freeze({version:'0.26.29',revision:'beta-0-26-29-shell-observers-security-integrity'});
   const FUNCTION_NAME='nexlab-feedback-evidence';
   const MAX_FILES=3;
   const MAX_ORIGINAL_BYTES=5*1024*1024;
   const MAX_PROCESSED_BYTES=Math.floor(1.5*1024*1024);
   const MAX_DIMENSION=1920;
+  const UPLOAD_TIMEOUT_MS=45000;
   const ALLOWED_TYPES=new Set(['image/png','image/jpeg','image/webp']);
-  const DRAFT_KEY='nexlab:feedback-draft:v0.26.22';
+  const DRAFT_KEY='nexlab:feedback-draft:v0.26.29';
   const state={configured:null,statusCheckedAt:0,pending:[],processing:Promise.resolve(),processingActive:false,pickerActive:false,pickerReleaseTimer:null,role:null,userId:null,listCache:new Map(),listLoading:false};
 
   function client(){return globalThis.__NEXLAB_SUPABASE__||null;}
@@ -72,6 +73,16 @@
     }
     if(!data?.ok)throw Object.assign(new Error(data?.message||'Não foi possível concluir a operação externa.'),{code:data?.code||'external_operation_failed',data});
     return data;
+  }
+
+  async function fetchWithTimeout(url,options,timeoutMs=UPLOAD_TIMEOUT_MS){
+    const controller=new AbortController();
+    const timer=setTimeout(()=>controller.abort('nexlab_upload_timeout'),timeoutMs);
+    try{return await fetch(url,{...options,signal:controller.signal});}
+    catch(error){
+      if(error?.name==='AbortError')throw Object.assign(new Error('O envio da imagem excedeu 45 segundos. Tente reenviar com uma conexão estável.'),{code:'r2_upload_timeout'});
+      throw error;
+    }finally{clearTimeout(timer);}
   }
 
   async function loadSession(){
@@ -193,17 +204,13 @@
     const ids=[...new Set((Array.isArray(feedbackIds)?feedbackIds:[]).map(value=>String(value||'').trim()).filter(value=>/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)))];
     if(!ids.length)return {ok:true,deleted_count:0,deleted_attachment_count:0,feedback_ids:[]};
     const sb=client();
-    if(!sb?.from||!sb?.rpc)throw Object.assign(new Error('Integração administrativa indisponível.'),{code:'client_unavailable'});
+    if(!sb?.rpc)throw Object.assign(new Error('Integração administrativa indisponível.'),{code:'client_unavailable'});
 
-    const attachments=[];
-    for(let index=0;index<ids.length;index+=100){
-      const batch=ids.slice(index,index+100);
-      const {data,error}=await sb.from('nexlab_feedback_attachments').select('id,feedback_id,status').in('feedback_id',batch).order('created_at',{ascending:true});
-      if(error)throw Object.assign(new Error('Não foi possível preparar a limpeza das imagens anexadas.'),{code:error.code||'attachment_lookup_failed',error});
-      attachments.push(...(data||[]));
-    }
+    const prepared=await sb.rpc('nexlab_admin_prepare_resolved_feedback_delete_v02628',{p_feedback_ids:ids});
+    if(prepared.error||!prepared.data?.ok)throw Object.assign(new Error(prepared.data?.message||'Não foi possível registrar a solicitação de exclusão.'),{code:prepared.data?.code||prepared.error?.code||'delete_prepare_failed',data:prepared.data,error:prepared.error});
 
-    const removable=attachments.filter(item=>item?.id&&!['deleted','cancelled'].includes(String(item.status||'')));
+    const persistedIds=Array.isArray(prepared.data.feedback_ids)?prepared.data.feedback_ids:ids;
+    const removable=Array.isArray(prepared.data.attachments)?prepared.data.attachments.filter(item=>item?.id&&!['deleted','cancelled'].includes(String(item.status||''))):[];
     const failures=[];
     let cursor=0;
     const worker=async()=>{
@@ -213,19 +220,22 @@
         catch(error){failures.push({attachment_id:item.id,code:error?.code||'external_delete_failed'});}
       }
     };
-    await Promise.all(Array.from({length:Math.min(4,removable.length)},worker));
+    if(removable.length)await Promise.all(Array.from({length:Math.min(4,removable.length)},worker));
+
     if(failures.length){
-      throw Object.assign(new Error('Não foi possível remover todas as imagens anexadas. Nenhum Feedback foi excluído do banco. Tente novamente.'),{code:'external_cleanup_failed',failures});
+      try{await sb.rpc('nexlab_admin_mark_feedback_delete_failure_v02628',{p_feedback_ids:persistedIds,p_error:`${failures.length} anexo(s) não removido(s) do armazenamento externo.`});}catch{}
+      throw Object.assign(new Error('A exclusão foi registrada, mas algumas imagens ainda não foram removidas. Tente novamente: o processo continuará do ponto salvo.'),{code:'external_cleanup_incomplete',failures,persisted:true});
     }
 
-    const {data,error}=await sb.rpc('nexlab_admin_delete_resolved_feedback_v02622',{p_feedback_ids:ids});
-    if(error||!data?.ok)throw Object.assign(new Error(data?.message||'Não foi possível excluir os Feedbacks resolvidos.'),{code:data?.code||error?.code||'bulk_delete_failed',data,error});
+    const finalized=await sb.rpc('nexlab_admin_finalize_resolved_feedback_delete_v02628',{p_feedback_ids:persistedIds});
+    if(finalized.error||!finalized.data?.ok)throw Object.assign(new Error(finalized.data?.message||'A limpeza externa terminou, mas a exclusão dos Feedbacks ainda não foi finalizada. Tente novamente.'),{code:finalized.data?.code||finalized.error?.code||'delete_finalize_failed',data:finalized.data,error:finalized.error,persisted:true});
     state.listCache.clear();
     return {
       ok:true,
-      deleted_count:Number(data.deleted_count||0),
-      deleted_attachment_count:Number(data.deleted_attachment_count||attachments.length||0),
-      feedback_ids:Array.isArray(data.feedback_ids)?data.feedback_ids:ids
+      deleted_count:Number(finalized.data.deleted_count||0),
+      deleted_attachment_count:Number(finalized.data.deleted_attachment_count||removable.length||0),
+      feedback_ids:Array.isArray(finalized.data.deleted_ids)?finalized.data.deleted_ids:persistedIds,
+      pending_count:Number(finalized.data.pending_count||0)
     };
   }
 
@@ -239,7 +249,7 @@
       try{
         const reservation=await invoke({action:'reserve_upload',feedback_id:feedbackId,display_name:item.display_name,mime_type:item.mime_type,original_size_bytes:item.original_size_bytes,size_bytes:item.size_bytes,width:item.width,height:item.height,sha256:item.sha256});
         attachmentId=reservation.attachment_id;
-        const response=await fetch(reservation.upload_url,{method:'PUT',headers:{...reservation.upload_headers},body:item.blob,cache:'no-store',credentials:'omit',referrerPolicy:'no-referrer'});
+        const response=await fetchWithTimeout(reservation.upload_url,{method:'PUT',headers:{...reservation.upload_headers},body:item.blob,cache:'no-store',credentials:'omit',referrerPolicy:'no-referrer'});
         if(!response.ok)throw Object.assign(new Error('O armazenamento externo recusou a imagem.'),{code:`r2_put_${response.status}`});
         await invoke({action:'complete_upload',attachment_id:attachmentId});uploaded+=1;
       }catch(error){
@@ -250,7 +260,7 @@
     }
     state.pending=remaining;
     const uploader=document.querySelector('[data-nexlab-evidence-uploader]');if(uploader)renderPending(uploader);
-    if(failed)announce(`O Feedback foi registrado. ${uploaded} imagem(ns) enviada(s) e ${failed} não enviada(s).`,'error');
+    if(failed)announce(`O Feedback foi registrado. ${uploaded} imagem(ns) enviada(s) e ${failed} pendente(s). Revise a conexão e tente reenviar.`,'error');
     return {ok:failed===0,uploaded,failed};
   }
 

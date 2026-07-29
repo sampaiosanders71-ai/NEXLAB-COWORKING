@@ -2,8 +2,8 @@
   'use strict';
 
   const BUILD=globalThis.__NEXLAB_BUILD_IDENTITY__||Object.freeze({
-    version:'0.26.22',
-    revision:'beta-0-26-22-help-icon-compact-corner'
+    version:'0.26.29',
+    revision:'beta-0-26-29-shell-observers-security-integrity'
   });
   if(globalThis.__NEXLAB_PUSH_CONSENT__?.revision===BUILD.revision)return;
 
