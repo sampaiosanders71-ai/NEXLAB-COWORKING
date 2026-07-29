@@ -1,9 +1,9 @@
 (function(){
   'use strict';
-  if(window.__NEXLAB_FEEDBACK_EVIDENCE_02628__)return;
-  window.__NEXLAB_FEEDBACK_EVIDENCE_02628__=true;
+  if(window.__NEXLAB_FEEDBACK_EVIDENCE_02631__)return;
+  window.__NEXLAB_FEEDBACK_EVIDENCE_02631__=true;
 
-  const BUILD=globalThis.__NEXLAB_BUILD_IDENTITY__||Object.freeze({version:'0.26.30',revision:'beta-0-26-30-activity-toolbar-compact'});
+  const BUILD=globalThis.__NEXLAB_BUILD_IDENTITY__||Object.freeze({version:'0.26.31',revision:'beta-0-26-31-user-avatar-media-scope'});
   const FUNCTION_NAME='nexlab-feedback-evidence';
   const MAX_FILES=3;
   const MAX_ORIGINAL_BYTES=5*1024*1024;
@@ -11,11 +11,13 @@
   const MAX_DIMENSION=1920;
   const UPLOAD_TIMEOUT_MS=45000;
   const ALLOWED_TYPES=new Set(['image/png','image/jpeg','image/webp']);
-  const DRAFT_KEY='nexlab:feedback-draft:v0.26.30';
+  const DRAFT_KEY='nexlab:feedback-draft:v0.26.31';
   const state={configured:null,statusCheckedAt:0,pending:[],processing:Promise.resolve(),processingActive:false,pickerActive:false,pickerReleaseTimer:null,role:null,userId:null,listCache:new Map(),listLoading:false};
 
   function client(){return globalThis.__NEXLAB_SUPABASE__||null;}
-  function isFeedbackPage(){return document.body?.dataset?.nexlabPage==='feedback'||Boolean(findFeedbackForm())||Boolean(document.querySelector('[data-nexlab-record-id]'));}
+  function isFeedbackPage(){return document.body?.dataset?.nexlabPage==='feedback'||Boolean(findFeedbackForm());}
+  function feedbackCards(){return [...document.querySelectorAll('[data-nexlab-feedback-record="true"][data-nexlab-record-id]')];}
+  function removeEvidenceOutsideFeedback(){document.querySelectorAll('[data-nexlab-evidence-admin]').forEach(section=>section.remove());}
   function formatBytes(value){const n=Number(value)||0;return n>=1048576?`${(n/1048576).toFixed(2)} MB`:`${Math.max(1,Math.round(n/1024))} KB`;}
   function safeName(value,index){const base=String(value||'').replace(/[\r\n\t]+/g,' ').trim().slice(0,100);return base||`Evidência ${index+1}`;}
   function announce(message,type='info'){
@@ -285,7 +287,8 @@
 
   async function refreshAdminEvidence(force=false){
     if(state.role!=='admin'||state.listLoading)return;
-    const cards=[...document.querySelectorAll('[data-nexlab-record-id]')];
+    if(!isFeedbackPage()){removeEvidenceOutsideFeedback();return;}
+    const cards=feedbackCards();
     const ids=[...new Set(cards.map(card=>card.dataset.nexlabRecordId).filter(Boolean))];if(!ids.length)return;
     const missing=force?ids:ids.filter(id=>!state.listCache.has(id));
     if(missing.length){state.listLoading=true;try{const sb=client();if(!sb)throw Object.assign(new Error('Cliente indisponível.'),{code:'client_unavailable'});const {data:items,error}=await sb.from('nexlab_feedback_attachments').select('id,feedback_id,display_name,mime_type,size_bytes,width,height,uploaded_at,available_at,created_at').in('feedback_id',missing).eq('status','available').order('created_at',{ascending:true});if(error)throw error;missing.forEach(id=>state.listCache.set(id,[]));(items||[]).forEach(item=>{const list=state.listCache.get(item.feedback_id)||[];list.push(item);state.listCache.set(item.feedback_id,list);});}catch(error){console.warn('Consulta controlada de evidências:',error?.code||'unknown');}finally{state.listLoading=false;}}
@@ -301,7 +304,8 @@
 
   let scheduled=false;
   async function scan(){
-    scheduled=false;if(state.pickerActive||state.processingActive||!isFeedbackPage())return;
+    scheduled=false;if(state.pickerActive||state.processingActive)return;
+    if(!isFeedbackPage()){removeEvidenceOutsideFeedback();return;}
     if(state.role===null)await loadSession();
     await injectUploader();
     if(state.role==='admin')await refreshAdminEvidence();

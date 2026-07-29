@@ -1,13 +1,13 @@
 {
-  "version": "0.26.30",
-  "display_version": "NEXLAB Beta 0.26.30",
+  "version": "0.26.31",
+  "display_version": "NEXLAB Beta 0.26.31",
   "release": "Beta",
   "channel": "beta",
-  "revision": "beta-0-26-30-activity-toolbar-compact",
-  "asset_revision": "app-beta-0-26-30-activity-toolbar-compact",
-  "generated_at": "2026-07-29T03:10:00Z",
-  "title": "Beta 0.26.30 — Central de Atividades compacta e responsiva",
-  "cache_name": "nexlab-beta-0-26-30-activity-toolbar-compact",
+  "revision": "beta-0-26-31-user-avatar-media-scope",
+  "asset_revision": "app-beta-0-26-31-user-avatar-media-scope",
+  "generated_at": "2026-07-29T03:32:30Z",
+  "title": "Beta 0.26.31 — mídia de usuários restrita ao avatar",
+  "cache_name": "nexlab-beta-0-26-31-user-avatar-media-scope",
   "entry": "index.html",
   "core_files": [
     "index.html",
@@ -74,13 +74,13 @@
     "internal_notifications_default": "enabled"
   },
   "technical_homologation": {
-    "record_rpc": "nexlab_record_device_homologation_v02630",
+    "record_rpc": "nexlab_record_device_homologation_v02631",
     "automatic_silent_receipt_sync": true,
     "administrator_receipt_required": true,
     "manual_approval_allowed": false,
-    "status": "pending_real_installed_device_for_0.26.30",
-    "build_revision": "beta-0-26-30-activity-toolbar-compact",
-    "evidence_revision": "beta-0-26-30-activity-toolbar-compact",
+    "status": "pending_real_installed_device_for_0.26.31",
+    "build_revision": "beta-0-26-31-user-avatar-media-scope",
+    "evidence_revision": "beta-0-26-31-user-avatar-media-scope",
     "evidence_storage_scoped_by_build_revision": true
   },
   "observability": {
@@ -91,12 +91,12 @@
     "live_browser_confirmation": "pending_post_publication_controlled_error"
   },
   "database": {
-    "version": "0.26.30",
+    "version": "0.26.31",
     "release_status": "beta",
     "changes_applied": true,
     "auth_password_change_audit": true,
     "operational_email_suspended": true,
-    "device_homologation_rpc": "nexlab_record_device_homologation_v02630",
+    "device_homologation_rpc": "nexlab_record_device_homologation_v02631",
     "readiness_rpc": "nexlab_get_production_readiness",
     "push_preference_rpc": "nexlab_set_notification_channel_v2702",
     "push_subscription_rpc": "save_push_subscription",
@@ -119,14 +119,16 @@
     "marketing_status_constraint": true,
     "marketing_channel_constraint": true,
     "marketing_type_constraint": true,
-    "marketing_schedule_date_constraint": true
+    "marketing_schedule_date_constraint": true,
+    "user_media_scope": "avatar_only",
+    "feedback_evidence_host_selector": "data-nexlab-feedback-record"
   },
   "validation": {
-    "runtime_only": "A disposição final da Central de Atividades deve ser confirmada em celular e computador após a publicação.",
+    "runtime_only": "Confirmar após a publicação que Usuários exibe somente o avatar e que Evidências visuais permanece disponível apenas no Feedback.",
     "source_maps_in_public_package": false,
     "sql_in_public_package": false,
     "reports_in_public_package": false,
-    "diagnostic_version": "0.26.30",
+    "diagnostic_version": "0.26.31",
     "node_syntax_check": "passed",
     "zip_crc": true,
     "hashes_verified": true,
@@ -140,7 +142,7 @@
     "mandatory_shell_files": 17,
     "package_files_including_release_json": 52,
     "inventory_files": 51,
-    "package_uncompressed_bytes": 3156671,
+    "package_uncompressed_bytes": 3157504,
     "direct_replacement_filenames": true,
     "node_syntax_files": 34,
     "html_local_references_checked": 31,
@@ -171,7 +173,7 @@
     "active_bundle_paths_match_previous_package": true,
     "new_files": [],
     "old_paths_preserved": true,
-    "stale_version_references": "0 unintended; the current package is 0.26.30 and historical correction metadata was preserved.",
+    "stale_version_references": "0 unintended; the current package is 0.26.31 and historical correction metadata was preserved.",
     "security_advisor_run": true,
     "security_advisor_new_table_direct_access": "admin_safe_metadata_columns_only; object key, hash and external credentials are not granted",
     "push_onboarding_static_contracts": {
@@ -304,7 +306,14 @@
       "test_data_persisted": false
     },
     "global_child_list_observers": 1,
-    "sidebar_attribute_observers": 1
+    "sidebar_attribute_observers": 1,
+    "user_media_scope_static_contracts": {
+      "feedback_page_guard_strict": true,
+      "generic_record_selector_removed": true,
+      "feedback_cards_explicitly_marked": true,
+      "stale_evidence_removed_outside_feedback": true,
+      "participants_avatar_preserved": true
+    }
   },
   "files": [
     {
@@ -564,11 +573,11 @@
     }
   ],
   "build_identity": {
-    "version": "0.26.30",
-    "revision": "beta-0-26-30-activity-toolbar-compact",
-    "homologation_revision": "beta-0-26-30-activity-toolbar-compact",
-    "asset_revision": "app-beta-0-26-30-activity-toolbar-compact",
-    "cache_name": "nexlab-beta-0-26-30-activity-toolbar-compact",
+    "version": "0.26.31",
+    "revision": "beta-0-26-31-user-avatar-media-scope",
+    "homologation_revision": "beta-0-26-31-user-avatar-media-scope",
+    "asset_revision": "app-beta-0-26-31-user-avatar-media-scope",
+    "cache_name": "nexlab-beta-0-26-31-user-avatar-media-scope",
     "generated_at": "2026-07-29T03:10:00Z"
   },
   "external_feedback_evidence": {
