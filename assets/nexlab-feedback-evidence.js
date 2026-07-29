@@ -3,7 +3,7 @@
   if(window.__NEXLAB_FEEDBACK_EVIDENCE_02631__)return;
   window.__NEXLAB_FEEDBACK_EVIDENCE_02631__=true;
 
-  const BUILD=globalThis.__NEXLAB_BUILD_IDENTITY__||Object.freeze({version:'0.26.31',revision:'beta-0-26-31-user-avatar-media-scope'});
+  const BUILD=globalThis.__NEXLAB_BUILD_IDENTITY__||Object.freeze({version:'0.26.32',revision:'beta-0-26-32-requested-role-conditional'});
   const FUNCTION_NAME='nexlab-feedback-evidence';
   const MAX_FILES=3;
   const MAX_ORIGINAL_BYTES=5*1024*1024;
@@ -11,7 +11,7 @@
   const MAX_DIMENSION=1920;
   const UPLOAD_TIMEOUT_MS=45000;
   const ALLOWED_TYPES=new Set(['image/png','image/jpeg','image/webp']);
-  const DRAFT_KEY='nexlab:feedback-draft:v0.26.31';
+  const DRAFT_KEY='nexlab:feedback-draft:v0.26.32';
   const state={configured:null,statusCheckedAt:0,pending:[],processing:Promise.resolve(),processingActive:false,pickerActive:false,pickerReleaseTimer:null,role:null,userId:null,listCache:new Map(),listLoading:false};
 
   function client(){return globalThis.__NEXLAB_SUPABASE__||null;}

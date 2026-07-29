@@ -1,10 +1,10 @@
-/* NEXLAB Beta 0.26.31 — navegação Push com confirmação explícita, deduplicação e fallback seguro. */
+/* NEXLAB Beta 0.26.32 — navegação Push com confirmação explícita, deduplicação e fallback seguro. */
 (()=>{
-  if(globalThis.__NEXLAB_PUSH_NAVIGATION__?.version==='0.26.31')return;
-  const BUILD=globalThis.__NEXLAB_BUILD_IDENTITY__||Object.freeze({version:'0.26.31',revision:'beta-0-26-31-user-avatar-media-scope',homologationRevision:'beta-0-26-31-user-avatar-media-scope'});
+  if(globalThis.__NEXLAB_PUSH_NAVIGATION__?.version==='0.26.32')return;
+  const BUILD=globalThis.__NEXLAB_BUILD_IDENTITY__||Object.freeze({version:'0.26.32',revision:'beta-0-26-32-requested-role-conditional',homologationRevision:'beta-0-26-32-requested-role-conditional'});
   const VERSION=BUILD.version;
   const BUILD_REVISION=BUILD.revision;
-  const HOMOLOGATION_REVISION=BUILD.homologationRevision||'beta-0-26-31-user-avatar-media-scope';
+  const HOMOLOGATION_REVISION=BUILD.homologationRevision||'beta-0-26-32-requested-role-conditional';
   const EVIDENCE_KEY='nexlab:device-homologation:'+VERSION+':'+BUILD_REVISION;
   const ALLOWED_TABS=new Set(['dashboard','pendencias','agenda','notificacoes','participantes','permissoes','equipes','perfil','projetos','inventario','patrimonio','estoque','reserva','marketing','eventos','mural','feedback','relatorios','saude-sistema','logs']);
   const RECENT_TTL_MS=10000;

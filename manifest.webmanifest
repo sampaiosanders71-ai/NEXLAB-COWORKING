@@ -1,8 +1,8 @@
 {
   "id": "./",
-  "name": "NEXLAB Beta 0.26.31",
+  "name": "NEXLAB Beta 0.26.32",
   "short_name": "NEXLAB",
-  "description": "NEXLAB Beta 0.26.31 — shell PWA leve, observadores consolidados e integridade operacional reforçada.",
+  "description": "NEXLAB Beta 0.26.32 — gestão de usuários mais limpa, com perfil solicitado exibido somente quando necessário.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
