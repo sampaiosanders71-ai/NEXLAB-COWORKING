@@ -6146,7 +6146,7 @@ input[type="datetime-local"].nexlab-form-control-v263033{
 .nexlab-prompt-field[data-mode="code"]{font-size:22px;font-weight:900;letter-spacing:.35em;text-align:center;font-variant-numeric:tabular-nums;}
 
 
-/* Beta 0.26.33 — aviso global de erro e Feedback assistido */
+/* Beta 0.26.32 — aviso global de erro e Feedback assistido */
 .nexlab-user-error-backdrop{
   position:fixed;inset:0;z-index:2147483100;display:flex;align-items:center;justify-content:center;
   padding:18px;background:rgba(2,8,23,.62);backdrop-filter:blur(10px);
@@ -6184,7 +6184,7 @@ input[type="datetime-local"].nexlab-form-control-v263033{
   .nexlab-v261-partial-actions{width:100%;display:grid;grid-template-columns:1fr 1fr;}
 }
 
-/* Beta 0.26.33 — consentimento guiado de notificações Push */
+/* Beta 0.26.32 — consentimento guiado de notificações Push */
 html.nexlab-push-consent-open,
 html.nexlab-push-consent-open body{overflow:hidden}
 .nexlab-push-consent-overlay{position:fixed;inset:0;z-index:2147483300;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(2,12,27,.66);backdrop-filter:blur(8px)}
@@ -6204,7 +6204,7 @@ html.nexlab-push-consent-open body{overflow:hidden}
 @media(max-width:520px){.nexlab-push-consent-overlay{align-items:flex-end;padding:12px}.nexlab-push-consent-dialog{padding:23px 20px;border-radius:24px}.nexlab-push-consent-actions{display:grid;grid-template-columns:1fr}.nexlab-push-consent-actions button{width:100%}.nexlab-push-consent-primary{grid-row:1}.nexlab-push-consent-secondary{grid-row:2}}
 @media(prefers-reduced-motion:reduce){.nexlab-push-consent-actions button{transition:none}}
 
-/* Beta 0.26.33 — evidências visuais privadas e restritas ao Feedback */
+/* Beta 0.26.32 — evidências visuais privadas e restritas ao Feedback */
 .nexlab-evidence-uploader{border:1px solid #dbe3ef;border-radius:18px;padding:16px;background:#f8fafc;display:grid;gap:12px}
 .nexlab-evidence-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
 .nexlab-evidence-heading h4{margin:0;color:#0e1f3d;font-size:.85rem;font-weight:850}
@@ -6228,7 +6228,7 @@ html.nexlab-push-consent-open body{overflow:hidden}
 .nexlab-evidence-global-status{position:fixed;right:18px;bottom:18px;z-index:10050;max-width:min(420px,calc(100vw - 36px));border-radius:14px;padding:12px 14px;background:#0e1f3d;color:#fff;box-shadow:0 16px 38px rgba(15,23,42,.25);font-size:.76rem;font-weight:750;line-height:1.45}.nexlab-evidence-global-status[data-type="error"]{background:#8f1d1d}.nexlab-evidence-global-status[data-type="success"]{background:#12633d}
 @media(max-width:640px){.nexlab-evidence-heading,.nexlab-evidence-admin-item{align-items:stretch}.nexlab-evidence-admin-actions{width:100%}.nexlab-evidence-admin-actions button{flex:1}.nexlab-evidence-global-status{left:18px;right:18px}}
 
-/* Beta 0.26.33 — clareza visual, campos consistentes e ajuda contextual */
+/* Beta 0.26.32 — clareza visual, campos consistentes e ajuda contextual */
 .nexlab-module-help-host{position:relative!important;padding-right:2.55rem!important;}
 .nexlab-module-help-button{
   position:absolute!important;top:.38rem!important;right:.38rem!important;z-index:8!important;
@@ -6301,7 +6301,7 @@ main :where(input,textarea)::placeholder{color:#7C8A9E!important;opacity:1!impor
   .nexlab-module-help-body{padding:1rem 1rem calc(1.2rem + env(safe-area-inset-bottom));}
 }
 
-/* Beta 0.26.33 — fluxo único e simplificado de criação no Marketing */
+/* Beta 0.26.32 — fluxo único e simplificado de criação no Marketing */
 .nexlab-marketing-reset .nexlab-mkt-day[data-nexlab-create-enabled="true"]{
   cursor:pointer;
   transition:background-color .15s ease,border-color .15s ease,box-shadow .15s ease;
@@ -6339,7 +6339,7 @@ main :where(input,textarea)::placeholder{color:#7C8A9E!important;opacity:1!impor
 }
 
 
-/* NEXLAB Beta 0.26.33 — Central de Atividades compacta e responsiva */
+/* NEXLAB Beta 0.26.32 — Central de Atividades compacta e responsiva */
 .nexlab-activity-toolbar{
   display:grid !important;
   grid-template-columns:minmax(20rem,1fr) minmax(11.75rem,13.25rem) auto !important;
@@ -6409,13 +6409,5 @@ main :where(input,textarea)::placeholder{color:#7C8A9E!important;opacity:1!impor
   .nexlab-activity-source-filter,.nexlab-activity-selection-toggle{width:100%}
 }
 
-/* Beta 0.26.33 — Usuários usam somente avatar; evidências são exclusivas do Feedback. */
+/* Beta 0.26.32 — Usuários usam somente avatar; evidências são exclusivas do Feedback. */
 body:not([data-nexlab-page="feedback"]) .nexlab-evidence-admin{display:none!important;}
-
-/* NEXLAB Beta 0.26.33 — calendário mensal compacto da Agenda no celular. */
-@media (max-width: 767px){
-  [aria-label="Calendário mensal da Agenda"] .grid.grid-cols-7 button{
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
-  }
-}

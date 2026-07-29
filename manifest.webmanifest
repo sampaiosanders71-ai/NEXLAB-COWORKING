@@ -1,8 +1,8 @@
 {
   "id": "./",
-  "name": "NEXLAB Beta 0.26.33",
+  "name": "NEXLAB Beta 0.26.32",
   "short_name": "NEXLAB",
-  "description": "NEXLAB Beta 0.26.33 — calendário mensal compacto e interativo no celular, com detalhes por dia.",
+  "description": "NEXLAB Beta 0.26.32 — gestão de usuários mais limpa, com perfil solicitado exibido somente quando necessário.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
