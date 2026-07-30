@@ -1,6 +1,6 @@
-/* NEXLAB Beta 0.26.46 — navegação Push sincronizada com a prontidão real do aplicativo. */
+/* NEXLAB Beta 0.26.48 — navegação Push sincronizada com a prontidão real do aplicativo. */
 (()=>{
-  const BUILD=globalThis.__NEXLAB_BUILD_IDENTITY__||Object.freeze({version:'0.26.46',revision:'beta-0-26-46-inventario-cabecalho-unico',homologationRevision:'beta-0-26-46-inventario-cabecalho-unico'});
+  const BUILD=globalThis.__NEXLAB_BUILD_IDENTITY__||Object.freeze({version:'0.26.48',revision:'beta-0-26-48-dashboard-equipes-compacto',homologationRevision:'beta-0-26-48-dashboard-equipes-compacto'});
   if(globalThis.__NEXLAB_PUSH_NAVIGATION__?.version===BUILD.version)return;
   const VERSION=BUILD.version;
   const BUILD_REVISION=BUILD.revision;
