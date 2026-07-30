@@ -3388,8 +3388,8 @@ html[data-nexlab-test='true']::before{
   }
 }
 
-/* NEXLAB Beta 0.26.48 — resumo compacto de Equipes no Dashboard */
-.dashboard-teams-v02648{
+/* NEXLAB Beta 0.26.49 — resumo compacto de Equipes no Dashboard */
+.dashboard-teams-v02649{
   margin-top:20px;
   padding:18px 20px;
   border:1px solid #dbe4ef;
@@ -3398,7 +3398,7 @@ html[data-nexlab-test='true']::before{
   box-shadow:0 12px 32px rgba(15,23,42,.055);
 }
 
-.dashboard-teams-v02648__header{
+.dashboard-teams-v02649__header{
   display:flex;
   align-items:center;
   justify-content:space-between;
@@ -3406,7 +3406,7 @@ html[data-nexlab-test='true']::before{
   margin-bottom:14px;
 }
 
-.dashboard-teams-v02648__header h2{
+.dashboard-teams-v02649__header h2{
   margin:0;
   color:#0f172a;
   font-size:1rem;
@@ -3414,14 +3414,14 @@ html[data-nexlab-test='true']::before{
   letter-spacing:-.02em;
 }
 
-.dashboard-teams-v02648__header p{
+.dashboard-teams-v02649__header p{
   margin:4px 0 0;
   color:#64748b;
   font-size:.69rem;
   line-height:1.4;
 }
 
-.dashboard-teams-v02648__header button{
+.dashboard-teams-v02649__header button{
   display:inline-flex;
   align-items:center;
   justify-content:center;
@@ -3438,13 +3438,13 @@ html[data-nexlab-test='true']::before{
   transition:transform .16s ease,box-shadow .16s ease,background .16s ease;
 }
 
-.dashboard-teams-v02648__header button:hover{
+.dashboard-teams-v02649__header button:hover{
   transform:translateY(-1px);
   background:#ffedd5;
   box-shadow:0 8px 18px rgba(234,88,12,.12);
 }
 
-.dashboard-teams-v02648__metrics{
+.dashboard-teams-v02649__metrics{
   display:grid;
   grid-template-columns:repeat(4,minmax(0,1fr));
   overflow:hidden;
@@ -3453,7 +3453,7 @@ html[data-nexlab-test='true']::before{
   background:#fff;
 }
 
-.dashboard-team-metric-v02648{
+.dashboard-team-metric-v02649{
   min-width:0;
   min-height:78px;
   padding:13px 15px;
@@ -3464,11 +3464,11 @@ html[data-nexlab-test='true']::before{
   background:#fff;
 }
 
-.dashboard-team-metric-v02648:first-child{
+.dashboard-team-metric-v02649:first-child{
   border-left:0;
 }
 
-.dashboard-team-metric-v02648__icon{
+.dashboard-team-metric-v02649__icon{
   width:34px;
   height:34px;
   flex:0 0 34px;
@@ -3481,7 +3481,7 @@ html[data-nexlab-test='true']::before{
   color:#64748b;
 }
 
-.dashboard-team-metric-v02648 strong{
+.dashboard-team-metric-v02649 strong{
   display:block;
   color:#0f172a;
   font-size:1.35rem;
@@ -3490,7 +3490,7 @@ html[data-nexlab-test='true']::before{
   letter-spacing:-.035em;
 }
 
-.dashboard-team-metric-v02648 div > span{
+.dashboard-team-metric-v02649 div > span{
   display:block;
   margin-top:5px;
   color:#64748b;
@@ -3501,81 +3501,81 @@ html[data-nexlab-test='true']::before{
   text-transform:uppercase;
 }
 
-.dashboard-team-metric-v02648.tone-green .dashboard-team-metric-v02648__icon{
+.dashboard-team-metric-v02649.tone-green .dashboard-team-metric-v02649__icon{
   border-color:#bbf7d0;
   background:#f0fdf4;
   color:#15803d;
 }
-.dashboard-team-metric-v02648.tone-green strong{color:#15803d;}
+.dashboard-team-metric-v02649.tone-green strong{color:#15803d;}
 
-.dashboard-team-metric-v02648.tone-blue .dashboard-team-metric-v02648__icon{
+.dashboard-team-metric-v02649.tone-blue .dashboard-team-metric-v02649__icon{
   border-color:#bfdbfe;
   background:#eff6ff;
   color:#1d4ed8;
 }
-.dashboard-team-metric-v02648.tone-blue strong{color:#1d4ed8;}
+.dashboard-team-metric-v02649.tone-blue strong{color:#1d4ed8;}
 
-.dashboard-team-metric-v02648.tone-slate .dashboard-team-metric-v02648__icon{
+.dashboard-team-metric-v02649.tone-slate .dashboard-team-metric-v02649__icon{
   border-color:#cbd5e1;
   background:#f8fafc;
   color:#475569;
 }
 
-.dashboard-team-metric-v02648.tone-orange .dashboard-team-metric-v02648__icon{
+.dashboard-team-metric-v02649.tone-orange .dashboard-team-metric-v02649__icon{
   border-color:#fed7aa;
   background:#fff7ed;
   color:#ea580c;
 }
-.dashboard-team-metric-v02648.tone-orange strong{color:#c2410c;}
+.dashboard-team-metric-v02649.tone-orange strong{color:#c2410c;}
 
 @media(max-width:980px){
-  .dashboard-teams-v02648__metrics{
+  .dashboard-teams-v02649__metrics{
     grid-template-columns:repeat(2,minmax(0,1fr));
   }
 
-  .dashboard-team-metric-v02648:nth-child(odd){
+  .dashboard-team-metric-v02649:nth-child(odd){
     border-left:0;
   }
 
-  .dashboard-team-metric-v02648:nth-child(n+3){
+  .dashboard-team-metric-v02649:nth-child(n+3){
     border-top:1px solid #e2e8f0;
   }
 }
 
 @media(max-width:620px){
-  .dashboard-teams-v02648{
+  .dashboard-teams-v02649{
     padding:15px;
     border-radius:20px;
   }
 
-  .dashboard-teams-v02648__header{
+  .dashboard-teams-v02649__header{
     align-items:flex-start;
     gap:12px;
   }
 
-  .dashboard-teams-v02648__header p{
+  .dashboard-teams-v02649__header p{
     max-width:210px;
   }
 
-  .dashboard-teams-v02648__header button{
+  .dashboard-teams-v02649__header button{
     min-height:34px;
     padding:0 11px;
     white-space:nowrap;
   }
 
-  .dashboard-team-metric-v02648{
+  .dashboard-team-metric-v02649{
     min-height:72px;
     padding:11px 12px;
     gap:9px;
   }
 
-  .dashboard-team-metric-v02648__icon{
+  .dashboard-team-metric-v02649__icon{
     width:31px;
     height:31px;
     flex-basis:31px;
   }
 
-  .dashboard-team-metric-v02648 strong{
+  .dashboard-team-metric-v02649 strong{
     font-size:1.2rem;
   }
 }
@@ -6196,7 +6196,7 @@ input[type="datetime-local"].nexlab-form-control-v263033{
 .nexlab-prompt-field[data-mode="code"]{font-size:22px;font-weight:900;letter-spacing:.35em;text-align:center;font-variant-numeric:tabular-nums;}
 
 
-/* Beta 0.26.48 — aviso global de erro e Feedback assistido */
+/* Beta 0.26.49 — aviso global de erro e Feedback assistido */
 .nexlab-user-error-backdrop{
   position:fixed;inset:0;z-index:2147483100;display:flex;align-items:center;justify-content:center;
   padding:18px;background:rgba(2,8,23,.62);backdrop-filter:blur(10px);
@@ -6234,7 +6234,7 @@ input[type="datetime-local"].nexlab-form-control-v263033{
   .nexlab-v261-partial-actions{width:100%;display:grid;grid-template-columns:1fr 1fr;}
 }
 
-/* Beta 0.26.48 — consentimento guiado de notificações Push */
+/* Beta 0.26.49 — consentimento guiado de notificações Push */
 html.nexlab-push-consent-open,
 html.nexlab-push-consent-open body{overflow:hidden}
 .nexlab-push-consent-overlay{position:fixed;inset:0;z-index:2147483300;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(2,12,27,.66);backdrop-filter:blur(8px)}
@@ -6254,7 +6254,7 @@ html.nexlab-push-consent-open body{overflow:hidden}
 @media(max-width:520px){.nexlab-push-consent-overlay{align-items:flex-end;padding:12px}.nexlab-push-consent-dialog{padding:23px 20px;border-radius:24px}.nexlab-push-consent-actions{display:grid;grid-template-columns:1fr}.nexlab-push-consent-actions button{width:100%}.nexlab-push-consent-primary{grid-row:1}.nexlab-push-consent-secondary{grid-row:2}}
 @media(prefers-reduced-motion:reduce){.nexlab-push-consent-actions button{transition:none}}
 
-/* Beta 0.26.48 — evidências visuais privadas e restritas ao Feedback */
+/* Beta 0.26.49 — evidências visuais privadas e restritas ao Feedback */
 .nexlab-evidence-uploader{border:1px solid #dbe3ef;border-radius:18px;padding:16px;background:#f8fafc;display:grid;gap:12px}
 .nexlab-evidence-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
 .nexlab-evidence-heading h4{margin:0;color:#0e1f3d;font-size:.85rem;font-weight:850}
@@ -6278,7 +6278,7 @@ html.nexlab-push-consent-open body{overflow:hidden}
 .nexlab-evidence-global-status{position:fixed;right:18px;bottom:18px;z-index:10050;max-width:min(420px,calc(100vw - 36px));border-radius:14px;padding:12px 14px;background:#0e1f3d;color:#fff;box-shadow:0 16px 38px rgba(15,23,42,.25);font-size:.76rem;font-weight:750;line-height:1.45}.nexlab-evidence-global-status[data-type="error"]{background:#8f1d1d}.nexlab-evidence-global-status[data-type="success"]{background:#12633d}
 @media(max-width:640px){.nexlab-evidence-heading,.nexlab-evidence-admin-item{align-items:stretch}.nexlab-evidence-admin-actions{width:100%}.nexlab-evidence-admin-actions button{flex:1}.nexlab-evidence-global-status{left:18px;right:18px}}
 
-/* Beta 0.26.48 — clareza visual, campos consistentes e ajuda contextual */
+/* Beta 0.26.49 — clareza visual, campos consistentes e ajuda contextual */
 .nexlab-module-help-host{position:relative!important;padding-right:2.55rem!important;}
 .nexlab-module-help-button{
   position:absolute!important;top:.38rem!important;right:.38rem!important;z-index:8!important;
@@ -6351,7 +6351,7 @@ main :where(input,textarea)::placeholder{color:#7C8A9E!important;opacity:1!impor
   .nexlab-module-help-body{padding:1rem 1rem calc(1.2rem + env(safe-area-inset-bottom));}
 }
 
-/* Beta 0.26.48 — fluxo único e simplificado de criação no Marketing */
+/* Beta 0.26.49 — fluxo único e simplificado de criação no Marketing */
 .nexlab-marketing-reset .nexlab-mkt-day[data-nexlab-create-enabled="true"]{
   cursor:pointer;
   transition:background-color .15s ease,border-color .15s ease,box-shadow .15s ease;
@@ -6389,7 +6389,7 @@ main :where(input,textarea)::placeholder{color:#7C8A9E!important;opacity:1!impor
 }
 
 
-/* NEXLAB Beta 0.26.48 — Central de Atividades compacta e responsiva */
+/* NEXLAB Beta 0.26.49 — Central de Atividades compacta e responsiva */
 .nexlab-activity-toolbar{
   display:grid !important;
   grid-template-columns:minmax(20rem,1fr) minmax(11.75rem,13.25rem) auto !important;
@@ -6459,10 +6459,10 @@ main :where(input,textarea)::placeholder{color:#7C8A9E!important;opacity:1!impor
   .nexlab-activity-source-filter,.nexlab-activity-selection-toggle{width:100%}
 }
 
-/* Beta 0.26.48 — Usuários usam somente avatar; evidências são exclusivas do Feedback. */
+/* Beta 0.26.49 — Usuários usam somente avatar; evidências são exclusivas do Feedback. */
 body:not([data-nexlab-page="feedback"]) .nexlab-evidence-admin{display:none!important;}
 
-/* NEXLAB Beta 0.26.48 — calendário mensal compacto da Agenda no celular. */
+/* NEXLAB Beta 0.26.49 — calendário mensal compacto da Agenda no celular. */
 @media (max-width: 767px){
   [aria-label="Calendário mensal da Agenda"] .grid.grid-cols-7 button{
     -webkit-tap-highlight-color: transparent;
@@ -6470,7 +6470,7 @@ body:not([data-nexlab-page="feedback"]) .nexlab-evidence-admin{display:none!impo
   }
 }
 
-/* NEXLAB Beta 0.26.48 — Agenda de Marketing compacta no celular */
+/* NEXLAB Beta 0.26.49 — Agenda de Marketing compacta no celular */
 .nexlab-marketing-reset .nexlab-mkt-mobile-calendar{display:none!important;}
 @media(max-width:720px){
   body[data-nexlab-page='marketing'] .nexlab-marketing-reset .nexlab-mkt-agenda{
@@ -6731,7 +6731,7 @@ body:not([data-nexlab-page="feedback"]) .nexlab-evidence-admin{display:none!impo
 }
 
 
-/* NEXLAB Beta 0.26.48 — Atividades do Sistema unificadas */
+/* NEXLAB Beta 0.26.49 — Atividades do Sistema unificadas */
 .nexlab-system-activities__tabs{
   display:flex;gap:.5rem;overflow-x:auto;padding:.35rem;
   border:1px solid rgb(226 232 240);border-radius:1rem;background:rgb(248 250 252);
@@ -6775,7 +6775,7 @@ body:not([data-nexlab-page="feedback"]) .nexlab-evidence-admin{display:none!impo
 }
 
 
-/* NEXLAB Beta 0.26.48 — cabeçalhos escuros padronizados em todos os módulos */
+/* NEXLAB Beta 0.26.49 — cabeçalhos escuros padronizados em todos os módulos */
 body:not([data-nexlab-page="dashboard"]) main .module-header,
 body[data-nexlab-page="marketing"] main .nexlab-mkt-hero,
 body[data-nexlab-page="inventario"] main .nexlab-inventory-switcher,
@@ -6928,7 +6928,7 @@ body[data-nexlab-page="notificacoes"] main .nexlab-notifications-module-header p
 }
 
 
-/* NEXLAB Beta 0.26.48 — Estoque e Patrimônio com cabeçalho único */
+/* NEXLAB Beta 0.26.49 — Estoque e Patrimônio com cabeçalho único */
 body[data-nexlab-page="inventario"] main .nexlab-inventory-sectionbar{
   position:relative;display:flex;align-items:center;justify-content:space-between;gap:1rem;
   min-height:4.5rem;padding:.85rem 3rem .85rem 1rem;border:1px solid #E2E8F0;border-radius:1rem;
@@ -6967,8 +6967,8 @@ body[data-nexlab-page="inventario"] main .nexlab-inventory-sectionbar .nexlab-mo
 }
 
 
-/* Beta 0.26.48 — resumo compacto dos projetos */
-.project-results-summary-v02648 {
+/* Beta 0.26.49 — resumo compacto dos projetos */
+.project-results-summary-v02649 {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -6980,32 +6980,32 @@ body[data-nexlab-page="inventario"] main .nexlab-inventory-sectionbar .nexlab-mo
   background: rgba(255, 255, 255, 0.86);
   box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
 }
-.project-results-summary-v02648__count {
+.project-results-summary-v02649__count {
   display: inline-flex;
   align-items: baseline;
   gap: 0.45rem;
   min-width: 0;
   color: #0f2747;
 }
-.project-results-summary-v02648__count strong {
+.project-results-summary-v02649__count strong {
   font-size: 1rem;
   line-height: 1;
   font-weight: 900;
 }
-.project-results-summary-v02648__count span {
+.project-results-summary-v02649__count span {
   font-size: 0.72rem;
   line-height: 1.2;
   font-weight: 750;
   color: #64748b;
 }
-.project-results-summary-v02648__alerts {
+.project-results-summary-v02649__alerts {
   display: flex;
   align-items: center;
   justify-content: flex-end;
   flex-wrap: wrap;
   gap: 0.45rem;
 }
-.project-results-summary-v02648__alerts button {
+.project-results-summary-v02649__alerts button {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
@@ -7018,12 +7018,12 @@ body[data-nexlab-page="inventario"] main .nexlab-inventory-sectionbar .nexlab-mo
   font-weight: 800;
   transition: border-color 160ms ease, background-color 160ms ease, transform 160ms ease;
 }
-.project-results-summary-v02648__alerts button:hover { transform: translateY(-1px); }
-.project-results-summary-v02648__alerts button:focus-visible {
+.project-results-summary-v02649__alerts button:hover { transform: translateY(-1px); }
+.project-results-summary-v02649__alerts button:focus-visible {
   outline: 2px solid #f97316;
   outline-offset: 2px;
 }
-.project-results-summary-v02648__alerts button strong {
+.project-results-summary-v02649__alerts button strong {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -7035,27 +7035,27 @@ body[data-nexlab-page="inventario"] main .nexlab-inventory-sectionbar .nexlab-mo
   font-size: 0.68rem;
   font-weight: 900;
 }
-.project-results-summary-v02648__alerts .is-overdue {
+.project-results-summary-v02649__alerts .is-overdue {
   border-color: #fecaca;
   background: #fff1f2;
   color: #b91c1c;
 }
-.project-results-summary-v02648__alerts .is-without-team {
+.project-results-summary-v02649__alerts .is-without-team {
   border-color: #fed7aa;
   background: #fff7ed;
   color: #c2410c;
 }
-.project-results-summary-v02648__alerts button.is-active {
+.project-results-summary-v02649__alerts button.is-active {
   border-color: #f97316;
   box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.14);
 }
 @media (max-width: 520px) {
-  .project-results-summary-v02648 {
+  .project-results-summary-v02649 {
     align-items: flex-start;
     flex-direction: column;
     padding: 0.72rem 0.8rem;
   }
-  .project-results-summary-v02648__alerts {
+  .project-results-summary-v02649__alerts {
     width: 100%;
     justify-content: flex-start;
   }
