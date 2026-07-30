@@ -1,6 +1,6 @@
 (function(){
   'use strict';
-  const ID=globalThis.__NEXLAB_BUILD_IDENTITY__||Object.freeze({version:'0.26.32',release:'Beta',revision:'beta-0-26-32-requested-role-conditional'});
+  const ID=globalThis.__NEXLAB_BUILD_IDENTITY__||Object.freeze({version:'0.26.46',release:'Beta',revision:'beta-0-26-46-inventario-cabecalho-unico'});
   if(globalThis.__NEXLAB_REALTIME_CORE__?.revision===ID.revision)return;
 
   const VERSION=ID.version;
@@ -11,7 +11,7 @@
     'events','event_participants','projects','project_tasks','project_history','project_links',
     'teams','team_members','team_links','assets','asset_maintenance','asset_movements',
     'stock_items','nexlab_stock_movements','marketing','marketing_dates','board_posts','feedback',
-    'logs','security_audit_logs','notifications','notification_deliveries','notification_reminders',
+    'notifications','notification_deliveries','notification_reminders',
     'nexlab_system_events','nexlab_client_errors','nexlab_client_error_incidents',
     'nexlab_system_settings','nexlab_app_versions','nexlab_notification_worker_runs',
     'nexlab_notification_provider_health','nexlab_production_snapshots'

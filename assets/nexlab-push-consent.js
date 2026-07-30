@@ -2,8 +2,8 @@
   'use strict';
 
   const BUILD=globalThis.__NEXLAB_BUILD_IDENTITY__||Object.freeze({
-    version:'0.26.32',
-    revision:'beta-0-26-32-requested-role-conditional'
+    version:'0.26.46',
+    revision:'beta-0-26-46-inventario-cabecalho-unico'
   });
   if(globalThis.__NEXLAB_PUSH_CONSENT__?.revision===BUILD.revision)return;
 
@@ -12,6 +12,9 @@
   const ANON=globalThis.__NEXLAB_CONFIG__?.supabaseAnonKey||'sb_publishable_hr-WTQUBbBE0Ei3Lr2hkhQ_XSKG_PXa';
   const DEFER_MS=7*24*60*60*1000;
   const CHECK_DELAY_MS=1500;
+  const EVALUATION_MIN_INTERVAL_MS=15000;
+  const ACCESS_CACHE_MS=60000;
+  const SYNC_MIN_INTERVAL_MS=5*60*1000;
   const state={
     version:BUILD.version,
     revision:BUILD.revision,
@@ -21,13 +24,19 @@
     userId:null,
     promptVisible:false,
     lastCheckedAt:null,
-    error:null
+    error:null,
+    lastReason:null,
+    lastEvaluationAt:0,
+    lastSyncAt:0,
+    skippedSyncs:0
   };
   globalThis.__NEXLAB_PUSH_CONSENT__=state;
 
   let modal=null;
   let evaluationPromise=null;
   let timer=null;
+  let accessCache={userId:null,value:false,at:0};
+  let lastSyncUserId=null;
 
   function supported(){
     return location.protocol==='https:'
@@ -86,9 +95,13 @@
     return data;
   }
 
-  async function hasApprovedAccess(){
-    try{return (await rpc('nexlab_has_approved_access',{}))===true;}
-    catch{return false;}
+  async function hasApprovedAccess(userId,{force=false}={}){
+    const now=Date.now();
+    if(!force&&accessCache.userId===userId&&now-accessCache.at<ACCESS_CACHE_MS)return accessCache.value;
+    let value=false;
+    try{value=(await rpc('nexlab_has_approved_access',{}))===true;}catch{value=false;}
+    accessCache={userId,value,at:now};
+    return value;
   }
 
   function dispatch(name,detail={}){
@@ -153,10 +166,15 @@
     return true;
   }
 
-  async function syncSubscription(){
-    globalThis.dispatchEvent(new CustomEvent('nexlab:push-permission-granted',{detail:{version:BUILD.version,revision:BUILD.revision}}));
+  async function syncSubscription({userId,force=false,reason='evaluation'}={}){
+    const now=Date.now();
+    if(!force&&lastSyncUserId===userId&&now-state.lastSyncAt<SYNC_MIN_INTERVAL_MS){state.skippedSyncs+=1;dispatch('nexlab:push-sync-skipped',{reason});return false;}
+    globalThis.dispatchEvent(new CustomEvent('nexlab:push-permission-granted',{detail:{version:BUILD.version,revision:BUILD.revision,reason}}));
     const sync=globalThis.__NEXLAB_VAPID_ROTATION_BETA_0264__?.sync;
     if(typeof sync==='function')await sync();
+    state.lastSyncAt=now;lastSyncUserId=userId||null;
+    dispatch('nexlab:push-subscription-synced',{reason});
+    return true;
   }
 
   function requestPermissionFromGesture(){
@@ -183,7 +201,7 @@
         state.status='granted';
         closeModal('granted');
         await enablePreferenceOnce(userId);
-        await syncSubscription();
+        await syncSubscription({userId,force:true,reason:'permission-granted'});
         dispatch('nexlab:push-consent-granted',{userId});
         return;
       }
@@ -262,7 +280,10 @@
   async function evaluate(options={}){
     if(evaluationPromise)return evaluationPromise;
     evaluationPromise=(async()=>{
-      state.lastCheckedAt=new Date().toISOString();
+      const now=Date.now();
+      state.lastCheckedAt=new Date(now).toISOString();
+      state.lastEvaluationAt=now;
+      state.lastReason=options.reason||'evaluation';
       state.supported=supported();
       state.permission=('Notification'in globalThis?Notification.permission:'unsupported');
       if(!state.supported){state.status='unsupported';return state;}
@@ -271,7 +292,7 @@
       const userId=tokenSubject(token);
       state.userId=userId;
       if(!token||!userId){state.status='no-session';closeModal('signed-out');return state;}
-      if(!await hasApprovedAccess()){state.status='profile-not-approved';return state;}
+      if(!await hasApprovedAccess(userId,{force:options.forceAccess===true})){state.status='profile-not-approved';return state;}
 
       const permission=Notification.permission;
       state.permission=permission;
@@ -279,8 +300,8 @@
         state.status='granted';
         closeModal('already-granted');
         try{
-          await enablePreferenceOnce(userId);
-          await syncSubscription();
+          const preferenceChanged=await enablePreferenceOnce(userId);
+          await syncSubscription({userId,force:options.forceSync===true||preferenceChanged,reason:options.reason||'evaluation'});
         }catch(error){
           state.status='sync-error';
           state.error=String(error?.message||error);
@@ -308,29 +329,34 @@
 
   function schedule(delay=CHECK_DELAY_MS,options={}){
     clearTimeout(timer);
+    const elapsed=Date.now()-Number(state.lastEvaluationAt||0);
+    const effectiveDelay=options.force?delay:Math.max(delay,EVALUATION_MIN_INTERVAL_MS-elapsed,0);
     timer=setTimeout(()=>evaluate(options).catch(error=>{
       state.status='error';
       state.error=String(error?.message||error);
       dispatch('nexlab:push-consent-error');
-    }),delay);
+    }),effectiveDelay);
   }
 
-  const observer=new MutationObserver(()=>schedule(900));
   function start(){
     state.supported=supported();
-    observer.observe(document.getElementById('root')||document.body,{childList:true,subtree:true});
-    schedule(1800);
+    schedule(1800,{reason:'startup'});
   }
 
   globalThis.__NEXLAB_PUSH_CONSENT__.evaluate=evaluate;
-  globalThis.__NEXLAB_PUSH_CONSENT__.request=()=>evaluate({force:true});
+  globalThis.__NEXLAB_PUSH_CONSENT__.request=()=>evaluate({force:true,forceAccess:true,forceSync:true,reason:'manual-request'});
   globalThis.__NEXLAB_PUSH_CONSENT__.close=closeModal;
+  globalThis.__NEXLAB_PUSH_CONSENT__.refresh=(reason='manual-refresh')=>evaluate({force:true,forceAccess:true,reason});
 
-  globalThis.addEventListener('online',()=>schedule(500));
-  globalThis.addEventListener('focus',()=>schedule(700));
-  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')schedule(700);});
-  globalThis.addEventListener('nexlab:session-reset',()=>{closeModal('session-reset');state.userId=null;state.status='no-session';});
-  globalThis.addEventListener('storage',event=>{if(event.key?.includes(PROJECT_REF)&&event.key?.includes('auth-token'))schedule(500);});
+  globalThis.addEventListener('nexlab:application-ready',()=>schedule(250,{reason:'application-ready'}),{once:true});
+  globalThis.addEventListener('nexlab:session-ready',()=>schedule(250,{force:true,forceAccess:true,reason:'session-ready'}));
+  globalThis.addEventListener('nexlab:permissions-changed',()=>schedule(350,{force:true,forceAccess:true,reason:'permissions-changed'}));
+  globalThis.addEventListener('nexlab:profile-updated',()=>schedule(350,{force:true,forceAccess:true,reason:'profile-updated'}));
+  globalThis.addEventListener('online',()=>schedule(500,{force:true,forceAccess:true,forceSync:true,reason:'connection-restored'}));
+  globalThis.addEventListener('focus',()=>schedule(700,{reason:'window-focus'}));
+  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')schedule(700,{reason:'visible'});});
+  globalThis.addEventListener('nexlab:session-reset',()=>{closeModal('session-reset');state.userId=null;state.status='no-session';accessCache={userId:null,value:false,at:0};lastSyncUserId=null;});
+  globalThis.addEventListener('storage',event=>{if(event.key?.includes(PROJECT_REF)&&event.key?.includes('auth-token'))schedule(500,{force:true,forceAccess:true,reason:'auth-storage-changed'});});
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});
   else start();

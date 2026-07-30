@@ -1,5 +1,5 @@
 importScripts('./assets/nexlab-release-identity.js');
-const BUILD_IDENTITY=self.__NEXLAB_BUILD_IDENTITY__||Object.freeze({version:'0.26.32',release:'Beta',revision:'beta-0-26-32-requested-role-conditional',assetRevision:'app-beta-0-26-32-requested-role-conditional',cacheName:'nexlab-beta-0-26-32-requested-role-conditional',generatedAt:'2026-07-29T03:10:00Z'});
+const BUILD_IDENTITY=self.__NEXLAB_BUILD_IDENTITY__||Object.freeze({version:'0.26.46',release:'Beta',revision:'beta-0-26-46-inventario-cabecalho-unico',assetRevision:'app-beta-0-26-46-inventario-cabecalho-unico',cacheName:'nexlab-beta-0-26-46-inventario-cabecalho-unico',generatedAt:'2026-07-30T00:30:00Z'});
 const APP_VERSION=BUILD_IDENTITY.version;
 const APP_RELEASE=BUILD_IDENTITY.release;
 const APP_REVISION=BUILD_IDENTITY.revision;
@@ -9,73 +9,29 @@ const CACHE_NAME=BUILD_IDENTITY.cacheName;
 const CACHE_PREFIX='nexlab-';
 const NETWORK_TIMEOUT_MS=3500;
 const APP_ENTRY_NETWORK_TIMEOUT_MS=1800;
-const MAIN_BUNDLE='index-beta-0-26-12.js';
-const VENDOR_BUNDLE='nexlab-vendor-beta-0-26-12.js';
-const SHARED_BUNDLE='nexlab-app-shared-beta-0-26-12.js';
-const FEATURE_BUNDLE='nexlab-feature-modules-beta-0-26-12.js';
-const EXPORT_BUNDLE='nexlab-export-vendor-beta-0-26-12.js';
+const RESOURCE_ENTRY=BUILD_IDENTITY.resources?.entry||Object.freeze({main:'assets/index-beta-0-26-12.js',vendor:'assets/nexlab-vendor-beta-0-26-12.js',shared:'assets/nexlab-app-shared-beta-0-26-12.js',feature:'assets/nexlab-feature-modules-beta-0-26-12.js',export:'assets/nexlab-export-vendor-beta-0-26-12.js'});
+const RESOURCE_POLICY=BUILD_IDENTITY.pwa||Object.freeze({mandatoryShell:[],functional:[],optional:[],compatibility:[],offlineProbe:[]});
+const MAIN_BUNDLE=RESOURCE_ENTRY.main.split('/').pop();
+const VENDOR_BUNDLE=RESOURCE_ENTRY.vendor.split('/').pop();
+const SHARED_BUNDLE=RESOURCE_ENTRY.shared.split('/').pop();
+const FEATURE_BUNDLE=RESOURCE_ENTRY.feature.split('/').pop();
+const EXPORT_BUNDLE=RESOURCE_ENTRY.export.split('/').pop();
 const ALLOWED_TABS=new Set(['dashboard','pendencias','agenda','notificacoes','participantes','permissoes','equipes','perfil','projetos','inventario','patrimonio','estoque','reserva','marketing','eventos','mural','feedback','relatorios','saude-sistema','logs']);
-const PROTECTED_COMPATIBILITY_FILES=[
-  './assets/index-beta-0-26-11.js',
-  './assets/nexlab-vendor-beta-0-26-11.js',
-  './assets/nexlab-app-shared-beta-0-26-11.js',
-  './assets/nexlab-feature-modules-beta-0-26-11.js',
-  './assets/nexlab-export-vendor-beta-0-26-11.js',
-  './assets/nexlab-realtime-core-beta-0-26-11.js',
-  './assets/nexlab-realtime-hub-beta-0-26-11.js',
-  './assets/index-R56v263122rc17.js',
-  './assets/nexlab-vendor-r56022rc17.js',
-  './assets/nexlab-app-shared-r56022rc17.js',
-  './assets/nexlab-feature-modules-r56022rc17.js',
-  './assets/nexlab-export-vendor.js',
-  './assets/nexlab-realtime-core-r56022rc17.js',
-  './assets/nexlab-realtime-hub-r56022rc17.js',
-];
-const MANDATORY_SHELL=[
-  './index.html','./offline.html',
-  `./manifest.webmanifest?v=${ASSET_REVISION}`,
-  `./assets/nexlab-release-identity.js?v=${ASSET_REVISION}`,
-  `./assets/${MAIN_BUNDLE}?v=${ASSET_REVISION}`,
-  `./assets/${VENDOR_BUNDLE}?v=${ASSET_REVISION}`,
-  `./assets/${SHARED_BUNDLE}?v=${ASSET_REVISION}`,
-  './assets/index-B1u8eynw.css?v=brand-r38',
-  `./assets/nexlab-bootstrap.js?v=${ASSET_REVISION}`,
-  `./assets/nexlab-dialogs.js?v=${ASSET_REVISION}`,
-  `./assets/nexlab-realtime-core-beta-0-26-12.js?v=${ASSET_REVISION}`,
-  `./assets/nexlab-update-manager.js?v=${ASSET_REVISION}`,
-  `./assets/nexlab-realtime-hub-beta-0-26-12.js?v=${ASSET_REVISION}`,
-  `./assets/nexlab-visual.css?v=${ASSET_REVISION}`,
-  `./assets/nexlab-visual.js?v=${ASSET_REVISION}`,
-  './icons/nexlab-favicon-rounded.png?v=brand-r38',
-  './icons/nexlab-192.png?v=brand-r38'
-];
-const LAZY_RUNTIME_ASSETS=[
-  `./assets/${FEATURE_BUNDLE}?v=${ASSET_REVISION}`,
-  `./assets/${EXPORT_BUNDLE}?v=${ASSET_REVISION}`,
-  `./assets/nexlab-pwa-readiness.js?v=${ASSET_REVISION}`,
-  `./assets/nexlab-auth-security.js?v=${ASSET_REVISION}`,
-  `./assets/nexlab-vapid-rotation.js?v=${ASSET_REVISION}`,
-  `./assets/nexlab-push-consent.js?v=${ASSET_REVISION}`,
-  `./assets/nexlab-feedback-evidence.js?v=${ASSET_REVISION}`,
-  `./assets/nexlab-push-navigation.js?v=${ASSET_REVISION}`,
-  `./assets/nexlab-device-homologation.js?v=${ASSET_REVISION}`,
-  './icons/apple-touch-icon.png?v=brand-r38',
-  './icons/nexlab-maskable-192.png?v=brand-r38',
-  './icons/nexlab-512.png?v=brand-r38',
-  './icons/nexlab-maskable-512.png?v=brand-r38',
-  './brand/nexlab-icon.webp?v=brand-r38',
-  './brand/nexlab-logo-dark.webp?v=brand-r38',
-  './brand/nexlab-logo-light.webp?v=brand-r38',
-  './pwa-check.html',
-  ...PROTECTED_COMPATIBILITY_FILES.map(path=>`./${path}?v=${ASSET_REVISION}`)
-];
+const normalizePolicyPath=(value)=>String(value||'').replace(/^\.\//,'');
+const versionedPolicyUrl=(value)=>{
+  const path=normalizePolicyPath(value);
+  return `./${path}${path==='index.html'||path==='offline.html'?'':`?v=${ASSET_REVISION}`}`;
+};
+const PROTECTED_COMPATIBILITY_FILES=[...(RESOURCE_POLICY.compatibility||[])].map(path=>`./${normalizePolicyPath(path)}`);
+const MANDATORY_SHELL=[...(RESOURCE_POLICY.mandatoryShell||[])].map(versionedPolicyUrl);
+const LAZY_RUNTIME_ASSETS=[...(RESOURCE_POLICY.functional||[]),...(RESOURCE_POLICY.optional||[]),...(RESOURCE_POLICY.compatibility||[])].map(versionedPolicyUrl);
 const OPTIONAL_ASSETS=new Set(LAZY_RUNTIME_ASSETS.map(url=>new URL(url,self.registration.scope).href));
 const INDEX_URL=new URL('./index.html',self.registration.scope).href;
 const OFFLINE_URL=new URL('./offline.html',self.registration.scope).href;
 const SCOPE_URL=new URL(self.registration.scope);
 const INSTALL_CACHE_NAME=`${CACHE_NAME}-installing`;
 const REQUIRED_SHELL=new Set(MANDATORY_SHELL.map(url=>new URL(url,self.registration.scope).href));
-const PROTECTED_COMPATIBILITY_PATHNAMES=new Set(PROTECTED_COMPATIBILITY_FILES.map(path=>new URL(`./${path}`,self.registration.scope).pathname));
+const PROTECTED_COMPATIBILITY_PATHNAMES=new Set(PROTECTED_COMPATIBILITY_FILES.map(path=>new URL(path,self.registration.scope).pathname));
 
 let retainedPreviousCacheName=null;
 
@@ -479,8 +435,8 @@ self.addEventListener('push',(event)=>{
   const url=safePushDestination(source.url,targetTab,notificationId,entityId,entityType,'');
   event.waitUntil(self.registration.showNotification(String(payload.title||'NEXLAB').slice(0,120),{
     body:String(payload.body||'Você recebeu uma nova notificação.').slice(0,500),
-    icon:'./icons/nexlab-192.png?v=brand-r38',
-    badge:'./icons/nexlab-192.png?v=brand-r38',
+    icon:'./icons/nexlab-192.png?v=brand-r46',
+    badge:'./icons/nexlab-192.png?v=brand-r46',
     tag:String(payload.tag||`nexlab-${notificationId||Date.now()}`).slice(0,160),
     data:{url,targetTab,notificationId,entityId,entityType}
   }));

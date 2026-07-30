@@ -1,6 +1,6 @@
 (function(){
   'use strict';
-  const BUILD=globalThis.__NEXLAB_BUILD_IDENTITY__||Object.freeze({version:'0.26.32',revision:'beta-0-26-32-requested-role-conditional'});
+  const BUILD=globalThis.__NEXLAB_BUILD_IDENTITY__||Object.freeze({version:'0.26.46',revision:'beta-0-26-46-inventario-cabecalho-unico'});
   if(globalThis.__NEXLAB_AUTH_SECURITY__?.revision===BUILD.revision)return;
 
   const CARD_ID='nexlab-auth-security-card';
@@ -165,12 +165,22 @@
     host.appendChild(card);
   }
   function schedule(){if(scheduled)return;scheduled=true;requestAnimationFrame(render);}
-  function boot(){
+  let contentObserver=null;
+  function configureObservers(){
+    contentObserver?.disconnect();
     schedule();
-    observer=new MutationObserver(schedule);
-    observer.observe(document.documentElement,{subtree:true,childList:true,attributes:true,attributeFilter:['data-nexlab-page']});
-    globalThis.addEventListener('nexlab:push-navigation',schedule);
-    globalThis.addEventListener('popstate',schedule);
+    if(pageIsProfile()){
+      const main=document.querySelector('main');
+      if(main){contentObserver=new MutationObserver(schedule);contentObserver.observe(main,{childList:true,subtree:true});}
+    }
+  }
+  function boot(){
+    configureObservers();
+    observer=new MutationObserver(configureObservers);
+    observer.observe(document.body,{attributes:true,attributeFilter:['data-nexlab-page']});
+    globalThis.addEventListener('nexlab:application-ready',configureObservers);
+    globalThis.addEventListener('nexlab:push-navigation',configureObservers);
+    globalThis.addEventListener('popstate',configureObservers);
   }
   globalThis.__NEXLAB_AUTH_SECURITY__=Object.freeze({version:BUILD.version,revision:BUILD.revision,openChangePassword});
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();

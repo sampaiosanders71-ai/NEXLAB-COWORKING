@@ -1,5 +1,5 @@
-/* NEXLAB Beta 0.26.32 — ativo clássico protegido por compatibilidade. */
-const __nexlabCompatibilityDetail=Object.freeze({group:"legacy-26-31-22",sourceVersion:"26.31.22",targetVersion:"0.26.32",assetPath:"assets/nexlab-realtime-core-r56022rc17.js",mode:'lightweight-bridge',usedAt:new Date().toISOString()});
+/* NEXLAB Beta 0.26.46 — ativo clássico protegido por compatibilidade. */
+const __nexlabCompatibilityDetail=Object.freeze({group:"legacy-26-31-22",sourceVersion:"26.31.22",targetVersion:"0.26.46",assetPath:"assets/nexlab-realtime-core-r56022rc17.js",mode:'lightweight-bridge',usedAt:new Date().toISOString()});
 try{sessionStorage.setItem('nexlab:compatibility-asset:last',JSON.stringify(__nexlabCompatibilityDetail));}catch{}
 try{globalThis.dispatchEvent(new CustomEvent('nexlab:compatibility-asset-used',{detail:__nexlabCompatibilityDetail}));}catch{}
 /* Compatibilidade temporária da Beta 0.26.12 para clientes ainda presos no shell 26.31.22. */
@@ -16,7 +16,7 @@ try{globalThis.dispatchEvent(new CustomEvent('nexlab:compatibility-asset-used',{
     'events','event_participants','projects','project_tasks','project_history','project_links',
     'teams','team_members','team_links','assets','asset_maintenance','asset_movements',
     'stock_items','nexlab_stock_movements','marketing','marketing_dates','board_posts','feedback',
-    'logs','security_audit_logs','notifications','notification_deliveries','notification_reminders',
+    'notifications','notification_deliveries','notification_reminders',
     'nexlab_system_events','nexlab_client_errors','nexlab_client_error_incidents',
     'nexlab_system_settings','nexlab_app_versions','nexlab_notification_worker_runs',
     'nexlab_notification_provider_health','nexlab_production_snapshots'

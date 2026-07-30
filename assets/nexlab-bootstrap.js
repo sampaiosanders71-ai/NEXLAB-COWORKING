@@ -2,7 +2,7 @@
   if (window.__NEXLAB_BOOTSTRAP_V26_7__) return;
   window.__NEXLAB_BOOTSTRAP_V26_7__ = true;
 
-  const BUILD_IDENTITY = window.__NEXLAB_BUILD_IDENTITY__ || Object.freeze({version:'0.26.32',release:'Beta',revision:'beta-0-26-32-requested-role-conditional',assetRevision:'app-beta-0-26-32-requested-role-conditional',cacheName:'nexlab-beta-0-26-32-requested-role-conditional',generatedAt:'2026-07-29T03:10:00Z'});
+  const BUILD_IDENTITY = window.__NEXLAB_BUILD_IDENTITY__ || Object.freeze({version:'0.26.46',release:'Beta',revision:'beta-0-26-46-inventario-cabecalho-unico',assetRevision:'app-beta-0-26-46-inventario-cabecalho-unico',cacheName:'nexlab-beta-0-26-46-inventario-cabecalho-unico',generatedAt:'2026-07-30T00:30:00Z'});
   const APP_VERSION = BUILD_IDENTITY.version;
   const APP_RELEASE = BUILD_IDENTITY.release;
   const APP_REVISION = BUILD_IDENTITY.revision;
@@ -293,8 +293,8 @@
 
 
   const OBSERVABILITY_VERSION = APP_VERSION;
-  const OBSERVABILITY_QUEUE_KEY = 'nexlab:observability:queue:v0.26.32';
-  const OBSERVABILITY_DEDUP_KEY = 'nexlab:observability:dedup:v0.26.32';
+  const OBSERVABILITY_QUEUE_KEY = 'nexlab:observability:queue:v0.26.46';
+  const OBSERVABILITY_DEDUP_KEY = 'nexlab:observability:dedup:v0.26.46';
   const OBSERVABILITY_RPC = 'nexlab_record_client_error_v26_7_4';
   const OBSERVABILITY_MAX_QUEUE = 20;
   const OBSERVABILITY_DEDUP_MS = 5 * 60 * 1000;
@@ -634,8 +634,8 @@
   }
 
 
-  const USER_ERROR_CONTEXT_KEY = 'nexlab:feedback-assist:context:v0.26.32';
-  const USER_ERROR_STATE_KEY = 'nexlab:user-error-state:v0.26.32';
+  const USER_ERROR_CONTEXT_KEY = 'nexlab:feedback-assist:context:v0.26.46';
+  const USER_ERROR_STATE_KEY = 'nexlab:user-error-state:v0.26.46';
   const USER_ERROR_MESSAGE = 'Erro, tente novamente. Se o erro persistir, informe o problema no Feedback para ser corrigido.';
   const USER_ERROR_REPEAT_MS = 90 * 1000;
   const USER_ERROR_BURST_MS = 5 * 60 * 1000;
@@ -939,7 +939,7 @@
     }
   } catch {}
 
-  const PERFORMANCE_ALERT_STATE_KEY = 'nexlab:performance-alert-state:v0.26.32';
+  const PERFORMANCE_ALERT_STATE_KEY = 'nexlab:performance-alert-state:v0.26.46';
   const PERFORMANCE_ALERT_MIN_INTERVAL_MS = 10 * 60 * 1000;
   let performanceAlertState = observabilityReadJson(PERFORMANCE_ALERT_STATE_KEY, {
     degraded: false,
@@ -1041,7 +1041,7 @@
     performanceState.capturedAt = new Date().toISOString();
     window.__NEXLAB_PERFORMANCE__ = Object.freeze({ ...performanceState });
     try {
-      sessionStorage.setItem('nexlab:performance:v0.26.32', JSON.stringify(performanceState));
+      sessionStorage.setItem('nexlab:performance:v0.26.46', JSON.stringify(performanceState));
     } catch {}
     emit('nexlab:performance-metrics', { ...performanceState });
   }
@@ -1055,13 +1055,37 @@
       }
 
       const resources = performance.getEntriesByType('resource');
-      const initialPattern = /assets\/(?:index-beta-0-26-13|nexlab-vendor-beta-0-26-13|nexlab-app-shared-beta-0-26-13|nexlab-bootstrap|nexlab-realtime-core-beta-0-26-13|nexlab-realtime-hub-beta-0-26-13|nexlab-update-manager|nexlab-visual|nexlab-vapid-rotation)\.js/i;
-      const featurePattern = /assets\/nexlab-feature-modules-beta-0-26-13\.js/i;
-      const initial = resources.filter((entry) => initialPattern.test(entry.name));
-      const feature = resources.filter((entry) => featurePattern.test(entry.name));
-      performanceState.initialTransferBytes = Math.round(initial.reduce((sum, entry) => sum + Number(entry.transferSize || entry.encodedBodySize || 0), 0));
+      const declaredResources = BUILD_IDENTITY?.resources || {};
+      const normalizeResourcePath = (value) => {
+        try {
+          const url = new URL(String(value || ''), document.baseURI);
+          const base = new URL('./', document.baseURI).pathname;
+          return decodeURIComponent(url.pathname.startsWith(base) ? url.pathname.slice(base.length) : url.pathname.replace(/^\/+/, ''));
+        } catch {
+          return String(value || '').split('?')[0].replace(/^\.\//, '').replace(/^\/+/, '');
+        }
+      };
+      const domInitial = [...document.querySelectorAll('script[src],link[rel="modulepreload"][href]')]
+        .map((node) => normalizeResourcePath(node.src || node.href))
+        .filter((path) => path.startsWith('assets/') && path.endsWith('.js'));
+      const initialPaths = new Set([...(declaredResources.initial || []), ...domInitial].map(normalizeResourcePath));
+      const lazyPaths = new Set([...(declaredResources.lazy || [])].map(normalizeResourcePath));
+      const aggregateResources = (paths) => {
+        const byPath = new Map();
+        resources.forEach((entry) => {
+          const path = normalizeResourcePath(entry.name);
+          if (!paths.has(path)) return;
+          const bytes = Number(entry.transferSize || entry.encodedBodySize || 0);
+          const previous = byPath.get(path);
+          if (!previous || bytes > previous.bytes) byPath.set(path, { entry, bytes });
+        });
+        return [...byPath.values()];
+      };
+      const initial = aggregateResources(initialPaths);
+      const feature = aggregateResources(lazyPaths);
+      performanceState.initialTransferBytes = Math.round(initial.reduce((sum, item) => sum + item.bytes, 0));
       performanceState.mainBundleTransferBytes = performanceState.initialTransferBytes;
-      performanceState.lazyFeatureTransferBytes = Math.round(feature.reduce((sum, entry) => sum + Number(entry.transferSize || entry.encodedBodySize || 0), 0));
+      performanceState.lazyFeatureTransferBytes = Math.round(feature.reduce((sum, item) => sum + item.bytes, 0));
       performanceState.loadedChunkCount = initial.length + feature.length;
       savePerformanceState();
     } catch {}
@@ -1096,7 +1120,12 @@
 
       try {
         new PerformanceObserver((list) => {
-          if (list.getEntries().some((entry) => /assets\/nexlab-feature-modules-beta-0-26-13\.js/i.test(entry.name))) {
+          const lazyPaths = new Set([...(BUILD_IDENTITY?.resources?.lazy || [])].map((value) => {
+            try { return new URL(value, document.baseURI).pathname; } catch { return String(value || ''); }
+          }));
+          if (list.getEntries().some((entry) => {
+            try { return lazyPaths.has(new URL(entry.name, document.baseURI).pathname); } catch { return false; }
+          })) {
             collectStaticPerformanceMetrics();
           }
         }).observe({ type: 'resource', buffered: true });
@@ -1117,4 +1146,91 @@
       detail: 'Evento offline detectado pelo navegador.'
     });
   });
+})();
+
+/* NEXLAB Beta 0.26.46 — recursos pós-abertura com nova tentativa controlada. */
+(function(){
+  'use strict';
+  const BUILD=globalThis.__NEXLAB_BUILD_IDENTITY__||{};
+  const VERSION=BUILD.version||'0.26.46';
+  const REVISION=BUILD.revision||'beta-0-26-46-inventario-cabecalho-unico';
+  if(globalThis.__NEXLAB_POST_STARTUP__?.revision===REVISION)return;
+  const MAX_ATTEMPTS=3;
+  const sources=(BUILD.resources?.postStartup||[
+    'assets/nexlab-vapid-rotation.js',
+    'assets/nexlab-push-consent.js',
+    'assets/nexlab-feedback-evidence.js'
+  ]).map(path=>'./'+String(path).replace(/^\.\//,'')+'?v='+(BUILD.assetRevision||'app-beta-0-26-46-inventario-cabecalho-unico'));
+  const state={version:VERSION,revision:REVISION,status:'scheduled',loaded:[],errors:[],attempts:{},lastReason:'',startedAt:null,completedAt:null};
+  const sourceState=new Map(sources.map(src=>[src,{status:'pending',attempts:0,lastError:''}]));
+  let active=null;
+  let retryTimer=0;
+  globalThis.__NEXLAB_POST_STARTUP__=state;
+
+  const absolute=(src)=>new URL(src,document.baseURI).href;
+  const syncPublicState=()=>{
+    state.loaded=sources.filter(src=>sourceState.get(src)?.status==='loaded');
+    state.errors=sources.filter(src=>sourceState.get(src)?.status==='failed').map(src=>({src,error:sourceState.get(src)?.lastError||'Falha desconhecida',attempts:sourceState.get(src)?.attempts||0}));
+    state.attempts=Object.fromEntries(sources.map(src=>[src,sourceState.get(src)?.attempts||0]));
+  };
+  function loadScript(src){
+    const item=sourceState.get(src);
+    if(item?.status==='loaded')return Promise.resolve(src);
+    return new Promise((resolve,reject)=>{
+      const url=absolute(src);
+      const existing=[...document.scripts].find(script=>script.src===url);
+      if(existing?.dataset?.nexlabLoadState==='loaded'){
+        item.status='loaded';item.lastError='';return resolve(src);
+      }
+      if(existing?.dataset?.nexlabLoadState==='loading'){
+        existing.addEventListener('load',()=>resolve(src),{once:true});
+        existing.addEventListener('error',()=>reject(new Error('Falha ao carregar '+src)),{once:true});
+        return;
+      }
+      if(existing)existing.remove();
+      item.status='loading';item.attempts+=1;item.lastError='';
+      const script=document.createElement('script');
+      script.src=src;script.async=true;script.dataset.nexlabPostStartup='true';script.dataset.nexlabLoadState='loading';
+      script.onload=()=>{script.dataset.nexlabLoadState='loaded';item.status='loaded';item.lastError='';resolve(src);};
+      script.onerror=()=>{script.dataset.nexlabLoadState='failed';item.status='failed';item.lastError='Falha ao carregar '+src;script.remove();reject(new Error(item.lastError));};
+      document.head.appendChild(script);
+    });
+  }
+  function scheduleRetry(){
+    clearTimeout(retryTimer);
+    const pending=sources.filter(src=>{const item=sourceState.get(src);return item?.status==='failed'&&item.attempts<MAX_ATTEMPTS;});
+    if(!pending.length||!navigator.onLine)return;
+    const highest=Math.max(...pending.map(src=>sourceState.get(src)?.attempts||1));
+    const delay=Math.min(8000,800*Math.pow(3,Math.max(0,highest-1)));
+    retryTimer=setTimeout(()=>void loadAll('automatic-retry'),delay);
+  }
+  function loadAll(reason='idle'){
+    if(active)return active;
+    const eligible=sources.filter(src=>{const item=sourceState.get(src);return item?.status!=='loaded'&&item?.status!=='loading'&&(item?.attempts||0)<MAX_ATTEMPTS;});
+    if(!eligible.length){
+      syncPublicState();state.status=state.loaded.length===sources.length?'ready':(state.errors.length?'partial':'ready');
+      return Promise.resolve(state);
+    }
+    state.status='loading';state.lastReason=reason;state.startedAt=new Date().toISOString();
+    active=Promise.allSettled(eligible.map(loadScript)).then(()=>{
+      syncPublicState();
+      state.status=state.loaded.length===sources.length?'ready':'partial';state.completedAt=new Date().toISOString();
+      globalThis.dispatchEvent(new CustomEvent('nexlab:post-startup-ready',{detail:{...state}}));
+      if(state.status==='partial')scheduleRetry();
+      return state;
+    }).finally(()=>{active=null;});
+    return active;
+  }
+  const schedule=()=>{
+    if('requestIdleCallback'in globalThis)requestIdleCallback(()=>loadAll('idle'),{timeout:2200});
+    else setTimeout(()=>loadAll('timeout'),900);
+  };
+  if(document.readyState==='complete')schedule();else globalThis.addEventListener('load',schedule,{once:true});
+  document.addEventListener('click',event=>{
+    const target=event.target?.closest?.('[data-tab="feedback"],[data-nexlab-tab="feedback"],[href*="feedback"]');
+    if(target)void loadAll('feedback-navigation');
+  },{capture:true});
+  globalThis.addEventListener('online',()=>void loadAll('connection-restored'));
+  globalThis.addEventListener('nexlab:session-ready',()=>void loadAll('session-ready'),{once:true});
+  state.load=loadAll;state.retry=()=>loadAll('manual-retry');state.getSourceState=()=>Object.fromEntries([...sourceState.entries()].map(([src,value])=>[src,{...value}]));
 })();

@@ -1,20 +1,25 @@
 (function(){
   'use strict';
-  const BUILD_IDENTITY=window.__NEXLAB_BUILD_IDENTITY__||Object.freeze({version:'0.26.32',release:'Beta',revision:'beta-0-26-32-requested-role-conditional',assetRevision:'app-beta-0-26-32-requested-role-conditional',cacheName:'nexlab-beta-0-26-32-requested-role-conditional'});
+  const BUILD_IDENTITY=window.__NEXLAB_BUILD_IDENTITY__||Object.freeze({version:'0.26.46',release:'Beta',revision:'beta-0-26-46-inventario-cabecalho-unico',assetRevision:'app-beta-0-26-46-inventario-cabecalho-unico',cacheName:'nexlab-beta-0-26-46-inventario-cabecalho-unico'});
   if (window.__NEXLAB_PWA_READINESS__?.revision === BUILD_IDENTITY.revision) return;
 
   const VERSION=BUILD_IDENTITY.version;
   const RELEASE=BUILD_IDENTITY.release;
   const REVISION=BUILD_IDENTITY.revision;
-  const HOMOLOGATION_REVISION=BUILD_IDENTITY.homologationRevision||'beta-0-26-32-requested-role-conditional';
+  const HOMOLOGATION_REVISION=BUILD_IDENTITY.homologationRevision||'beta-0-26-46-inventario-cabecalho-unico';
   const ASSET_REVISION=BUILD_IDENTITY.assetRevision;
   const CACHE_NAME=BUILD_IDENTITY.cacheName;
   const STORAGE_KEY='nexlab:pwa-readiness:'+VERSION;
   const DEVICE_EVIDENCE_KEY='nexlab:device-homologation:'+VERSION+':'+REVISION;
-  const EXPECTED_CORE=['index.html','offline.html','manifest.webmanifest','assets/nexlab-release-identity.js','assets/index-beta-0-26-12.js','assets/nexlab-vendor-beta-0-26-12.js','assets/nexlab-app-shared-beta-0-26-12.js','assets/nexlab-dialogs.js','assets/nexlab-push-navigation.js','assets/nexlab-device-homologation.js','assets/nexlab-auth-security.js','assets/nexlab-push-consent.js'];
-  const EXPECTED_OPTIONAL=['assets/nexlab-feature-modules-beta-0-26-12.js','assets/nexlab-export-vendor-beta-0-26-12.js','assets/nexlab-pwa-readiness.js','pwa-check.html'];
-  const OPTIONAL_WARM=['assets/nexlab-feature-modules-beta-0-26-12.js','assets/nexlab-export-vendor-beta-0-26-12.js'];
-  const OFFLINE_PROBE=['index.html','offline.html','assets/nexlab-release-identity.js','assets/index-beta-0-26-12.js','assets/nexlab-push-navigation.js','assets/nexlab-device-homologation.js','assets/nexlab-auth-security.js','assets/nexlab-push-consent.js'];
+  const RESOURCE_ENTRY=BUILD_IDENTITY.resources?.entry||Object.freeze({main:'assets/index-beta-0-26-12.js',vendor:'assets/nexlab-vendor-beta-0-26-12.js',shared:'assets/nexlab-app-shared-beta-0-26-12.js',feature:'assets/nexlab-feature-modules-beta-0-26-12.js',export:'assets/nexlab-export-vendor-beta-0-26-12.js'});
+  const RESOURCE_POLICY=BUILD_IDENTITY.pwa||Object.freeze({mandatoryShell:[],functional:[],optional:[],compatibility:[],offlineProbe:[]});
+  const uniquePaths=(values)=>[...new Set((values||[]).map(value=>String(value||'').replace(/^\.\//,'')).filter(Boolean))];
+  const EXPECTED_CORE=uniquePaths(RESOURCE_POLICY.mandatoryShell);
+  const EXPECTED_FUNCTIONAL=uniquePaths(RESOURCE_POLICY.functional);
+  const EXPECTED_OPTIONAL=uniquePaths([...(RESOURCE_POLICY.functional||[]),...(RESOURCE_POLICY.optional||[]),...(RESOURCE_POLICY.compatibility||[])]);
+  const OPTIONAL_WARM=uniquePaths(BUILD_IDENTITY.resources?.lazy||[]);
+  const EXPECTED_LAZY_MODULES=['TeamsModule','ParticipantsModule','PermissionsModule','UsersModule','ProjectsModule','ProfileModule','FeedbackModuleLegacy','AssetsModule','StockModule','BookingsModule','MarketingModule','EventsModule','BoardModule','LogsModule','ReportsModule','PendingModule','AgendaModule'];
+  const OFFLINE_PROBE=uniquePaths(RESOURCE_POLICY.offlineProbe||RESOURCE_POLICY.mandatoryShell);
 
   const absolute=(value)=>new URL(value,document.baseURI).href;
   const timeout=(ms)=>new Promise((_,reject)=>setTimeout(()=>reject(new Error('Tempo excedido.')),ms));
@@ -148,6 +153,61 @@
     }
     return results;
   }
+  async function verifyRuntimeModules(){
+    const result={ok:false,featureOk:false,exportOk:false,expected:EXPECTED_LAZY_MODULES.length,opened:[],missing:[],errors:[],featureImportMs:0,exportImportMs:0};
+    try{
+      const featureUrl=absolute('./'+RESOURCE_ENTRY.feature+'?v='+encodeURIComponent(ASSET_REVISION));
+      const featureStarted=performance.now();
+      const featureModule=await Promise.race([import(featureUrl),timeout(20000)]);
+      result.featureImportMs=Math.round((performance.now()-featureStarted)*10)/10;
+      for(const name of EXPECTED_LAZY_MODULES){
+        try{
+          const resolved={default:featureModule?.[name]};
+          if(typeof resolved.default!=='function')throw new Error('Exportação ausente ou inválida.');
+          result.opened.push(name);
+        }catch(error){result.missing.push(name);result.errors.push({module:name,message:String(error?.message||error)});}
+      }
+      result.featureOk=result.opened.length===EXPECTED_LAZY_MODULES.length&&result.missing.length===0;
+    }catch(error){result.errors.push({module:'feature-bundle',message:String(error?.message||error)});}
+    try{
+      const exportUrl=absolute('./'+RESOURCE_ENTRY.export+'?v='+encodeURIComponent(ASSET_REVISION));
+      const exportStarted=performance.now();
+      const exportModule=await Promise.race([import(exportUrl),timeout(20000)]);
+      result.exportImportMs=Math.round((performance.now()-exportStarted)*10)/10;
+      result.exportOk=Boolean(exportModule?.jsPDFModule&&exportModule?.excelModule&&exportModule?.autoTableModule);
+      if(!result.exportOk)result.errors.push({module:'export-bundle',message:'Exportações de PDF, tabela e Excel incompletas.'});
+    }catch(error){result.errors.push({module:'export-bundle',message:String(error?.message||error)});}
+    result.ok=result.featureOk&&result.exportOk;
+    return result;
+  }
+
+  function performanceState(runtimeModules){
+    const navigation=performance.getEntriesByType('navigation')[0]||null;
+    const resources=performance.getEntriesByType('resource');
+    const round=value=>Math.round((Number(value)||0)*10)/10;
+    const result={
+      navigationMs:round(navigation?.duration),
+      domContentLoadedMs:round(navigation?.domContentLoadedEventEnd),
+      loadMs:round(navigation?.loadEventEnd),
+      resourceCount:resources.length,
+      transferBytes:resources.reduce((sum,item)=>sum+(Number(item.transferSize)||0),0),
+      decodedBytes:resources.reduce((sum,item)=>sum+(Number(item.decodedBodySize)||0),0),
+      featureImportMs:round(runtimeModules?.featureImportMs),
+      exportImportMs:round(runtimeModules?.exportImportMs),
+      lazyModulesResolved:Number(runtimeModules?.opened?.length||0),
+      capturedAt:new Date().toISOString()
+    };
+    result.navigationMeasured=Boolean(navigation&&Number.isFinite(Number(navigation.duration))&&Number(navigation.duration)>0);
+    result.runtimeImportsMeasured=Number.isFinite(result.featureImportMs)&&result.featureImportMs>0&&Number.isFinite(result.exportImportMs)&&result.exportImportMs>0;
+    result.measured=result.navigationMeasured&&result.runtimeImportsMeasured;
+    result.withinBudget=result.measured
+      && result.navigationMs<=5000
+      && result.featureImportMs<=3500
+      && result.exportImportMs<=3500
+      && result.lazyModulesResolved===EXPECTED_LAZY_MODULES.length;
+    result.status=!result.measured?'not-measured':result.withinBudget?'pass':'fail';
+    return result;
+  }
   function displayState(){
     const standaloneMedia=Boolean(window.matchMedia?.('(display-mode: standalone)').matches);
     const overlay=Boolean(window.matchMedia?.('(display-mode: window-controls-overlay)').matches);
@@ -168,16 +228,17 @@
   }
   async function run(){
     const releaseFile=await loadRelease();
-    const [manifest,offlinePage,serviceWorker,cache]=await Promise.all([
-      readManifest(releaseFile),verifyUrl('./offline.html',releaseFile),serviceWorkerState(),cacheState(releaseFile)
+    const [manifest,offlinePage,serviceWorker,cache,runtimeModules]=await Promise.all([
+      readManifest(releaseFile),verifyUrl('./offline.html',releaseFile),serviceWorkerState(),cacheState(releaseFile),verifyRuntimeModules()
     ]);
     const display=displayState();
+    const performanceProbe=performanceState(runtimeModules);
     const secureContext=window.isSecureContext||['localhost','127.0.0.1','::1'].includes(location.hostname);
     const coreCached=cache.core.length>0&&cache.core.every(item=>item.cached&&item.integrity);
-    const featureCached=cache.optional.every(item=>item.asset!=='assets/nexlab-feature-modules-beta-0-26-12.js'||!item.cached||item.integrity);
-    const exportCached=cache.optional.every(item=>item.asset!=='assets/nexlab-export-vendor-beta-0-26-12.js'||!item.cached||item.integrity);
-    const technicalChecks={secureContext:Boolean(secureContext),online:navigator.onLine,manifest:manifest.ok,serviceWorker:serviceWorker.registered&&serviceWorker.active&&serviceWorker.identity.ok,controlled:serviceWorker.controlled,currentCache:cache.current,coreCached,featureCached,exportCached,cacheIntegrity:cache.integrity,releaseIntegrity:releaseFile.ok,offlinePageIntegrity:offlinePage.ok,standalone:display.installed};
-    const technicalBlocking=['secureContext','manifest','serviceWorker','controlled','currentCache','coreCached','cacheIntegrity','releaseIntegrity','offlinePageIntegrity','standalone'];
+    const featureCached=cache.optional.every(item=>item.asset!==RESOURCE_ENTRY.feature||!item.cached||item.integrity);
+    const exportCached=cache.optional.every(item=>item.asset!==RESOURCE_ENTRY.export||!item.cached||item.integrity);
+    const technicalChecks={secureContext:Boolean(secureContext),online:navigator.onLine,manifest:manifest.ok,serviceWorker:serviceWorker.registered&&serviceWorker.active&&serviceWorker.identity.ok,controlled:serviceWorker.controlled,currentCache:cache.current,coreCached,featureCached,exportCached,featureRuntime:runtimeModules.featureOk,exportRuntime:runtimeModules.exportOk,performanceMeasured:performanceProbe.measured,performanceWithinBudget:performanceProbe.withinBudget,cacheIntegrity:cache.integrity,releaseIntegrity:releaseFile.ok,offlinePageIntegrity:offlinePage.ok,standalone:display.installed};
+    const technicalBlocking=['secureContext','manifest','serviceWorker','controlled','currentCache','coreCached','featureRuntime','exportRuntime','performanceMeasured','performanceWithinBudget','cacheIntegrity','releaseIntegrity','offlinePageIntegrity','standalone'];
     const technicalReady=technicalBlocking.every(key=>technicalChecks[key]===true);
     let evidence=readDeviceEvidence();
     const patch={};
@@ -191,7 +252,7 @@
     const checks={...technicalChecks,installedEvidence:objective.installedLaunch,updateActivationEvidence:objective.updateActivation,offlineNavigationEvidence:objective.offlineNavigation,pushDisplayedEvidence:objective.pushDisplayed,pushDestinationEvidence:objective.pushDestination,serverReceiptEvidence:objective.serverReceipt};
     const objectiveBlocking=['installedEvidence','updateActivationEvidence','offlineNavigationEvidence','pushDisplayedEvidence','pushDestinationEvidence','serverReceiptEvidence'];
     const readyForInstalledPresentation=technicalReady&&objectiveBlocking.every(key=>checks[key]===true);
-    const result={version:VERSION,release:RELEASE,revision:REVISION,cacheName:CACHE_NAME,ok:technicalReady,readyForInstalledPresentation,blockingChecks:technicalBlocking,installedBlockingChecks:[...technicalBlocking,...objectiveBlocking],checks,objectiveEvidence:objective,display,manifest,serviceWorker,cache,releaseFile:{ok:releaseFile.ok,status:releaseFile.status,identityOk:releaseFile.identityOk,size:releaseFile.size,sha256:releaseFile.sha256},offlinePage,capturedAt:new Date().toISOString(),manualConfirmationRequired:!readyForInstalledPresentation,guidance:readyForInstalledPresentation?'Homologação técnica e evidências automáticas concluídas.':'A aprovação exige evidências automáticas de atualização confirmada, instalação, navegação offline e abertura correta de um Push; marcações manuais não aprovam a homologação.'};
+    const result={version:VERSION,release:RELEASE,revision:REVISION,cacheName:CACHE_NAME,ok:technicalReady,performance:performanceProbe,readyForInstalledPresentation,blockingChecks:technicalBlocking,installedBlockingChecks:[...technicalBlocking,...objectiveBlocking],checks,runtimeModules,objectiveEvidence:objective,display,manifest,serviceWorker,cache,releaseFile:{ok:releaseFile.ok,status:releaseFile.status,identityOk:releaseFile.identityOk,size:releaseFile.size,sha256:releaseFile.sha256},offlinePage,capturedAt:new Date().toISOString(),manualConfirmationRequired:!readyForInstalledPresentation,guidance:readyForInstalledPresentation?'Homologação técnica e evidências automáticas concluídas.':'A aprovação exige importação real dos módulos no navegador, evidências automáticas de atualização confirmada, instalação, navegação offline e abertura correta de um Push; marcações manuais não aprovam a homologação.'};
     try{localStorage.setItem(STORAGE_KEY,JSON.stringify(result));}catch{}
     window.__NEXLAB_PWA_LAST_RESULT__=Object.freeze(result);
     window.dispatchEvent(new CustomEvent('nexlab:pwa-readiness-complete',{detail:result}));
@@ -202,7 +263,7 @@
   function renderCheckPage(result){
     const target=document.getElementById('nexlab-pwa-results');
     if(!target)return;
-    const labels={secureContext:'Contexto seguro',manifest:'Manifesto e ícones íntegros',serviceWorker:'Service Worker da revisão',controlled:'Página controlada',currentCache:'Cache da revisão',coreCached:'Núcleo offline íntegro',featureCached:'Módulos sob demanda íntegros',exportCached:'PDF e Excel sob demanda íntegros',cacheIntegrity:'Integridade completa do cache',releaseIntegrity:'Identidade da release',offlinePageIntegrity:'Página offline íntegra',standalone:'Modo aplicativo instalado',installedEvidence:'Abertura instalada detectada',updateActivationEvidence:'Atualização confirmada e ativada',offlineNavigationEvidence:'Navegação offline comprovada',pushDisplayedEvidence:'Clique em Push observado',pushDestinationEvidence:'Destino do Push confirmado pelo app',serverReceiptEvidence:'Evidência registrada no Supabase'};
+    const labels={secureContext:'Contexto seguro',manifest:'Manifesto e ícones íntegros',serviceWorker:'Service Worker da revisão',controlled:'Página controlada',currentCache:'Cache da revisão',coreCached:'Núcleo offline íntegro',featureCached:'Módulos sob demanda íntegros',exportCached:'PDF e Excel sob demanda íntegros',featureRuntime:'17 módulos importados no navegador',exportRuntime:'PDF e Excel importados no navegador',cacheIntegrity:'Integridade completa do cache',releaseIntegrity:'Identidade da release',offlinePageIntegrity:'Página offline íntegra',standalone:'Modo aplicativo instalado',performanceMeasured:'Medição de desempenho concluída',performanceWithinBudget:'Desempenho do diagnóstico dentro do orçamento',installedEvidence:'Abertura instalada detectada',updateActivationEvidence:'Atualização confirmada e ativada',offlineNavigationEvidence:'Navegação offline comprovada',pushDisplayedEvidence:'Clique em Push observado',pushDestinationEvidence:'Destino do Push confirmado pelo app',serverReceiptEvidence:'Evidência registrada no Supabase'};
     const rows=Object.entries(result.checks).filter(([key])=>key!=='online').map(([key,value])=>`<li class="${value?'ok':'pending'}"><strong>${labels[key]||key}</strong><span>${value?'Aprovado':'Pendente'}</span></li>`).join('');
     const presentationReady=result.readyForInstalledPresentation===true;
     target.innerHTML=`<section class="summary ${presentationReady?'ok':'pending'}"><h2>${presentationReady?'Homologação PWA aprovada':'Homologação PWA ainda pendente'}</h2><p>${result.guidance}</p></section><ul>${rows}</ul><p class="timestamp">Verificação: ${new Date(result.capturedAt).toLocaleString('pt-BR')}</p>`;
@@ -210,6 +271,8 @@
     document.body.dataset.pwaCheckOk=String(presentationReady);
     document.body.dataset.pwaTechnicalOk=String(result.ok);
     document.body.dataset.pwaStandalone=String(result.display.installed);
+    const performanceTarget=document.getElementById('nexlab-performance-results');
+    if(performanceTarget){const p=result.performance||{};const measured=p.status!=='not-measured';const statusClass=p.status==='pass'?'ok':'pending';const statusText=p.status==='pass'?'Medição concluída e dentro do orçamento técnico.':p.status==='fail'?'Medição concluída, mas acima do orçamento técnico.':'Medição não concluída; a prontidão técnica permanece bloqueada.';const metric=value=>measured&&Number(value)>0?`${value} ms`:'Não medido';performanceTarget.innerHTML=`<h2>Desempenho medido no navegador</h2><p><strong>Navegação:</strong> ${metric(p.navigationMs)} • <strong>DOMContentLoaded:</strong> ${metric(p.domContentLoadedMs)} • <strong>Importação dos 17 módulos:</strong> ${metric(p.featureImportMs)} • <strong>Exportações:</strong> ${metric(p.exportImportMs)} • <strong>Transferência observada:</strong> ${Math.round((p.transferBytes||0)/1024)} KB.</p><p class="device-status ${statusClass}">${statusText}</p>`;}
   }
   function renderDeviceEvidence(result){
     const section=document.getElementById('nexlab-device-homologation');if(!section)return;
@@ -233,6 +296,7 @@
     try{
       if(navigator.onLine!==false)throw new Error('Desligue a internet antes de executar esta prova.');
       const display=displayState();
+    const performanceProbe=performanceState(runtimeModules);
       if(!display.installed)throw new Error('Abra o diagnóstico pelo aplicativo instalado.');
       if(!navigator.serviceWorker?.controller)throw new Error('A página não está controlada pelo Service Worker.');
       const evidence=readDeviceEvidence();

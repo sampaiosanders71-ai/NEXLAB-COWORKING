@@ -3,7 +3,7 @@
   if(window.__NEXLAB_FEEDBACK_EVIDENCE_02631__)return;
   window.__NEXLAB_FEEDBACK_EVIDENCE_02631__=true;
 
-  const BUILD=globalThis.__NEXLAB_BUILD_IDENTITY__||Object.freeze({version:'0.26.32',revision:'beta-0-26-32-requested-role-conditional'});
+  const BUILD=globalThis.__NEXLAB_BUILD_IDENTITY__||Object.freeze({version:'0.26.46',revision:'beta-0-26-46-inventario-cabecalho-unico'});
   const FUNCTION_NAME='nexlab-feedback-evidence';
   const MAX_FILES=3;
   const MAX_ORIGINAL_BYTES=5*1024*1024;
@@ -11,7 +11,7 @@
   const MAX_DIMENSION=1920;
   const UPLOAD_TIMEOUT_MS=45000;
   const ALLOWED_TYPES=new Set(['image/png','image/jpeg','image/webp']);
-  const DRAFT_KEY='nexlab:feedback-draft:v0.26.32';
+  const DRAFT_KEY='nexlab:feedback-draft:v0.26.46';
   const state={configured:null,statusCheckedAt:0,pending:[],processing:Promise.resolve(),processingActive:false,pickerActive:false,pickerReleaseTimer:null,role:null,userId:null,listCache:new Map(),listLoading:false};
 
   function client(){return globalThis.__NEXLAB_SUPABASE__||null;}
@@ -311,10 +311,22 @@
     if(state.role==='admin')await refreshAdminEvidence();
   }
   function schedule(){if(scheduled||state.pickerActive||state.processingActive)return;scheduled=true;setTimeout(scan,80);}
-  new MutationObserver(schedule).observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:['data-nexlab-page']});
-  window.addEventListener('nexlab:navigate-record',schedule);
+  let contentObserver=null;
+  const pageObserver=new MutationObserver(()=>configureEvidenceObserver());
+  function configureEvidenceObserver(){
+    contentObserver?.disconnect();contentObserver=null;
+    schedule();
+    if(isFeedbackPage()){
+      const host=document.querySelector('main')||document.body;
+      contentObserver=new MutationObserver(schedule);
+      contentObserver.observe(host,{childList:true,subtree:true});
+    }
+  }
+  pageObserver.observe(document.body,{attributes:true,attributeFilter:['data-nexlab-page']});
+  window.addEventListener('nexlab:application-ready',configureEvidenceObserver);
+  window.addEventListener('nexlab:navigate-record',configureEvidenceObserver);
   window.addEventListener('focus',()=>{if(state.pickerActive)endPicker(1200);else schedule();});
   document.addEventListener('visibilitychange',()=>{if(!document.hidden){if(state.pickerActive)endPicker(1200);else schedule();}});
   window.NexLabFeedbackEvidence=Object.freeze({version:BUILD.version,uploadPending,deleteResolvedAll,refresh:()=>refreshAdminEvidence(true),status:()=>checkStatus(true),clearDraft,persistDraft:()=>persistDraft(findFeedbackForm())});
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',schedule,{once:true});else schedule();
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',configureEvidenceObserver,{once:true});else configureEvidenceObserver();
 })();

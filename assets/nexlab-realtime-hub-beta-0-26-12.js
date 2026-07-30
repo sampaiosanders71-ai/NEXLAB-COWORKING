@@ -1,6 +1,6 @@
 (function(){
   'use strict';
-  const ID=globalThis.__NEXLAB_BUILD_IDENTITY__||Object.freeze({version:'0.26.32',revision:'beta-0-26-32-requested-role-conditional'});
+  const ID=globalThis.__NEXLAB_BUILD_IDENTITY__||Object.freeze({version:'0.26.46',revision:'beta-0-26-46-inventario-cabecalho-unico'});
   if(globalThis.__NEXLAB_PENDING_REALTIME_HUB__?.revision===ID.revision)return;
 
   const VERSION=ID.version;
