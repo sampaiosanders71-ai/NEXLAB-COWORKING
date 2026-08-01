@@ -1,5 +1,5 @@
 importScripts('./assets/nexlab-release-identity.js');
-const BUILD_IDENTITY=self.__NEXLAB_BUILD_IDENTITY__||Object.freeze({version:'0.26.49',release:'Beta',revision:'beta-0-26-49-convite-link-compartilhavel',assetRevision:'app-beta-0-26-49-convite-link-compartilhavel',cacheName:'nexlab-beta-0-26-49-convite-link-compartilhavel',generatedAt:'2026-07-30T03:05:00Z'});
+const BUILD_IDENTITY=self.__NEXLAB_BUILD_IDENTITY__||Object.freeze({version:'0.26.50',release:'Beta',revision:'beta-0-26-50-exclusao-usuarios-corrigida',assetRevision:'app-beta-0-26-50-exclusao-usuarios-corrigida',cacheName:'nexlab-beta-0-26-50-exclusao-usuarios-corrigida',generatedAt:'2026-08-01T12:59:53Z'});
 const APP_VERSION=BUILD_IDENTITY.version;
 const APP_RELEASE=BUILD_IDENTITY.release;
 const APP_REVISION=BUILD_IDENTITY.revision;
@@ -435,8 +435,8 @@ self.addEventListener('push',(event)=>{
   const url=safePushDestination(source.url,targetTab,notificationId,entityId,entityType,'');
   event.waitUntil(self.registration.showNotification(String(payload.title||'NEXLAB').slice(0,120),{
     body:String(payload.body||'Você recebeu uma nova notificação.').slice(0,500),
-    icon:'./icons/nexlab-192.png?v=brand-r49',
-    badge:'./icons/nexlab-192.png?v=brand-r49',
+    icon:'./icons/nexlab-192.png?v=brand-r50',
+    badge:'./icons/nexlab-192.png?v=brand-r50',
     tag:String(payload.tag||`nexlab-${notificationId||Date.now()}`).slice(0,160),
     data:{url,targetTab,notificationId,entityId,entityType}
   }));

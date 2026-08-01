@@ -2,8 +2,8 @@
   'use strict';
 
   const BUILD=globalThis.__NEXLAB_BUILD_IDENTITY__||Object.freeze({
-    version:'0.26.49',
-    revision:'beta-0-26-49-convite-link-compartilhavel'
+    version:'0.26.50',
+    revision:'beta-0-26-50-exclusao-usuarios-corrigida'
   });
   if(globalThis.__NEXLAB_PUSH_CONSENT__?.revision===BUILD.revision)return;
 
