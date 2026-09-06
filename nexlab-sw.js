@@ -1,390 +1,61 @@
-importScripts('./assets/nexlab-release-identity.js');
-const BUILD_IDENTITY=self.__NEXLAB_BUILD_IDENTITY__||Object.freeze({version:'0.26.50',release:'Beta',revision:'beta-0-26-50-exclusao-usuarios-corrigida',assetRevision:'app-beta-0-26-50-exclusao-usuarios-corrigida',cacheName:'nexlab-beta-0-26-50-exclusao-usuarios-corrigida',generatedAt:'2026-08-01T12:59:53Z'});
-const APP_VERSION=BUILD_IDENTITY.version;
-const APP_RELEASE=BUILD_IDENTITY.release;
-const APP_REVISION=BUILD_IDENTITY.revision;
-const GENERATED_AT=BUILD_IDENTITY.generatedAt;
-const ASSET_REVISION=BUILD_IDENTITY.assetRevision;
-const CACHE_NAME=BUILD_IDENTITY.cacheName;
+const APP_VERSION='0.26.82';
+const APP_RELEASE='Beta';
+const APP_REVISION='beta-0-26-82-dashboard-acoes-compactas';
+const GENERATED_AT='2026-09-06T22:57:02Z';
+const ASSET_REVISION='app-beta-0-26-82-recuperacao-app';
+const CACHE_NAME='nexlab-app-beta-0-26-82-dashboard-acoes-compactas-20260906T225702Z';
+const GENERATION_KEY=GENERATED_AT.replace(/[^0-9A-Za-z]/g,'');
+const STAGING_CACHE_NAME='nxl-stage-'+APP_REVISION+'-'+GENERATION_KEY;
+const META_CACHE_NAME='nexlab-update-meta';
 const CACHE_PREFIX='nexlab-';
-const NETWORK_TIMEOUT_MS=3500;
-const APP_ENTRY_NETWORK_TIMEOUT_MS=1800;
-const RESOURCE_ENTRY=BUILD_IDENTITY.resources?.entry||Object.freeze({main:'assets/index-beta-0-26-12.js',vendor:'assets/nexlab-vendor-beta-0-26-12.js',shared:'assets/nexlab-app-shared-beta-0-26-12.js',feature:'assets/nexlab-feature-modules-beta-0-26-12.js',export:'assets/nexlab-export-vendor-beta-0-26-12.js'});
-const RESOURCE_POLICY=BUILD_IDENTITY.pwa||Object.freeze({mandatoryShell:[],functional:[],optional:[],compatibility:[],offlineProbe:[]});
-const MAIN_BUNDLE=RESOURCE_ENTRY.main.split('/').pop();
-const VENDOR_BUNDLE=RESOURCE_ENTRY.vendor.split('/').pop();
-const SHARED_BUNDLE=RESOURCE_ENTRY.shared.split('/').pop();
-const FEATURE_BUNDLE=RESOURCE_ENTRY.feature.split('/').pop();
-const EXPORT_BUNDLE=RESOURCE_ENTRY.export.split('/').pop();
-const ALLOWED_TABS=new Set(['dashboard','pendencias','agenda','notificacoes','participantes','permissoes','equipes','perfil','projetos','inventario','patrimonio','estoque','reserva','marketing','eventos','mural','feedback','relatorios','saude-sistema','logs']);
-const normalizePolicyPath=(value)=>String(value||'').replace(/^\.\//,'');
-const versionedPolicyUrl=(value)=>{
-  const path=normalizePolicyPath(value);
-  return `./${path}${path==='index.html'||path==='offline.html'?'':`?v=${ASSET_REVISION}`}`;
-};
-const PROTECTED_COMPATIBILITY_FILES=[...(RESOURCE_POLICY.compatibility||[])].map(path=>`./${normalizePolicyPath(path)}`);
-const MANDATORY_SHELL=[...(RESOURCE_POLICY.mandatoryShell||[])].map(versionedPolicyUrl);
-const LAZY_RUNTIME_ASSETS=[...(RESOURCE_POLICY.functional||[]),...(RESOURCE_POLICY.optional||[]),...(RESOURCE_POLICY.compatibility||[])].map(versionedPolicyUrl);
-const OPTIONAL_ASSETS=new Set(LAZY_RUNTIME_ASSETS.map(url=>new URL(url,self.registration.scope).href));
+const LEGACY_ASSET_REVISIONS=new Set(["app-beta-0-26-82-notificacoes-runtime-corrigido"]);
+const HEAD_PATH='release-head.json';
+const MANIFEST_PATH='release-manifest.json';
+const NETWORK_TIMEOUT_MS=6000;
+const INSTALL_FETCH_TIMEOUT_MS=9000;
+const INSTALL_RETRIES=2;
+const INSTALL_CONCURRENCY=4;
+const ALLOWED_TABS=new Set(['dashboard','pendencias','agenda','notificacoes','participantes','permissoes','equipes','perfil','projetos','inventario','patrimonio','estoque','reserva','marketing','eventos','mural','feedback','configuracoes','relatorios','saude-sistema','logs','atividades-sistema']);
+const SCOPE_URL=new URL(self.registration.scope);
 const INDEX_URL=new URL('./index.html',self.registration.scope).href;
 const OFFLINE_URL=new URL('./offline.html',self.registration.scope).href;
-const SCOPE_URL=new URL(self.registration.scope);
-const INSTALL_CACHE_NAME=`${CACHE_NAME}-installing`;
-const REQUIRED_SHELL=new Set(MANDATORY_SHELL.map(url=>new URL(url,self.registration.scope).href));
-const PROTECTED_COMPATIBILITY_PATHNAMES=new Set(PROTECTED_COMPATIBILITY_FILES.map(path=>new URL(path,self.registration.scope).pathname));
+let installManifest=null;
 
-let retainedPreviousCacheName=null;
-
-async function matchInNamedCache(cacheName,request,options={}){
-  if(!cacheName)return null;
-  const cache=await caches.open(cacheName);
-  return cache.match(request,options);
-}
-
-async function currentCacheMatch(request,options={}){
-  return matchInNamedCache(CACHE_NAME,request,options);
-}
-
-async function retainedCacheName(){
-  if(retainedPreviousCacheName)return retainedPreviousCacheName;
-  const keys=(await caches.keys()).filter(key=>key.startsWith(CACHE_PREFIX)&&key!==CACHE_NAME&&key!==INSTALL_CACHE_NAME).sort(compareCacheVersions);
-  retainedPreviousCacheName=keys.length?keys[keys.length-1]:null;
-  return retainedPreviousCacheName;
-}
-
-async function compatibleAssetMatch(request,options={}){
-  const current=await currentCacheMatch(request,options);
-  if(current)return current;
-  const previous=await retainedCacheName();
-  return previous?matchInNamedCache(previous,request,options):null;
-}
-
-function extractShellReference(html,pattern){
-  const references=[...String(html||'').matchAll(/(?:src|href)=["']([^"']+)["']/gi)].map(match=>match[1]);
-  return references.find(reference=>pattern.test(reference))||null;
-}
-
-async function validatePreviousCache(cacheName){
-  try{
-    const cache=await caches.open(cacheName);
-    const indexResponse=await cache.match(INDEX_URL,{ignoreSearch:true});
-    if(!indexResponse||!indexResponse.ok||!String(indexResponse.headers.get('content-type')||'').toLowerCase().includes('text/html'))return false;
-    const html=await indexResponse.clone().text();
-    if(!/<div[^>]+id=["']root["']/i.test(html)||!/name=["']nexlab-version["']/i.test(html))return false;
-    const version=(html.match(/name=["']nexlab-version["'][^>]*content=["']([^"']+)/i)||html.match(/content=["']([^"']+)["'][^>]*name=["']nexlab-version["']/i))?.[1]||'';
-    const main=extractShellReference(html,/assets\/index-(?:beta|R56)[^"'?]+\.js/i);
-    const vendor=extractShellReference(html,/assets\/nexlab-vendor-[^"'?]+\.js/i);
-    const shared=extractShellReference(html,/assets\/nexlab-app-shared-[^"'?]+\.js/i);
-    const identity=extractShellReference(html,/assets\/nexlab-release-identity\.js/i);
-    const manifest=extractShellReference(html,/manifest\.webmanifest/i);
-    if(!main||!vendor||!shared||!identity||!manifest)return false;
-    const required=['./index.html','./offline.html',main,vendor,shared,identity,manifest];
-    for(const reference of required){
-      const url=new URL(reference,self.registration.scope);
-      const response=await cache.match(url.href,{ignoreSearch:true});
-      if(!response||!response.ok||response.type==='opaque')return false;
-      const request=new Request(url.href);
-      const kind=expectedKind(request,url);
-      if(!contentTypeMatches(kind,response.headers.get('content-type')))return false;
-    }
-    const identityResponse=await cache.match(new URL(identity,self.registration.scope).href,{ignoreSearch:true});
-    const identityText=await identityResponse.clone().text();
-    if(version&&!identityText.includes(`version:'${version}'`)&&!identityText.includes(`version:"${version}"`))return false;
-    const mainResponse=await cache.match(new URL(main,self.registration.scope).href,{ignoreSearch:true});
-    const mainText=await mainResponse.clone().text();
-    if(!mainText.includes(new URL(vendor,self.registration.scope).pathname.split('/').pop().split('?')[0]))return false;
-    if(!mainText.includes(new URL(shared,self.registration.scope).pathname.split('/').pop().split('?')[0]))return false;
-    return true;
-  }catch{return false;}
-}
-
-function isProtectedCompatibilityRequest(url){
-  return PROTECTED_COMPATIBILITY_PATHNAMES.has(url.pathname);
-}
-
-async function protectedCompatibilityAsset(request,kind){
-  const compatible=await compatibleAssetMatch(request,{ignoreSearch:true});
-  if(compatible)return compatible;
-  const response=await fetchWithTimeout(new Request(request,{cache:'no-store'}),NETWORK_TIMEOUT_MS);
-  if(!(await cacheValidResponse(request,response,kind)))throw new Error(`Ativo de compatibilidade inválido: ${request.url}`);
-  return response;
-}
-
-function isRequiredShellRequest(request){
-  return REQUIRED_SHELL.has(request.url);
-}
-
-function cacheVersionParts(name){
-  const match=String(name||'').match(/^nexlab-beta-(\d+)-(\d+)-(\d+)-/);
-  return match?match.slice(1).map(Number):[-1,-1,-1];
-}
-
-function compareCacheVersions(left,right){
-  const a=cacheVersionParts(left);
-  const b=cacheVersionParts(right);
-  for(let index=0;index<3;index+=1){
-    if(a[index]!==b[index])return a[index]-b[index];
-  }
-  return String(left).localeCompare(String(right));
-}
-
-function timeout(milliseconds){
-  return new Promise((_,reject)=>setTimeout(()=>reject(new Error('Tempo de rede excedido.')),milliseconds));
-}
-
-async function fetchWithTimeout(request,milliseconds){
-  if(typeof AbortController==='undefined')return Promise.race([fetch(request),timeout(milliseconds)]);
-  const controller=new AbortController();
-  const timer=setTimeout(()=>{try{controller.abort();}catch{}},milliseconds);
-  try{return await fetch(new Request(request,{signal:controller.signal}));}
-  finally{clearTimeout(timer);}
-}
-
-function expectedKind(request,url){
-  const destination=request.destination;
-  if(destination==='script'||/\.js$/i.test(url.pathname))return 'script';
-  if(destination==='style'||/\.css$/i.test(url.pathname))return 'style';
-  if(destination==='manifest'||/\.webmanifest$/i.test(url.pathname))return 'manifest';
-  if(destination==='image'||/\.(?:png|webp|ico|jpe?g|svg)$/i.test(url.pathname))return 'image';
-  if(destination==='font'||/\.woff2?$/i.test(url.pathname))return 'font';
-  if(request.mode==='navigate'||/\.html$/i.test(url.pathname))return 'html';
-  return 'other';
-}
-
-function contentTypeMatches(kind,contentType){
-  const value=String(contentType||'').toLowerCase();
-  if(kind==='script')return /(?:javascript|ecmascript)/.test(value);
-  if(kind==='style')return value.includes('text/css');
-  if(kind==='manifest')return /(?:application\/manifest\+json|application\/json)/.test(value);
-  if(kind==='image')return value.startsWith('image/');
-  if(kind==='font')return /(?:font\/|application\/font|application\/octet-stream)/.test(value);
-  if(kind==='html')return value.includes('text/html');
-  return true;
-}
-
-function responseIsCacheable(request,response,kind=expectedKind(request,new URL(request.url))){
-  if(!response||!response.ok||response.type==='opaque')return false;
-  let responseUrl;
-  try{responseUrl=new URL(response.url||request.url);}catch{return false;}
-  if(responseUrl.origin!==self.location.origin)return false;
-  return contentTypeMatches(kind,response.headers.get('content-type'));
-}
-
-async function isCanonicalAppShell(response){
-  if(!response||!response.ok||response.type==='opaque')return false;
-  const contentType=response.headers.get('content-type')||'';
-  if(!contentType.toLowerCase().includes('text/html'))return false;
-  let responseUrl;
-  try{responseUrl=new URL(response.url);}catch{return false;}
-  const scopePath=SCOPE_URL.pathname.endsWith('/')?SCOPE_URL.pathname:`${SCOPE_URL.pathname}/`;
-  const responsePath=responseUrl.pathname.endsWith('/')?responseUrl.pathname:`${responseUrl.pathname}`;
-  if(responseUrl.origin!==self.location.origin)return false;
-  if(responsePath!==scopePath&&responsePath!==`${scopePath}index.html`)return false;
-  try{
-    const html=await response.clone().text();
-    return /<div[^>]+id=["']root["']/i.test(html)
-      && /name=["']nexlab-version["']/i.test(html)
-      && html.includes(MAIN_BUNDLE)
-      && html.includes(VENDOR_BUNDLE)
-      && html.includes(SHARED_BUNDLE);
-  }catch{return false;}
-}
-
-async function fetchFresh(url){
-  const request=new Request(new URL(url,self.registration.scope).href,{cache:'reload',credentials:'same-origin'});
-  const response=await fetch(request);
-  if(!responseIsCacheable(request,response))throw new Error(`Resposta inválida para ${request.url}`);
-  if(expectedKind(request,new URL(request.url))==='html'&&request.url===INDEX_URL&&!(await isCanonicalAppShell(response))){
-    throw new Error('O index.html recebido não corresponde ao shell desta revisão.');
-  }
-  return {request,response};
-}
-
-async function precacheShell(){
-  await caches.delete(INSTALL_CACHE_NAME);
-  const staging=await caches.open(INSTALL_CACHE_NAME);
-  try{
-    const fetched=await Promise.all(MANDATORY_SHELL.map(async(url)=>{
-      const {request,response}=await fetchFresh(url);
-      await staging.put(request,response.clone());
-      return request.url;
-    }));
-    const available=new Set(fetched);
-    const missing=[...REQUIRED_SHELL].filter(url=>!available.has(url));
-    if(missing.length)throw new Error(`Arquivos obrigatórios não foram armazenados: ${missing.join(', ')}`);
-    const finalCache=await caches.open(CACHE_NAME);
-    const stagedRequests=await staging.keys();
-    if(stagedRequests.length!==REQUIRED_SHELL.size)throw new Error(`Precache incompleto: ${stagedRequests.length}/${REQUIRED_SHELL.size}.`);
-    await Promise.all(stagedRequests.map(async(request)=>{
-      const response=await staging.match(request);
-      if(!response)throw new Error(`Resposta ausente no cache temporário: ${request.url}`);
-      await finalCache.put(request,response);
-    }));
-  }catch(error){
-    await caches.delete(CACHE_NAME);
-    throw error;
-  }finally{
-    await caches.delete(INSTALL_CACHE_NAME);
-  }
-}
-
-self.addEventListener('install',(event)=>{
-  event.waitUntil((async()=>{
-    // A nova revisão permanece em waiting. A ativação só ocorre após
-    // NEXLAB_SKIP_WAITING, enviado pelo botão "Atualizar agora".
-    await precacheShell();
-  })());
-});
-
-self.addEventListener('activate',(event)=>{
-  event.waitUntil((async()=>{
-    const keys=await caches.keys();
-    const previousCaches=keys.filter(key=>key.startsWith(CACHE_PREFIX)&&key!==CACHE_NAME&&key!==INSTALL_CACHE_NAME).sort(compareCacheVersions);
-    let retainedPrevious=null;
-    for(const cacheName of [...previousCaches].reverse()){
-      if(await validatePreviousCache(cacheName)){retainedPrevious=cacheName;break;}
-    }
-    retainedPreviousCacheName=retainedPrevious;
-    const obsoleteCaches=previousCaches.filter(key=>key!==retainedPrevious);
-    await Promise.all(obsoleteCaches.map(key=>caches.delete(key)));
-    await self.clients.claim();
-    const clients=await self.clients.matchAll({type:'window',includeUncontrolled:true});
-    for(const client of clients){
-      try{client.postMessage({type:'NEXLAB_SW_ACTIVATED',version:APP_VERSION,release:APP_RELEASE,revision:APP_REVISION,generatedAt:GENERATED_AT,cache:CACHE_NAME,reloadByWorker:false,previousCacheRetained:retainedPrevious,previousCacheValidated:Boolean(retainedPrevious)});}catch{}
-    }
-  })());
-});
-
-async function cacheValidResponse(request,response,kind){
-  if(!responseIsCacheable(request,response,kind))return false;
-  const cache=await caches.open(CACHE_NAME);
-  await cache.put(request,response.clone());
-  return true;
-}
-
-async function networkFirst(request,{timeoutMs=NETWORK_TIMEOUT_MS,fallback,kind}={}){
-  try{
-    const response=await fetchWithTimeout(new Request(request,{cache:'no-store'}),timeoutMs);
-    await cacheValidResponse(request,response,kind);
-    return response;
-  }catch(error){
-    const cached=await compatibleAssetMatch(request,{ignoreSearch:false});
-    if(cached)return cached;
-    if(fallback){
-      const fallbackUrl=new URL(fallback,self.registration.scope).href;
-      const fallbackResponse=await currentCacheMatch(fallbackUrl,{ignoreSearch:true})||await compatibleAssetMatch(fallbackUrl,{ignoreSearch:true});
-      if(fallbackResponse)return fallbackResponse;
-    }
-    throw error;
-  }
-}
-
-async function cacheFirst(request,kind){
-  const current=await currentCacheMatch(request,{ignoreSearch:false});
-  if(current)return current;
-  const compatible=await compatibleAssetMatch(request,{ignoreSearch:false});
-  if(compatible)return compatible;
-  const response=await fetchWithTimeout(new Request(request,{cache:'no-store'}),NETWORK_TIMEOUT_MS);
-  if(!(await cacheValidResponse(request,response,kind)))throw new Error(`Ativo inválido: ${request.url}`);
-  return response;
-}
-
-function isStaticAsset(request,url){
-  if(['script','style','image','font','manifest'].includes(request.destination))return true;
-  return /\.(?:js|css|png|webp|ico|jpe?g|svg|woff2?|webmanifest)$/i.test(url.pathname);
-}
-
-function isAppEntryNavigation(url){
-  const scopePath=SCOPE_URL.pathname.endsWith('/')?SCOPE_URL.pathname:`${SCOPE_URL.pathname}/`;
-  return url.pathname===scopePath||url.pathname===`${scopePath}index.html`;
-}
-
-async function appEntryNavigation(request,event){
-  // A abertura pelo ícone nunca deve esperar a rede quando existe shell local.
-  const cachedIndex=await currentCacheMatch(INDEX_URL,{ignoreSearch:true})
-    || await compatibleAssetMatch(INDEX_URL,{ignoreSearch:true});
-  if(cachedIndex){
-    // A verificação remota ocorre em segundo plano; o gerenciador de atualização
-    // continua responsável por ativar uma nova revisão sem misturar caches.
-    event.waitUntil(fetchWithTimeout(new Request(request,{cache:'no-store'}),APP_ENTRY_NETWORK_TIMEOUT_MS).catch(()=>null));
-    return cachedIndex;
-  }
-  try{
-    const response=await fetchWithTimeout(new Request(request,{cache:'no-store'}),APP_ENTRY_NETWORK_TIMEOUT_MS);
-    if(!(await isCanonicalAppShell(response)))throw new Error('O index.html da rede é inválido ou pertence a outra revisão.');
-    return response;
-  }catch{
-    return (await compatibleAssetMatch(OFFLINE_URL,{ignoreSearch:true}))
-      || new Response('<!doctype html><meta charset="utf-8"><title>NEXLAB offline</title><h1>NEXLAB offline</h1><p>Reconecte-se e tente novamente.</p>',{status:503,headers:{'Content-Type':'text/html; charset=utf-8'}});
-  }
-}
-
-async function documentNavigation(request,event){
-  const cached=await currentCacheMatch(request,{ignoreSearch:false});
-  if(isRequiredShellRequest(request)&&cached)return cached;
-  try{
-    const response=await fetchWithTimeout(new Request(request,{cache:'no-store'}),NETWORK_TIMEOUT_MS);
-    if(!responseIsCacheable(request,response,'html'))throw new Error('Documento HTML inválido.');
-    if(!isRequiredShellRequest(request)){const cache=await caches.open(CACHE_NAME);await cache.put(request,response.clone());}
-    return response;
-  }catch{
-    return cached
-      || (await currentCacheMatch(OFFLINE_URL,{ignoreSearch:true}))
-      || new Response('',{status:503,headers:{'Content-Type':'text/html; charset=utf-8'}});
-  }
-}
-
-self.addEventListener('fetch',(event)=>{
-  const request=event.request;
-  if(request.method!=='GET')return;
-  const url=new URL(request.url);
-  if(url.origin!==self.location.origin)return;
-
-  if(url.pathname.endsWith('/release.json')){
-    event.respondWith(fetch(new Request(request,{cache:'no-store'})));
-    return;
-  }
-
-  if(request.mode==='navigate'){
-    event.respondWith(isAppEntryNavigation(url)?appEntryNavigation(request,event):documentNavigation(request,event));
-    return;
-  }
-
-  if(isProtectedCompatibilityRequest(url)){
-    const kind=expectedKind(request,url);
-    event.respondWith(protectedCompatibilityAsset(request,kind).catch(()=>new Response('',{status:503})));
-    return;
-  }
-
-  if(isStaticAsset(request,url)){
-    const kind=expectedKind(request,url);
-    event.respondWith(cacheFirst(request,kind).catch(()=>new Response('',{status:503})));
-    return;
-  }
-
-  event.respondWith(networkFirst(request).catch(()=>new Response('',{status:503})));
-});
-
-self.addEventListener('message',(event)=>{
-  if(event.data?.type==='NEXLAB_GET_VERSION'){
-    event.ports?.[0]?.postMessage({type:'NEXLAB_VERSION',version:APP_VERSION,release:APP_RELEASE,revision:APP_REVISION,generatedAt:GENERATED_AT,cache:CACHE_NAME,cachePolicy:'minimal-core-precache-runtime-on-demand',compatibilityPolicy:'retained-cache-fallback-and-current-promotion'});
-    return;
-  }
-  if(event.data?.type==='NEXLAB_SKIP_WAITING'){
-    const expectedVersion=String(event.data.expectedVersion||'').trim();
-    const expectedRevision=String(event.data.expectedRevision||'').trim();
-    if(expectedVersion&&expectedVersion!==APP_VERSION){
-      event.ports?.[0]?.postMessage({ok:false,error:'Versão do worker diferente da versão confirmada.'});
-      return;
-    }
-    if(expectedRevision&&expectedRevision!==APP_REVISION){
-      event.ports?.[0]?.postMessage({ok:false,error:'Revisão do worker diferente da revisão confirmada.'});
-      return;
-    }
-    event.ports?.[0]?.postMessage({ok:true,version:APP_VERSION,revision:APP_REVISION});
-    event.waitUntil(self.skipWaiting());
-  }
-});
+function sleep(ms){return new Promise(resolve=>setTimeout(resolve,ms));}
+function timeout(ms){return new Promise((_,reject)=>setTimeout(()=>reject(new Error('Tempo de rede excedido.')),ms));}
+async function fetchWithTimeout(request,ms){if(typeof AbortController==='undefined')return Promise.race([fetch(request),timeout(ms)]);const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),ms);try{return await fetch(new Request(request,{signal:controller.signal}));}finally{clearTimeout(timer);}}
+function expectedKind(path){if(/\.js$/i.test(path))return'script';if(/\.css$/i.test(path))return'style';if(/\.webmanifest$/i.test(path))return'manifest';if(/\.json$/i.test(path))return'json';if(/\.(?:png|webp|ico|jpe?g|svg)$/i.test(path))return'image';if(/\.html$/i.test(path))return'html';return'other';}
+function mimeOk(kind,value){const ct=String(value||'').toLowerCase();if(kind==='script')return/(?:javascript|ecmascript)/.test(ct);if(kind==='style')return ct.includes('text/css');if(kind==='manifest'||kind==='json')return/(?:application\/manifest\+json|application\/json|text\/json)/.test(ct);if(kind==='image')return ct.startsWith('image/');if(kind==='html')return ct.includes('text/html');return true;}
+function hex(buffer){return[...new Uint8Array(buffer)].map(v=>v.toString(16).padStart(2,'0')).join('');}
+async function sha256(buffer){return hex(await crypto.subtle.digest('SHA-256',buffer));}
+async function responseBytes(response){return response.clone().arrayBuffer();}
+function canonicalUrl(path){return new URL('./'+String(path||'').replace(/^\.\//,''),self.registration.scope).href;}
+function freshUrl(path){const url=new URL(canonicalUrl(path));if(/\.(?:js|css|webmanifest)$/i.test(url.pathname))url.searchParams.set('v',ASSET_REVISION);else url.searchParams.set('build',APP_REVISION);return url.href;}
+async function fetchJsonFresh(path){const url=new URL(canonicalUrl(path));url.searchParams.set('build',APP_REVISION);const response=await fetchWithTimeout(new Request(url.href,{cache:'no-store',credentials:'same-origin',headers:{Accept:'application/json'}}),INSTALL_FETCH_TIMEOUT_MS);if(!response.ok)throw new Error(`${path} indisponível (${response.status}).`);const buffer=await responseBytes(response);return{response,buffer,json:JSON.parse(new TextDecoder().decode(buffer))};}
+async function loadInstallDefinition(){const headResult=await fetchJsonFresh(HEAD_PATH);const head=headResult.json||{};if(head.version!==APP_VERSION||head.revision!==APP_REVISION||head.asset_revision!==ASSET_REVISION||Number(head.protocol||0)!==2)throw new Error('release-head.json não corresponde ao Service Worker em instalação.');const manifestResult=await fetchJsonFresh(head.manifest||MANIFEST_PATH);const manifestHash=await sha256(manifestResult.buffer);if(String(head.manifest_sha256||'').toLowerCase()!==manifestHash)throw new Error('Hash do release-manifest.json não confere com o cabeçalho da revisão.');const manifest=manifestResult.json||{};if(manifest.version!==APP_VERSION||manifest.revision!==APP_REVISION||manifest.asset_revision!==ASSET_REVISION)throw new Error('Manifesto de atualização pertence a outra revisão.');if(!Array.isArray(manifest.essential_files)||manifest.essential_files.length<8)throw new Error('Manifesto de atualização sem shell essencial válido.');installManifest=manifest;return{head,manifest,headResult,manifestResult,manifestHash};}
+async function fetchVerified(entry){const path=String(entry.path||'');if(!path)throw new Error('Entrada de atualização sem caminho.');let lastError=null;for(let attempt=1;attempt<=INSTALL_RETRIES;attempt++){try{const request=new Request(freshUrl(path),{cache:'no-store',credentials:'same-origin'});const response=await fetchWithTimeout(request,INSTALL_FETCH_TIMEOUT_MS);if(!response.ok||response.type==='opaque'||!mimeOk(expectedKind(path),response.headers.get('content-type')))throw new Error(`Resposta inválida (${response.status}) para ${path}.`);const buffer=await responseBytes(response);if(Number(entry.size)!==buffer.byteLength)throw new Error(`Tamanho divergente em ${path}.`);const digest=await sha256(buffer);if(digest!==String(entry.sha256||'').toLowerCase())throw new Error(`Hash divergente em ${path}.`);return{path,response};}catch(error){lastError=error;if(attempt<INSTALL_RETRIES)await sleep(400*attempt);}}throw new Error(`Falha ao preparar ${path}: ${String(lastError?.message||lastError)}`);}
+async function mapConcurrency(items,limit,fn){const values=Array.from(items||[]);let cursor=0;const runners=Array.from({length:Math.max(1,Math.min(limit,values.length||1))},async()=>{while(true){const i=cursor++;if(i>=values.length)return;await fn(values[i],i);}});await Promise.all(runners);}
+async function stageInstall(){await caches.delete(STAGING_CACHE_NAME);const definition=await loadInstallDefinition();const cache=await caches.open(STAGING_CACHE_NAME);try{await mapConcurrency(definition.manifest.essential_files,INSTALL_CONCURRENCY,async entry=>{const result=await fetchVerified(entry);await cache.put(canonicalUrl(result.path),result.response.clone());});await cache.put(canonicalUrl(HEAD_PATH),definition.headResult.response.clone());await cache.put(canonicalUrl(MANIFEST_PATH),definition.manifestResult.response.clone());const validation=await validateStaging(definition.manifest);if(!validation.ok)throw new Error('O cache temporário não passou na validação final.');return validation;}catch(error){await caches.delete(STAGING_CACHE_NAME);throw error;}}
+async function manifestFromCache(cacheName){const cache=await caches.open(cacheName);const response=await cache.match(canonicalUrl(MANIFEST_PATH),{ignoreSearch:true});if(!response)return null;try{return await response.json();}catch{return null;}}
+async function validateCache(cacheName,manifest){const cache=await caches.open(cacheName);const missing=[],invalid=[];let bytes=0;for(const entry of manifest?.essential_files||[]){const response=await cache.match(canonicalUrl(entry.path),{ignoreSearch:true});if(!response){missing.push(entry.path);continue;}try{const buffer=await responseBytes(response);bytes+=buffer.byteLength;if(buffer.byteLength!==Number(entry.size))throw new Error('size');const digest=await sha256(buffer);if(digest!==String(entry.sha256||'').toLowerCase())throw new Error('sha256');if(!mimeOk(expectedKind(entry.path),response.headers.get('content-type')))throw new Error('mime');}catch(error){invalid.push(`${entry.path} (${String(error?.message||error)})`);}}return{ok:missing.length===0&&invalid.length===0,version:APP_VERSION,release:APP_RELEASE,revision:APP_REVISION,assetRevision:ASSET_REVISION,essentialCount:(manifest?.essential_files||[]).length,essentialBytes:bytes,missing,invalid,protocol:2};}
+async function validateStaging(manifest=installManifest){const resolved=manifest||await manifestFromCache(STAGING_CACHE_NAME);if(!resolved)return{ok:false,error:'Manifesto temporário ausente.',revision:APP_REVISION};return validateCache(STAGING_CACHE_NAME,resolved);}
+async function promoteStaging(){const manifest=await manifestFromCache(STAGING_CACHE_NAME);const validation=await validateStaging(manifest);if(!validation.ok)throw new Error('Cache temporário inválido no momento da ativação.');await caches.delete(CACHE_NAME);const staging=await caches.open(STAGING_CACHE_NAME);const target=await caches.open(CACHE_NAME);for(const request of await staging.keys()){const response=await staging.match(request);if(response)await target.put(request,response);}const finalValidation=await validateCache(CACHE_NAME,manifest);if(!finalValidation.ok){await caches.delete(CACHE_NAME);throw new Error('Falha ao promover o cache validado.');}return finalValidation;}
+async function oldCacheNames(){const keys=await caches.keys();return keys.filter(name=>name.startsWith(CACHE_PREFIX)&&!name.startsWith('nexlab-stage-')&&name!==CACHE_NAME&&name!==META_CACHE_NAME).sort().reverse();}
+function cacheGeneration(name){const match=String(name||'').match(/-(\d{8}T\d{6}Z)$/);return match?match[1]:'';}
+async function cleanupOldCaches(){const names=await oldCacheNames();const all=await caches.keys();const staleStages=all.filter(name=>{const isStage=name.startsWith('nxl-stage-')||name.startsWith('nexlab-stage-');if(!isStage||name===STAGING_CACHE_NAME)return false;const generation=cacheGeneration(name);return !generation||generation<GENERATION_KEY;});await Promise.all([...names,...staleStages].map(name=>caches.delete(name)));await caches.delete(STAGING_CACHE_NAME);return [...names,...staleStages];}
+self.addEventListener('install',event=>{event.waitUntil(stageInstall());});
+self.addEventListener('activate',event=>{event.waitUntil((async()=>{const validation=await promoteStaging();await self.clients.claim();const clients=await self.clients.matchAll({type:'window',includeUncontrolled:true});for(const client of clients){try{client.postMessage({type:'NEXLAB_SW_ACTIVATED',version:APP_VERSION,release:APP_RELEASE,revision:APP_REVISION,generatedAt:GENERATED_AT,cache:CACHE_NAME,validation,previousCachesRetained:true});}catch{}}})());});
+async function activeCacheMatch(request,options={}){const cache=await caches.open(CACHE_NAME);return cache.match(request,options);}
+async function previousCacheMatch(request,options={}){for(const name of await oldCacheNames()){const cache=await caches.open(name);const hit=await cache.match(request,options);if(hit)return hit;}return null;}
+function requestedRevision(url){const value=String(url.searchParams.get('v')||'').trim();return /^app-(?:beta|rc|stable)-/i.test(value)?value:'';}
+function allowedAssetRevision(value){return !value||value===ASSET_REVISION||LEGACY_ASSET_REVISIONS.has(value);}
+function isStatic(request,url){return ['script','style','image','font','manifest'].includes(request.destination)||/\.(?:js|css|png|webp|ico|jpe?g|svg|woff2?|webmanifest)$/i.test(url.pathname);}
+function appEntry(url){const scope=SCOPE_URL.pathname.endsWith('/')?SCOPE_URL.pathname:SCOPE_URL.pathname+'/';return url.pathname===scope||url.pathname===scope+'index.html';}
+async function cacheCurrentNetwork(request){const response=await fetchWithTimeout(new Request(request,{cache:'no-store'}),NETWORK_TIMEOUT_MS);if(!response.ok||response.type==='opaque')throw new Error('Resposta de rede inválida.');const cache=await caches.open(CACHE_NAME);await cache.put(new Request(new URL(request.url).origin+new URL(request.url).pathname),response.clone());return response;}
+async function staticResponse(request,url){const reqRev=requestedRevision(url);if(reqRev&&!allowedAssetRevision(reqRev)){const old=await previousCacheMatch(request,{ignoreSearch:true});if(old)return old;return new Response('/* revisão antiga indisponível */',{status:409,headers:{'Content-Type':/\.css$/i.test(url.pathname)?'text/css':'text/javascript','Cache-Control':'no-store'}});}if(request.cache==='reload'||request.cache==='no-store')try{return await cacheCurrentNetwork(request);}catch{}const cached=await activeCacheMatch(request,{ignoreSearch:true});if(cached)return cached;try{return await cacheCurrentNetwork(request);}catch(error){const old=await previousCacheMatch(request,{ignoreSearch:true});if(old)return old;throw error;}}
+async function navigationResponse(request,url){if(appEntry(url)){const cached=await activeCacheMatch(INDEX_URL,{ignoreSearch:true});if(cached)return cached;const old=await previousCacheMatch(INDEX_URL,{ignoreSearch:true});if(old)return old;}try{return await fetchWithTimeout(new Request(request,{cache:'no-store'}),NETWORK_TIMEOUT_MS);}catch{return await activeCacheMatch(OFFLINE_URL,{ignoreSearch:true})||await previousCacheMatch(OFFLINE_URL,{ignoreSearch:true})||new Response('<!doctype html><meta charset="utf-8"><title>NEXLAB offline</title><h1>NEXLAB offline</h1>',{status:503,headers:{'Content-Type':'text/html; charset=utf-8'}});}}
+self.addEventListener('fetch',event=>{const request=event.request;if(request.method!=='GET')return;const url=new URL(request.url);if(url.origin!==self.location.origin)return;if([HEAD_PATH,MANIFEST_PATH,'release.json'].some(path=>url.pathname.endsWith('/'+path))){event.respondWith(fetch(new Request(request,{cache:'no-store'})));return;}if(request.mode==='navigate'){event.respondWith(navigationResponse(request,url));return;}if(isStatic(request,url)){event.respondWith(staticResponse(request,url).catch(()=>new Response('',{status:503})));return;}});
+self.addEventListener('message',event=>{const type=String(event.data?.type||'');if(type==='NEXLAB_GET_VERSION'){event.ports?.[0]?.postMessage({ok:true,type:'NEXLAB_VERSION',version:APP_VERSION,release:APP_RELEASE,revision:APP_REVISION,generatedAt:GENERATED_AT,cache:CACHE_NAME,protocol:2,cachePolicy:'staging-hash-waiting-user-activation'});return;}if(type==='NEXLAB_VALIDATE_INSTALL'){event.waitUntil((async()=>{try{event.ports?.[0]?.postMessage(await validateStaging());}catch(error){event.ports?.[0]?.postMessage({ok:false,revision:APP_REVISION,error:String(error?.message||error)});}})());return;}if(type==='NEXLAB_ACTIVATE_UPDATE'||type==='NEXLAB_SKIP_WAITING'){event.waitUntil((async()=>{try{const expectedVersion=String(event.data?.expectedVersion||'');const expectedRevision=String(event.data?.expectedRevision||'');if(expectedVersion&&expectedVersion!==APP_VERSION)throw new Error('Versão confirmada diferente do worker.');if(expectedRevision&&expectedRevision!==APP_REVISION)throw new Error('Revisão confirmada diferente do worker.');const validation=await validateStaging();if(!validation.ok)throw new Error('A revisão em espera não está íntegra.');event.ports?.[0]?.postMessage({ok:true,version:APP_VERSION,revision:APP_REVISION,validation});await self.skipWaiting();}catch(error){event.ports?.[0]?.postMessage({ok:false,error:String(error?.message||error)});}})());return;}if(type==='NEXLAB_APP_BOOT_OK'){event.waitUntil((async()=>{try{const expected=String(event.data?.expectedRevision||'');if(expected&&expected!==APP_REVISION)throw new Error('Confirmação de boot pertence a outra revisão.');const removed=await cleanupOldCaches();event.ports?.[0]?.postMessage({ok:true,revision:APP_REVISION,removedCaches:removed});}catch(error){event.ports?.[0]?.postMessage({ok:false,error:String(error?.message||error)});}})());return;}});
 
 function createPushRequestId(){
   try{return crypto.randomUUID();}catch{return `push-${Date.now()}-${Math.random().toString(16).slice(2)}`;}
@@ -478,3 +149,4 @@ self.addEventListener('notificationclick',(event)=>{
     throw new Error('Não foi possível abrir nem confirmar o destino da notificação Push.');
   })());
 });
+
