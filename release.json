@@ -3,11 +3,11 @@
   "display_version": "NEXLAB Beta 0.26.82",
   "release": "Beta",
   "channel": "beta",
-  "revision": "beta-0-26-82-oficial-carregamento-corrigido",
+  "revision": "beta-0-26-82-mural-capas-persistentes",
   "asset_revision": "app-beta-0-26-82-oficial-completo",
-  "generated_at": "2026-11-04T22:31:30Z",
-  "title": "NEXLAB Beta 0.26.82 — Carregamento dos módulos corrigido",
-  "cache_name": "nxl-official-app-beta-0-26-82-oficial-carregamento-corrigido-20261104T223130Z",
+  "generated_at": "2026-11-04T23:46:28Z",
+  "title": "NEXLAB Beta 0.26.82 — Capas persistentes no Mural",
+  "cache_name": "nxl-official-app-beta-0-26-82-mural-capas-persistentes-20261104T234628Z",
   "entry": "index.html",
   "core_files": [
     "index.html",
@@ -2398,5 +2398,11 @@
       "backup_code_unchanged": true,
       "write_handlers_unchanged": true
     }
+  },
+  "mural_cover_cache": {
+    "private_bucket": "mural-media",
+    "edge": "nexlab-mural-link-preview",
+    "temporary_source_urls_recovered": true,
+    "post_content_unchanged": true
   }
 }

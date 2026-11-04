@@ -2,10 +2,10 @@
   "protocol": 2,
   "version": "0.26.82",
   "release": "Beta",
-  "revision": "beta-0-26-82-oficial-carregamento-corrigido",
+  "revision": "beta-0-26-82-mural-capas-persistentes",
   "asset_revision": "app-beta-0-26-82-oficial-completo",
-  "generated_at": "2026-11-04T22:31:30Z",
-  "cache_name": "nxl-official-app-beta-0-26-82-oficial-carregamento-corrigido-20261104T223130Z",
+  "generated_at": "2026-11-04T23:46:28Z",
+  "cache_name": "nxl-official-app-beta-0-26-82-mural-capas-persistentes-20261104T234628Z",
   "essential_files": [
     {
       "path": "index.html",
@@ -24,8 +24,8 @@
     },
     {
       "path": "assets/nexlab-release-identity.js",
-      "size": 11229,
-      "sha256": "cc621c7db64f1ff0666bdbe63e0e688c3b6f0da5a0e4e8f7784fec2e6e3e6ee6"
+      "size": 11247,
+      "sha256": "99b35fec33acdc5735b81d7e2750530357d42db7063422101296d8cf672624ae"
     },
     {
       "path": "assets/nexlab-module-recovery.js",
@@ -264,8 +264,8 @@
     },
     {
       "path": "assets/nexlab-mural-interface-v02682.js",
-      "size": 43974,
-      "sha256": "8b73d339b7d9530bd0fc9b63ceb4c10424905ede68d94a4f4b1f700727c34841"
+      "size": 47016,
+      "sha256": "06c30d65e315c444e1abceffe43ab6337b0172735dadd6b8ed448c5a76781f3a"
     },
     {
       "path": "assets/nexlab-report-download-v02682.js",
@@ -360,7 +360,7 @@
     "automatic_skip_waiting": false
   },
   "essential_count": 64,
-  "essential_bytes": 3187161,
+  "essential_bytes": 3190221,
   "optional_files": [
     {
       "path": "404.html",
@@ -594,8 +594,8 @@
     },
     {
       "path": "nexlab-sw.js",
-      "size": 23601,
-      "sha256": "75d6a7a185f07ee4d3402d1ba27544f566864c9b15224414c06a90308c467748"
+      "size": 23583,
+      "sha256": "44aad0526e186344ab25fe6ae84d7f3b545a601da1832585617a0a66958ad249"
     },
     {
       "path": "pwa-check.html",

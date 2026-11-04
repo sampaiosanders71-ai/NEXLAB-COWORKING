@@ -1,11 +1,11 @@
 const APP_VERSION='0.26.82';
 const APP_RELEASE='Beta';
-const APP_REVISION="beta-0-26-82-oficial-carregamento-corrigido";
-const GENERATED_AT="2026-11-04T22:31:30Z";
+const APP_REVISION="beta-0-26-82-mural-capas-persistentes";
+const GENERATED_AT="2026-11-04T23:46:28Z";
 const ASSET_REVISION="app-beta-0-26-82-oficial-completo";
-const CACHE_NAME="nxl-official-app-beta-0-26-82-oficial-carregamento-corrigido-20261104T223130Z";
+const CACHE_NAME="nxl-official-app-beta-0-26-82-mural-capas-persistentes-20261104T234628Z";
 const GENERATION_KEY=GENERATED_AT.replace(/[^0-9A-Za-z]/g,'');
-const STAGING_CACHE_NAME="nxl-official-stage-beta-0-26-82-oficial-carregamento-corrigido-20261104T223130Z";
+const STAGING_CACHE_NAME="nxl-official-stage-beta-0-26-82-mural-capas-persistentes-20261104T234628Z";
 const META_CACHE_NAME="nxl-official-update-meta";
 const CACHE_PREFIX="nxl-official-app-";
 const PWA_ID='./nexlab-pwa';

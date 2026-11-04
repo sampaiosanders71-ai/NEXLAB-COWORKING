@@ -3,12 +3,12 @@
   "version": "0.26.82",
   "release": "Beta",
   "channel": "beta",
-  "revision": "beta-0-26-82-oficial-carregamento-corrigido",
+  "revision": "beta-0-26-82-mural-capas-persistentes",
   "asset_revision": "app-beta-0-26-82-oficial-completo",
-  "generated_at": "2026-11-04T22:31:30Z",
+  "generated_at": "2026-11-04T23:46:28Z",
   "manifest": "release-manifest.json",
-  "manifest_sha256": "d45a5287ee2cedfb20d9dd49b1018b709b8083d7a0b5126ea3b8a78bd124d604",
+  "manifest_sha256": "0037cc35a5d5df7a550377ab45275f818b54576dcaad317deb79a2effb18e925",
   "essential_count": 64,
-  "essential_bytes": 3187161,
-  "cache_name": "nxl-official-app-beta-0-26-82-oficial-carregamento-corrigido-20261104T223130Z"
+  "essential_bytes": 3190221,
+  "cache_name": "nxl-official-app-beta-0-26-82-mural-capas-persistentes-20261104T234628Z"
 }

@@ -104,27 +104,64 @@ function PostsGrid({ children, loading }) {
   }, [children]);
   return /* @__PURE__ */ React.createElement("div", { className: "posts-grid", ref, tabIndex: -1, "aria-busy": loading }, children);
 }
+const muralMediaRequests = new Map();
+function muralPrivatePath(value) {
+  try {
+    if (typeof value !== "string") return null;
+    if (/^storage:\/\/mural-media\/[\w/-]+\.(?:jpg|jpeg|png|webp)$/.test(value)) return value.slice(22);
+    const url = new URL(value), own = new URL(supabase.supabaseUrl), prefix = "/storage/v1/object/authenticated/mural-media/";
+    if (url.origin !== own.origin || !url.pathname.startsWith(prefix) || url.search || url.hash) return null;
+    const path = decodeURIComponent(url.pathname.slice(prefix.length));
+    return /^link-cache\/[a-f0-9]{64}\.(?:jpg|png|webp)$/.test(path) ? path : null;
+  } catch { return null; }
+}
+async function muralSignedCover(post) {
+  const privatePath = muralPrivatePath(post.link_image_url) || muralPrivatePath(post.capa_url);
+  if (privatePath) {
+    const { data, error } = await supabase.storage.from("mural-media").createSignedUrl(privatePath, 3600);
+    if (error || !data?.signedUrl) throw Error("Imagem indisponível.");
+    return data.signedUrl;
+  }
+  if (!post.link_url || !post.link_image_url || !/^[0-9a-f-]{36}$/i.test(post.id || "")) return null;
+  const key = post.id + "|" + post.link_url + "|" + post.link_image_url + "|" + !!post.archived_at;
+  if (!muralMediaRequests.has(key)) {
+    const request = (async () => {
+      const { data, error } = await supabase.functions.invoke("nexlab-mural-link-preview", { body: { action: "ensure_cover", post_id: post.id, expected_link: post.link_url, archived: !!post.archived_at } });
+      if (error) throw error;
+      const path = muralPrivatePath(data?.image_url);
+      if (!path) return null;
+      const signed = await supabase.storage.from("mural-media").createSignedUrl(path, 3600);
+      if (signed.error || !signed.data?.signedUrl) throw Error("Imagem indisponível.");
+      return signed.data.signedUrl;
+    })().finally(() => muralMediaRequests.delete(key));
+    muralMediaRequests.set(key, request);
+  }
+  return muralMediaRequests.get(key);
+}
 function Cover({ post, detail = false, eager = false, onImage, onStatus }) {
-  const [signed, setSigned] = React.useState(null), [failed, setFailed] = React.useState(""), [loaded, setLoaded] = React.useState("");
+  const [signed, setSigned] = React.useState(null), [failed, setFailed] = React.useState(""), [loaded, setLoaded] = React.useState(""), [resolving, setResolving] = React.useState(false), [resolveFailed, setResolveFailed] = React.useState(false), [refresh, setRefresh] = React.useState(0);
+  const retried = React.useRef(new Set());
   const legacy = String(post.capa_url || ""), banner = String(post.conteudo || "").match(/\[BANNER_IMAGE:([^\]]+)\]/)?.[1];
-  let src = post.link_url ? muralUrl(post.link_image_url, 4096) : /^storage:\/\/mural-media\/[\w./-]+$/.test(legacy) ? signed : /^\.\/(brand|icons)\/[\w.-]+\.(webp|png|svg)$/.test(banner || "") ? banner : null;
+  const privatePath = muralPrivatePath(post.link_image_url) || muralPrivatePath(legacy);
+  const fallback = privatePath ? null : post.link_url ? muralUrl(post.link_image_url, 4096) : /^\.\/(brand|icons)\/[\w.-]+\.(webp|png|svg)$/.test(banner || "") ? banner : null;
+  const src = signed || fallback;
+  React.useEffect(() => { retried.current.clear(); }, [post.id, post.link_url, post.link_image_url, legacy]);
   React.useEffect(() => {
     let live = true;
-    if (!post.link_url && legacy.startsWith("storage://mural-media/")) supabase.storage.from("mural-media").createSignedUrl(legacy.slice(22), 3600).then(({ data }) => {
-      if (live) setSigned(data?.signedUrl || null);
-    }).catch(() => {
-    });
-    return () => {
-      live = false;
-    };
-  }, [post.link_url, legacy]);
-  React.useEffect(() => {
-    onImage?.(!!src && src !== failed);
-  }, [src, failed, onImage]);
-  React.useEffect(() => {
-    onStatus?.(!src ? "empty" : src === failed ? "failed" : src === loaded ? "ready" : "loading");
-  }, [src, failed, loaded, onStatus]);
-  return src && src !== failed ? /* @__PURE__ */ React.createElement("img", { key: src, className: detail ? "detail-cover" : "post-cover", src, alt: "Imagem do comunicado " + post.titulo, referrerPolicy: "no-referrer", loading: detail || eager ? "eager" : "lazy", onLoad: () => setLoaded(src), onError: () => setFailed(src) }) : null;
+    setSigned(null); setFailed(""); setLoaded(""); setResolveFailed(false);
+    const canResolve = !!privatePath || !!(post.link_url && post.link_image_url && /^[0-9a-f-]{36}$/i.test(post.id || ""));
+    setResolving(canResolve);
+    if (canResolve) muralSignedCover(post).then(value => { if (live) { setSigned(value); setResolveFailed(!value); } }).catch(() => { if (live) setResolveFailed(true); }).finally(() => { if (live) setResolving(false); });
+    // Refresh signatures while an opened Mural remains on screen.
+    const timer = canResolve ? setTimeout(() => { if (live) setRefresh(value => value + 1); }, 50 * 60 * 1000) : null;
+    return () => { live = false; if (timer) clearTimeout(timer); };
+  }, [post.id, post.link_url, post.link_image_url, post.archived_at, legacy, refresh]);
+  React.useEffect(() => { onImage?.(!!src && src !== failed); }, [src, failed, onImage]);
+  React.useEffect(() => { onStatus?.(src && src === loaded ? "ready" : resolving ? "loading" : resolveFailed && !src ? "failed" : !src ? "empty" : src === failed ? "failed" : "loading"); }, [src, failed, loaded, resolving, resolveFailed, onStatus]);
+  return src && src !== failed ? React.createElement("img", { key: src, className: detail ? "detail-cover" : "post-cover", src, alt: "Imagem do comunicado " + post.titulo, referrerPolicy: "no-referrer", loading: detail || eager ? "eager" : "lazy", onLoad: () => setLoaded(src), onError: () => {
+    setFailed(src);
+    if (signed && retried.current.size < 1) { retried.current.add(src); setRefresh(value => value + 1); }
+  } }) : null;
 }
 function Author({ post, profile, users = [] }) {
   const user = users.find((u) => u.id === post.autor_id), name = post.author_name || user?.nome || (post.autor_id === profile?.id ? profile.nome : "Usu\xE1rio removido"), role = post.author_role || user?.role;
@@ -221,7 +258,7 @@ function Editor({ record, profile, users, canModerate, onClose, onSave }) {
     setLookup("loading");
     const timer = setTimeout(async () => {
       try {
-        const { data, error: error2 } = await supabase.functions.invoke("nexlab-mural-link-preview", { body: { url: normalized } });
+        const { data, error: error2 } = await supabase.functions.invoke("nexlab-mural-link-preview", { body: { url: normalized, persistent: true } });
         if (!current) return;
         if (error2) throw error2;
         const found = muralUrl(data?.image_url, 4096);
