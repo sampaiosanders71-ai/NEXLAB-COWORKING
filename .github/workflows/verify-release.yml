@@ -1,0 +1,17 @@
+name: Verify release integrity
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify essential and lazy resources
+        run: node scripts/verify-release.mjs
