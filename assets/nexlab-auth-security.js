@@ -1,6 +1,6 @@
 (function(){
   'use strict';
-  const BUILD=globalThis.__NEXLAB_BUILD_IDENTITY__||Object.freeze({version:'0.26.50',revision:'beta-0-26-50-exclusao-usuarios-corrigida'});
+  const BUILD=globalThis.__NEXLAB_BUILD_IDENTITY__||Object.freeze({version:'0.26.82',revision:'beta-0-26-82-google-calendar-integracao'});
   if(globalThis.__NEXLAB_AUTH_SECURITY__?.revision===BUILD.revision)return;
 
   const CARD_ID='nexlab-auth-security-card';
@@ -16,7 +16,7 @@
     style.textContent=[
       '#'+CARD_ID+'{margin-top:18px;border:1px solid #dbe3ee;border-radius:20px;background:#fff;padding:20px;box-shadow:0 8px 28px rgba(15,35,65,.07);font:14px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#24364f}',
       '#'+CARD_ID+' .nexlab-auth-security-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;flex-wrap:wrap}',
-      '#'+CARD_ID+' h2{margin:0 0 6px;font-size:18px;line-height:1.25;color:#10233f}',
+      '#'+CARD_ID+' h2{margin:0 0 6px;font-size:1.125rem;line-height:1.25;color:#10233f}',
       '#'+CARD_ID+' p{margin:0;max-width:720px;color:#5b6b82}',
       '#'+CARD_ID+' .nexlab-auth-security-note{margin-top:14px;padding:12px 14px;border-radius:14px;background:#f5f8fc;border:1px solid #e2e8f0;color:#42526a}',
       '#'+CARD_ID+' button,.nexlab-auth-security-actions button{appearance:none;border:0;border-radius:12px;padding:10px 15px;font-weight:800;cursor:pointer}',
@@ -24,7 +24,7 @@
       '#'+CARD_ID+' button:hover{background:#143d7d}',
       '.nexlab-auth-security-backdrop{position:fixed;inset:0;z-index:2147483646;background:rgba(8,23,48,.56);display:flex;align-items:center;justify-content:center;padding:18px}',
       '.nexlab-auth-security-dialog{width:min(520px,100%);max-height:min(760px,calc(100vh - 36px));overflow:auto;border-radius:22px;background:#fff;padding:22px;box-shadow:0 24px 80px rgba(0,0,0,.3);font:14px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#24364f}',
-      '.nexlab-auth-security-dialog h2{margin:0;color:#10233f;font-size:21px}',
+      '.nexlab-auth-security-dialog h2{margin:0;color:#10233f;font-size:1.3125rem}',
       '.nexlab-auth-security-dialog .intro{margin:7px 0 18px;color:#5b6b82}',
       '.nexlab-auth-security-field{display:block;margin:0 0 14px}',
       '.nexlab-auth-security-field span{display:block;margin-bottom:6px;font-weight:750;color:#34465f}',

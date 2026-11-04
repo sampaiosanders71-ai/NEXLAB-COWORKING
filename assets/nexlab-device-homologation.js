@@ -1,12 +1,12 @@
 (function(){
   'use strict';
-  const BUILD=globalThis.__NEXLAB_BUILD_IDENTITY__||Object.freeze({version:'0.26.50',revision:'beta-0-26-50-exclusao-usuarios-corrigida',homologationRevision:'beta-0-26-50-exclusao-usuarios-corrigida'});
+  const BUILD=globalThis.__NEXLAB_BUILD_IDENTITY__||Object.freeze({version:'0.26.82',revision:'beta-0-26-82-google-calendar-integracao',homologationRevision:'beta-0-26-82-google-calendar-integracao'});
   const VERSION=BUILD.version;
   const BUILD_REVISION=BUILD.revision;
-  const REVISION=BUILD.homologationRevision||'beta-0-26-50-exclusao-usuarios-corrigida';
+  const REVISION=BUILD.homologationRevision||'beta-0-26-82-google-calendar-integracao';
   if(globalThis.__NEXLAB_DEVICE_HOMOLOGATION__?.revision===REVISION)return;
   const EVIDENCE_KEY='nexlab:device-homologation:'+VERSION+':'+BUILD_REVISION;
-  const RPC='nexlab_record_device_homologation_v02650';
+  const RPC='nexlab_record_device_homologation_v02682';
   const flag=(name)=>{try{return new URL(location.href).searchParams.get(name)==='1';}catch{return false;}};
   const syncRequested=()=>flag('nexlabHomologationSync');
   const pushTestRequested=()=>flag('nexlabPushTest');
@@ -74,10 +74,10 @@
     if(activePushTest)return activePushTest;
     activePushTest=(async()=>{
       if(navigator.onLine===false)throw new Error('Reconecte a internet para solicitar o Push de teste.');
-      if(!('Notification' in globalThis)||Notification.permission!=='granted')throw new Error('Ative as notificações Push no módulo Notificações antes de executar o teste.');
+      if(!('Notification' in globalThis)||Notification.permission!=='granted')throw new Error('Ative as notificações Push em Configurações > Notificações antes de executar o teste.');
       const registration=await navigator.serviceWorker?.getRegistration?.('./');
       const subscription=await registration?.pushManager?.getSubscription?.();
-      if(!registration?.active||!subscription)throw new Error('A inscrição Push não está ativa neste aparelho. Ative o Push no módulo Notificações.');
+      if(!registration?.active||!subscription)throw new Error('A inscrição Push não está ativa neste aparelho. Ative o Push em Configurações > Notificações.');
       banner('Aguardando autenticação para solicitar um Push real...');
       const client=await waitForClient();
       const session=await waitForSession(client);

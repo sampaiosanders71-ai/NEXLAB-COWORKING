@@ -1,17 +1,20 @@
 (function(){
   'use strict';
-  const BUILD_IDENTITY=window.__NEXLAB_BUILD_IDENTITY__||Object.freeze({version:'0.26.50',release:'Beta',revision:'beta-0-26-50-exclusao-usuarios-corrigida',assetRevision:'app-beta-0-26-50-exclusao-usuarios-corrigida',cacheName:'nexlab-beta-0-26-50-exclusao-usuarios-corrigida'});
+  const BUILD_IDENTITY=window.__NEXLAB_BUILD_IDENTITY__||Object.freeze({version:'0.26.82',release:'Beta',revision:'beta-0-26-82-google-calendar-integracao',assetRevision:'app-beta-0-26-82-oficial-completo',cacheName:'nexlab-app-beta-0-26-82-oficial-completo-20260928T022407Z',pwa:{identity:{id:'./nexlab-pwa',name:'NexLab',scope:'./',startUrl:'./?source=pwa',workerPath:'nexlab-sw.js',namespace:'nexlab-pwa-v2'}}});
   if (window.__NEXLAB_PWA_READINESS__?.revision === BUILD_IDENTITY.revision) return;
 
   const VERSION=BUILD_IDENTITY.version;
   const RELEASE=BUILD_IDENTITY.release;
   const REVISION=BUILD_IDENTITY.revision;
-  const HOMOLOGATION_REVISION=BUILD_IDENTITY.homologationRevision||'beta-0-26-50-exclusao-usuarios-corrigida';
+  const HOMOLOGATION_REVISION=BUILD_IDENTITY.homologationRevision||'beta-0-26-82-google-calendar-integracao';
   const ASSET_REVISION=BUILD_IDENTITY.assetRevision;
   const CACHE_NAME=BUILD_IDENTITY.cacheName;
+  const PWA_IDENTITY=BUILD_IDENTITY.pwa?.identity||Object.freeze({id:'./nexlab-pwa',name:'NexLab',scope:'./',startUrl:'./?source=pwa',workerPath:'nexlab-sw.js',namespace:'nexlab-pwa-v2'});
+  const EXPECTED_SCOPE_URL=new URL(String(PWA_IDENTITY.scope||'./'),document.baseURI).href;
+  const EXPECTED_WORKER_PATH=new URL(String(PWA_IDENTITY.workerPath||'nexlab-sw.js'),document.baseURI).pathname;
   const STORAGE_KEY='nexlab:pwa-readiness:'+VERSION;
   const DEVICE_EVIDENCE_KEY='nexlab:device-homologation:'+VERSION+':'+REVISION;
-  const RESOURCE_ENTRY=BUILD_IDENTITY.resources?.entry||Object.freeze({main:'assets/index-beta-0-26-12.js',vendor:'assets/nexlab-vendor-beta-0-26-12.js',shared:'assets/nexlab-app-shared-beta-0-26-12.js',feature:'assets/nexlab-feature-modules-beta-0-26-12.js',export:'assets/nexlab-export-vendor-beta-0-26-12.js'});
+  const RESOURCE_ENTRY=BUILD_IDENTITY.resources?.entry||Object.freeze({main:'assets/nexlab-runtime-app.js',vendor:'assets/nexlab-runtime-vendor.js',shared:'assets/nexlab-runtime-shared.js',feature:'assets/nexlab-runtime-features.js',export:'assets/nexlab-runtime-export.js'});
   const RESOURCE_POLICY=BUILD_IDENTITY.pwa||Object.freeze({mandatoryShell:[],functional:[],optional:[],compatibility:[],offlineProbe:[]});
   const uniquePaths=(values)=>[...new Set((values||[]).map(value=>String(value||'').replace(/^\.\//,'')).filter(Boolean))];
   const EXPECTED_CORE=uniquePaths(RESOURCE_POLICY.mandatoryShell);
@@ -19,6 +22,7 @@
   const EXPECTED_OPTIONAL=uniquePaths([...(RESOURCE_POLICY.functional||[]),...(RESOURCE_POLICY.optional||[]),...(RESOURCE_POLICY.compatibility||[])]);
   const OPTIONAL_WARM=uniquePaths(BUILD_IDENTITY.resources?.lazy||[]);
   const EXPECTED_LAZY_MODULES=['TeamsModule','ParticipantsModule','PermissionsModule','UsersModule','ProjectsModule','ProfileModule','FeedbackModuleLegacy','AssetsModule','StockModule','BookingsModule','MarketingModule','EventsModule','BoardModule','LogsModule','ReportsModule','PendingModule','AgendaModule'];
+  const MODULE_FACADES=Object.freeze({"TeamsModule":"assets/modules/teams.js","ParticipantsModule":"assets/modules/participants.js","PermissionsModule":"assets/modules/permissions.js","UsersModule":"assets/modules/users.js","ProjectsModule":"assets/modules/projects.js","ProfileModule":"assets/modules/profile.js","FeedbackModuleLegacy":"assets/modules/feedback.js","AssetsModule":"assets/modules/assets.js","StockModule":"assets/modules/stock.js","BookingsModule":"assets/modules/bookings.js","MarketingModule":"assets/modules/marketing.js","EventsModule":"assets/modules/events.js","BoardModule":"assets/modules/board.js","LogsModule":"assets/modules/logs.js","ReportsModule":"assets/modules/reports.js","PendingModule":"assets/modules/pending.js","AgendaModule":"assets/modules/agenda.js"});
   const OFFLINE_PROBE=uniquePaths(RESOURCE_POLICY.offlineProbe||RESOURCE_POLICY.mandatoryShell);
 
   const absolute=(value)=>new URL(value,document.baseURI).href;
@@ -91,8 +95,13 @@
     const manifest=network.json||{};
     const icons=Array.isArray(manifest.icons)?manifest.icons:[];
     const iconResults=await Promise.all(icons.map(async(icon)=>({src:icon.src,sizes:icon.sizes,purpose:icon.purpose||'any',...(await verifyUrl(new URL(icon.src,link.href).href,release))})));
-    const displayOk=['standalone','fullscreen','minimal-ui','window-controls-overlay'].includes(manifest.display)||Array.isArray(manifest.display_override)&&manifest.display_override.some(mode=>['standalone','fullscreen','minimal-ui','window-controls-overlay'].includes(mode));
-    return {ok:Boolean(manifest.name&&manifest.start_url&&manifest.scope&&displayOk&&iconResults.length>=2&&iconResults.every(item=>item.ok)),href:link.href,name:manifest.name||'',startUrl:manifest.start_url||'',scope:manifest.scope||'',display:manifest.display||'',displayOverride:manifest.display_override||[],icons:iconResults,allIconsAvailable:iconResults.length>=2&&iconResults.every(item=>item.ok)};
+    const displayOk=['standalone','fullscreen','minimal-ui'].includes(manifest.display)||Array.isArray(manifest.display_override)&&manifest.display_override.some(mode=>['standalone','fullscreen','minimal-ui'].includes(mode));
+    const resolvedId=manifest.id?new URL(manifest.id,link.href).href:'';
+    const expectedId=new URL(String(PWA_IDENTITY.id||'./nexlab-pwa'),link.href).href;
+    const resolvedScope=manifest.scope?new URL(manifest.scope,link.href).href:'';
+    const resolvedStart=manifest.start_url?new URL(manifest.start_url,link.href).href:'';
+    const identityOk=manifest.name===String(PWA_IDENTITY.name||'NexLab')&&resolvedId===expectedId&&resolvedScope===EXPECTED_SCOPE_URL&&resolvedStart.startsWith(EXPECTED_SCOPE_URL);
+    return {ok:Boolean(identityOk&&displayOk&&iconResults.length>=2&&iconResults.every(item=>item.ok)),href:link.href,id:manifest.id||'',resolvedId,expectedId,identityOk,name:manifest.name||'',startUrl:manifest.start_url||'',resolvedStart,scope:manifest.scope||'',resolvedScope,display:manifest.display||'',displayOverride:manifest.display_override||[],icons:iconResults,allIconsAvailable:iconResults.length>=2&&iconResults.every(item=>item.ok)};
   }
   async function workerIdentity(worker){
     if(!worker)return {ok:false,error:'Worker ativo não encontrado.'};
@@ -107,10 +116,15 @@
   async function serviceWorkerState(){
     if(!('serviceWorker' in navigator))return {supported:false,registered:false,controlled:false,active:false,identity:{ok:false},error:'Navegador sem Service Worker.'};
     try{
-      const registration=await navigator.serviceWorker.getRegistration();
+      const registration=await navigator.serviceWorker.getRegistration('./');
       const active=registration?.active||null;
-      const identity=await workerIdentity(navigator.serviceWorker.controller||active);
-      return {supported:true,registered:Boolean(registration),controlled:Boolean(navigator.serviceWorker.controller),installing:Boolean(registration?.installing),waiting:Boolean(registration?.waiting),active:Boolean(active),scope:registration?.scope||'',scriptURL:active?.scriptURL||registration?.waiting?.scriptURL||'',identity};
+      const controller=navigator.serviceWorker.controller||null;
+      const identity=await workerIdentity(controller||active);
+      const scriptURL=controller?.scriptURL||active?.scriptURL||registration?.waiting?.scriptURL||'';
+      const workerPath=scriptURL?new URL(scriptURL).pathname:'';
+      const scopeOk=Boolean(registration)&&registration.scope===EXPECTED_SCOPE_URL;
+      const ownerOk=Boolean(scriptURL)&&workerPath===EXPECTED_WORKER_PATH;
+      return {supported:true,registered:Boolean(registration),controlled:Boolean(controller),installing:Boolean(registration?.installing),waiting:Boolean(registration?.waiting),active:Boolean(active),scope:registration?.scope||'',scopeOk,scriptURL,workerPath,ownerOk,identity:{...identity,ok:Boolean(identity?.ok&&scopeOk&&ownerOk)}};
     }catch(error){return {supported:true,registered:false,controlled:false,active:false,identity:{ok:false},error:String(error?.message||error)};}
   }
   async function verifyCachedResponse(request,response,release){
@@ -154,21 +168,22 @@
     return results;
   }
   async function verifyRuntimeModules(){
-    const result={ok:false,featureOk:false,exportOk:false,expected:EXPECTED_LAZY_MODULES.length,opened:[],missing:[],errors:[],featureImportMs:0,exportImportMs:0};
-    try{
-      const featureUrl=absolute('./'+RESOURCE_ENTRY.feature+'?v='+encodeURIComponent(ASSET_REVISION));
-      const featureStarted=performance.now();
-      const featureModule=await Promise.race([import(featureUrl),timeout(20000)]);
-      result.featureImportMs=Math.round((performance.now()-featureStarted)*10)/10;
-      for(const name of EXPECTED_LAZY_MODULES){
-        try{
-          const resolved={default:featureModule?.[name]};
-          if(typeof resolved.default!=='function')throw new Error('Exportação ausente ou inválida.');
-          result.opened.push(name);
-        }catch(error){result.missing.push(name);result.errors.push({module:name,message:String(error?.message||error)});}
-      }
-      result.featureOk=result.opened.length===EXPECTED_LAZY_MODULES.length&&result.missing.length===0;
-    }catch(error){result.errors.push({module:'feature-bundle',message:String(error?.message||error)});}
+    const result={ok:false,featureOk:false,exportOk:false,expected:EXPECTED_LAZY_MODULES.length,opened:[],missing:[],errors:[],moduleImports:[],featureImportMs:0,exportImportMs:0};
+    const featureStarted=performance.now();
+    for(const name of EXPECTED_LAZY_MODULES){
+      const facade=MODULE_FACADES[name];
+      const started=performance.now();
+      try{
+        if(!facade)throw new Error('Facade ESM não registrada.');
+        const facadeUrl=absolute('./'+facade+'?v='+encodeURIComponent(ASSET_REVISION));
+        const imported=await Promise.race([import(facadeUrl),timeout(20000)]);
+        const elapsed=Math.round((performance.now()-started)*10)/10;
+        if(typeof imported?.default!=='function'&&typeof imported?.default!=='object')throw new Error('Exportação default ausente ou inválida.');
+        result.opened.push(name);result.moduleImports.push({module:name,path:facade,ok:true,ms:elapsed});
+      }catch(error){const elapsed=Math.round((performance.now()-started)*10)/10;result.missing.push(name);result.errors.push({module:name,message:String(error?.message||error)});result.moduleImports.push({module:name,path:facade||'',ok:false,ms:elapsed,message:String(error?.message||error)});}
+    }
+    result.featureImportMs=Math.round((performance.now()-featureStarted)*10)/10;
+    result.featureOk=result.opened.length===EXPECTED_LAZY_MODULES.length&&result.missing.length===0;
     try{
       const exportUrl=absolute('./'+RESOURCE_ENTRY.export+'?v='+encodeURIComponent(ASSET_REVISION));
       const exportStarted=performance.now();
@@ -252,7 +267,7 @@
     const checks={...technicalChecks,installedEvidence:objective.installedLaunch,updateActivationEvidence:objective.updateActivation,offlineNavigationEvidence:objective.offlineNavigation,pushDisplayedEvidence:objective.pushDisplayed,pushDestinationEvidence:objective.pushDestination,serverReceiptEvidence:objective.serverReceipt};
     const objectiveBlocking=['installedEvidence','updateActivationEvidence','offlineNavigationEvidence','pushDisplayedEvidence','pushDestinationEvidence','serverReceiptEvidence'];
     const readyForInstalledPresentation=technicalReady&&objectiveBlocking.every(key=>checks[key]===true);
-    const result={version:VERSION,release:RELEASE,revision:REVISION,cacheName:CACHE_NAME,ok:technicalReady,performance:performanceProbe,readyForInstalledPresentation,blockingChecks:technicalBlocking,installedBlockingChecks:[...technicalBlocking,...objectiveBlocking],checks,runtimeModules,objectiveEvidence:objective,display,manifest,serviceWorker,cache,releaseFile:{ok:releaseFile.ok,status:releaseFile.status,identityOk:releaseFile.identityOk,size:releaseFile.size,sha256:releaseFile.sha256},offlinePage,capturedAt:new Date().toISOString(),manualConfirmationRequired:!readyForInstalledPresentation,guidance:readyForInstalledPresentation?'Homologação técnica e evidências automáticas concluídas.':'A aprovação exige importação real dos módulos no navegador, evidências automáticas de atualização confirmada, instalação, navegação offline e abertura correta de um Push; marcações manuais não aprovam a homologação.'};
+    const result={version:VERSION,release:RELEASE,revision:REVISION,cacheName:CACHE_NAME,ok:technicalReady,performance:performanceProbe,readyForInstalledPresentation,blockingChecks:technicalBlocking,installedBlockingChecks:[...technicalBlocking,...objectiveBlocking],checks,runtimeModules,objectiveEvidence:objective,display,manifest,serviceWorker,cache,releaseFile:{ok:releaseFile.ok,status:releaseFile.status,identityOk:releaseFile.identityOk,size:releaseFile.size,sha256:releaseFile.sha256},offlinePage,capturedAt:new Date().toISOString(),manualConfirmationRequired:!readyForInstalledPresentation,guidance:readyForInstalledPresentation?'Homologação técnica e recibo físico desta revisão concluídos; o gate de promoção pode ser liberado.':'A aprovação exige importação real dos módulos no navegador, evidências automáticas de atualização confirmada, instalação, navegação offline e abertura correta de um Push; marcações manuais não aprovam a homologação.'};
     try{localStorage.setItem(STORAGE_KEY,JSON.stringify(result));}catch{}
     window.__NEXLAB_PWA_LAST_RESULT__=Object.freeze(result);
     window.dispatchEvent(new CustomEvent('nexlab:pwa-readiness-complete',{detail:result}));
@@ -296,7 +311,6 @@
     try{
       if(navigator.onLine!==false)throw new Error('Desligue a internet antes de executar esta prova.');
       const display=displayState();
-    const performanceProbe=performanceState(runtimeModules);
       if(!display.installed)throw new Error('Abra o diagnóstico pelo aplicativo instalado.');
       if(!navigator.serviceWorker?.controller)throw new Error('A página não está controlada pelo Service Worker.');
       const evidence=readDeviceEvidence();

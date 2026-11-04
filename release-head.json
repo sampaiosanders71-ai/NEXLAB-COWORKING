@@ -3,12 +3,12 @@
   "version": "0.26.82",
   "release": "Beta",
   "channel": "beta",
-  "revision": "beta-0-26-82-marketing-oficial",
-  "asset_revision": "app-beta-0-26-82-marketing-oficial",
-  "generated_at": "2026-11-04T22:00:00Z",
+  "revision": "beta-0-26-82-oficial-completo",
+  "asset_revision": "app-beta-0-26-82-oficial-completo",
+  "generated_at": "2026-11-04T22:11:51Z",
   "manifest": "release-manifest.json",
-  "manifest_sha256": "3ef4f23651e83dbf4f51ff4ceacecb22651a10a027161b590e388ab3062659ed",
-  "essential_count": 35,
-  "essential_bytes": 3244101,
-  "cache_name": "nexlab-app-beta-0-26-82-marketing-oficial-20261104T220000Z"
+  "manifest_sha256": "9a35c6edc7aca3b9362fe0b2aa90cd310c92eb873ec935b0ec8b4c2e473670ef",
+  "essential_count": 64,
+  "essential_bytes": 3187119,
+  "cache_name": "nxl-official-app-beta-0-26-82-oficial-completo-20261104T221151Z"
 }

@@ -1,6 +1,6 @@
-/* NEXLAB Beta 0.26.50 — navegação Push sincronizada com a prontidão real do aplicativo. */
+/* NEXLAB Beta 0.26.82 — navegação Push sincronizada com a prontidão real do aplicativo. */
 (()=>{
-  const BUILD=globalThis.__NEXLAB_BUILD_IDENTITY__||Object.freeze({version:'0.26.50',revision:'beta-0-26-50-exclusao-usuarios-corrigida',homologationRevision:'beta-0-26-50-exclusao-usuarios-corrigida'});
+  const BUILD=globalThis.__NEXLAB_BUILD_IDENTITY__||Object.freeze({version:'0.26.82',revision:'beta-0-26-82-google-calendar-integracao',homologationRevision:'beta-0-26-82-google-calendar-integracao'});
   if(globalThis.__NEXLAB_PUSH_NAVIGATION__?.version===BUILD.version)return;
   const VERSION=BUILD.version;
   const BUILD_REVISION=BUILD.revision;
@@ -12,15 +12,17 @@
   const MAX_DELIVERY_ATTEMPTS=2;
   const clean=(value,max=180)=>String(value??'').trim().slice(0,max);
   const normalize=(source={})=>{
-    const tabCandidate=clean(source.tab||source.targetTab||source.target_tab||'notificacoes',60);
+    const rawTab=clean(source.tab||source.targetTab||source.target_tab||'notificacoes',60);
+    const systemSection=rawTab==='logs'?'activities':rawTab==='saude-sistema'?'health':'';
+    const tabCandidate=systemSection?'atividades-sistema':rawTab;
     const tab=ALLOWED_TABS.has(tabCandidate)?tabCandidate:'notificacoes';
-    return {tab,notificationId:clean(source.notificationId||source.notification_id||source.notification,80),entityId:clean(source.entityId||source.entity_id||source.entity,100),entityType:clean(source.entityType||source.entity_type,80),pushRequestId:clean(source.pushRequestId||source.push_request_id||source.nexlabPushRequest,100),url:clean(source.url,1200),source:'push'};
+    return {tab,systemSection,notificationId:clean(source.notificationId||source.notification_id||source.notification,80),entityId:clean(source.entityId||source.entity_id||source.entity,100),entityType:clean(source.entityType||source.entity_type,80),pushRequestId:clean(source.pushRequestId||source.push_request_id||source.nexlabPushRequest,100),url:clean(source.url,1200),source:'push'};
   };
   const signature=(target)=>[target.tab,target.notificationId,target.entityId,target.entityType].join('|');
   const fromLocation=()=>{const params=new URL(location.href).searchParams;return normalize({tab:params.get('nexlabTab'),notificationId:params.get('notification'),entityId:params.get('entity'),entityType:params.get('entityType'),pushRequestId:params.get('nexlabPushRequest'),url:location.href});};
   const readEvidence=()=>{try{return JSON.parse(localStorage.getItem(EVIDENCE_KEY)||'{}')||{};}catch{return {};}};
   const writeEvidence=(patch)=>{const current=readEvidence();const next={...current,version:VERSION,revision:HOMOLOGATION_REVISION,buildRevision:BUILD_REVISION,userAgent:navigator.userAgent,updatedAt:new Date().toISOString(),...patch};try{localStorage.setItem(EVIDENCE_KEY,JSON.stringify(next));}catch{}globalThis.dispatchEvent(new CustomEvent('nexlab:push-navigation-evidence',{detail:next}));return next;};
-  const persist=(target)=>{try{sessionStorage.setItem('nexlabNotificationTarget',JSON.stringify(target));if(target.tab==='reserva'&&target.entityId)sessionStorage.setItem('nexlabBookingTarget',JSON.stringify({kind:target.entityType==='meeting'?'meeting':'reservation',id:target.entityId,source:'push'}));if(target.tab==='projetos'&&target.entityId)sessionStorage.setItem('nexlabProjectTarget',JSON.stringify({id:target.entityId,source:'push'}));if(target.tab==='agenda'&&target.entityId)sessionStorage.setItem('nexlabAgendaTarget',JSON.stringify({id:target.entityId,entityType:target.entityType,source:'push'}));}catch{}};
+  const persist=(target)=>{try{sessionStorage.setItem('nexlabNotificationTarget',JSON.stringify(target));if(target.tab==='atividades-sistema'&&target.systemSection)sessionStorage.setItem('nexlabSystemActivitiesTab',target.systemSection);if(target.tab==='reserva'&&target.entityId)sessionStorage.setItem('nexlabBookingTarget',JSON.stringify({kind:target.entityType==='meeting'?'meeting':'reservation',id:target.entityId,source:'push'}));if(target.tab==='projetos'&&target.entityId)sessionStorage.setItem('nexlabProjectTarget',JSON.stringify({id:target.entityId,source:'push'}));if(target.tab==='agenda'&&target.entityId)sessionStorage.setItem('nexlabAgendaTarget',JSON.stringify({id:target.entityId,entityType:target.entityType,source:'push'}));}catch{}};
   const updateLocation=(target)=>{try{const url=new URL(location.href);url.searchParams.set('nexlabTab',target.tab);if(target.notificationId)url.searchParams.set('notification',target.notificationId);else url.searchParams.delete('notification');if(target.entityId)url.searchParams.set('entity',target.entityId);else url.searchParams.delete('entity');if(target.entityType)url.searchParams.set('entityType',target.entityType);else url.searchParams.delete('entityType');if(target.pushRequestId)url.searchParams.set('nexlabPushRequest',target.pushRequestId);else url.searchParams.delete('nexlabPushRequest');history.replaceState({...history.state,nexlabTab:target.tab,nexlabPushTarget:target},'',url);}catch{}};
   const isApplicationReady=()=>document.body?.dataset?.nexlabAppReady==='true'&&!document.getElementById('nexlab-startup-shell');
   const waitForApplicationReady=(timeoutMs=10000)=>new Promise((resolve)=>{

@@ -1,0 +1,80 @@
+/* A flex basis intended as a row width must not become a title height. */
+.nexlab-system-monitor.nxl-system-overview .nexlab-system-monitor__section-title>h2{flex:0 1 auto;min-height:0;max-height:none}
+
+/* Export glyphs keep a square, centered box in controls and download overlays. */
+svg.nxl-download-icon{display:inline-block!important;position:static!important;flex:0 0 auto!important;width:var(--nxl-download-size,16px)!important;height:var(--nxl-download-size,16px)!important;min-width:0;max-width:none;max-height:none;overflow:visible;vertical-align:middle;transform:none!important;align-self:center;pointer-events:none}
+.nxl-export-trigger,.nxl-export-menu-item{display:inline-flex!important;align-items:center!important;justify-content:center;gap:8px!important}
+.nxl-export-menu-item{justify-content:flex-start}
+.inventory-action-menu>summary{display:inline-flex;align-items:center;gap:8px}
+.inventory-action-menu>div button{display:flex;align-items:center;justify-content:flex-start;gap:8px}
+
+/* Native radio choices: selection stays readable and keyboard accessible. */
+.nexlab-settings-shell .nxl-text-size-selector{border:0;margin:0;padding:0;min-width:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.nexlab-settings-shell .nxl-text-size-selector>legend{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.nexlab-settings-shell .nxl-text-size-choice{position:relative;display:flex;align-items:center;gap:10px;min-height:82px;padding:14px;border:2px solid #ccd9e7;border-radius:14px;background:#f7faff;color:#183a60;cursor:pointer;box-shadow:none;transition:border-color .15s ease,background .15s ease}
+.nexlab-settings-shell .nxl-text-size-choice>input{position:absolute!important;width:1px!important;height:1px!important;margin:-1px!important;clip-path:inset(50%)!important;overflow:hidden!important;white-space:nowrap!important;opacity:0!important}
+.nexlab-settings-shell .nxl-text-size-copy{display:flex;flex-direction:column;gap:5px;min-width:0;flex:1}
+.nexlab-settings-shell .nxl-text-size-copy>strong{color:#183a60!important;-webkit-text-fill-color:currentColor!important;font-size:.875rem;line-height:1.35;font-weight:750;overflow-wrap:anywhere}
+.nexlab-settings-shell .nxl-text-size-copy>small{color:#506a86!important;-webkit-text-fill-color:currentColor!important;font-size:.75rem;line-height:1.35}
+.nexlab-settings-shell .nxl-text-size-indicator{display:grid;place-items:center;width:24px;height:24px;flex:none;border:2px solid #a6b9ce;border-radius:50%;color:#183a60}
+.nexlab-settings-shell .nxl-text-size-indicator>svg{width:15px;height:15px;flex:none}
+.nexlab-settings-shell .nxl-text-size-choice.is-active{background:#14385e!important;border-color:#14385e!important;color:#fff!important;box-shadow:0 0 0 2px #b9d6f3}
+.nexlab-settings-shell .nxl-text-size-choice.is-active .nxl-text-size-copy>strong,.nexlab-settings-shell .nxl-text-size-choice.is-active .nxl-text-size-copy>small{color:#fff!important;-webkit-text-fill-color:#fff!important}
+.nexlab-settings-shell .nxl-text-size-choice.is-active .nxl-text-size-indicator{background:#fff;border-color:#fff;color:#14385e}
+.nexlab-settings-shell .nxl-text-size-choice:focus-within{outline:3px solid #e77900;outline-offset:3px}
+.nexlab-settings-shell .nxl-text-size-selector:disabled .nxl-text-size-choice{cursor:wait}
+@media(max-width:760px){.nexlab-settings-shell .nxl-text-size-selector{grid-template-columns:1fr}.nexlab-settings-shell .nxl-text-size-choice{min-height:72px}}
+@media(forced-colors:active){.nexlab-settings-shell .nxl-text-size-choice{background:Canvas!important;color:CanvasText!important;border-color:CanvasText!important;forced-color-adjust:none}.nexlab-settings-shell .nxl-text-size-copy>strong,.nexlab-settings-shell .nxl-text-size-copy>small{color:CanvasText!important;-webkit-text-fill-color:CanvasText!important}.nexlab-settings-shell .nxl-text-size-choice.is-active{background:Highlight!important;border-color:Highlight!important}.nexlab-settings-shell .nxl-text-size-choice.is-active .nxl-text-size-copy>strong,.nexlab-settings-shell .nxl-text-size-choice.is-active .nxl-text-size-copy>small{color:HighlightText!important;-webkit-text-fill-color:HighlightText!important}.nexlab-settings-shell .nxl-text-size-choice.is-active .nxl-text-size-indicator{background:HighlightText;border-color:HighlightText;color:Highlight}.nexlab-settings-shell .nxl-text-size-choice:focus-within{outline-color:Highlight}}
+
+/* Settings must respond to their actual panel width, not just the viewport. */
+.nexlab-settings-shell .nexlab-settings-content{grid-auto-rows:max-content}
+.nexlab-settings-shell .nexlab-settings-panel-head{height:auto;min-height:0;max-height:none;overflow:visible}
+.nexlab-settings-shell .nexlab-settings-nav button{height:auto;min-height:66px;padding:11px 10px;align-items:center}
+.nexlab-settings-shell .nexlab-settings-nav-copy strong{font-size:.8125rem;line-height:1.35;white-space:normal!important;overflow:visible!important;text-overflow:clip;overflow-wrap:anywhere}
+.nexlab-settings-shell .nexlab-settings-nav-copy small{display:block!important;font-size:.6875rem;line-height:1.4;white-space:normal!important;overflow:visible!important;text-overflow:clip;overflow-wrap:anywhere}
+.nexlab-settings-shell .nexlab-settings-card{min-width:0;height:auto}
+.nexlab-settings-shell{container-type:inline-size;container-name:nexlab-settings-width}
+.nexlab-settings-shell .nexlab-settings-card-head{align-items:flex-start}
+.nexlab-settings-shell .nexlab-settings-card-head>div:last-child,.nexlab-settings-shell .nexlab-settings-option-copy,.nexlab-settings-shell .nexlab-settings-backup-hero-main>div:last-child,.nexlab-settings-shell .nexlab-settings-integration-brand>div:last-child{min-width:0;flex:1}
+.nexlab-settings-shell :is(.nexlab-settings-fields-grid,.nexlab-settings-password-form,.nexlab-settings-session-actions,.nexlab-settings-protection-grid){grid-template-columns:repeat(auto-fit,minmax(min(100%,16rem),1fr))!important}
+.nexlab-settings-shell .nexlab-settings-field{min-width:0;height:auto;padding:13px 0}
+.nexlab-settings-shell .nexlab-settings-field strong{white-space:normal!important;overflow:visible!important;text-overflow:clip;overflow-wrap:anywhere;font-size:.8125rem;line-height:1.5}
+.nexlab-settings-shell :is(.nexlab-settings-field-label,.nexlab-settings-card-head h3,.nexlab-settings-card-head p,.nexlab-settings-option-copy strong,.nexlab-settings-option-copy span){white-space:normal;overflow-wrap:anywhere;line-height:1.5}
+.nexlab-settings-shell .nexlab-settings-channel-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,20rem),1fr))!important}
+.nexlab-settings-shell .nexlab-settings-channel-card{min-width:0;height:auto;align-items:start}
+.nexlab-settings-shell .nexlab-settings-channel-card>div{min-width:0}
+.nexlab-settings-shell :is(.nexlab-settings-google-scope-grid,.nexlab-settings-integration-rules,.nexlab-integrations-points,.nexlab-integrations-stats,.nexlab-integrations-sync-grid,.nexlab-integrations-note-list){grid-template-columns:repeat(auto-fit,minmax(min(100%,14rem),1fr))!important}
+.nexlab-settings-shell .nexlab-integrations-layout{grid-template-columns:repeat(auto-fit,minmax(min(100%,22rem),1fr))!important}
+.nexlab-settings-shell :is(.nexlab-settings-integration-hero,.nexlab-settings-backup-hero,.nexlab-settings-google-connect-card){display:flex;flex-wrap:wrap;align-items:flex-start;gap:18px}
+.nexlab-settings-shell :is(.nexlab-settings-integration-brand,.nexlab-settings-backup-hero-main,.nexlab-settings-google-connect-main){flex:1 1 18rem;min-width:0;max-width:100%}
+.nexlab-settings-shell :is(.nexlab-settings-integration-actions,.nexlab-settings-backup-hero-actions,.nexlab-settings-google-actions){display:flex;flex-wrap:wrap;gap:9px;min-width:0;max-width:100%;flex:0 1 auto}
+.nexlab-settings-shell .nexlab-settings-backup-row{display:flex;flex-wrap:wrap;gap:14px;min-width:0}
+.nexlab-settings-shell .nexlab-settings-backup-row-main{flex:1 1 16rem;flex-wrap:wrap;align-items:flex-start;min-width:0}
+.nexlab-settings-shell .nexlab-settings-backup-meta{flex:1 1 13rem;min-width:0;max-width:100%;flex-wrap:wrap;gap:7px}
+.nexlab-settings-shell .nexlab-settings-backup-meta span{white-space:normal;overflow-wrap:anywhere}
+.nexlab-settings-shell .nexlab-settings-backup-actions{display:flex;flex-wrap:wrap;gap:8px;min-width:0;max-width:100%}
+.nexlab-settings-shell .nexlab-settings-backup-actions>button{flex:1 1 auto}
+.nexlab-settings-shell .nexlab-settings-restore-history>div{grid-template-columns:repeat(auto-fit,minmax(min(100%,10rem),1fr));min-width:0;overflow-wrap:anywhere}
+.nexlab-settings-shell .nexlab-settings-quiet-row{grid-template-columns:repeat(auto-fit,minmax(min(100%,9rem),1fr));min-width:0}
+.nexlab-settings-shell .nexlab-settings-quiet-row>*{min-width:0}
+.nexlab-settings-shell :is(.nexlab-settings-btn,.nexlab-settings-inline-note button){max-width:100%;min-width:0;height:auto;min-height:40px;white-space:normal!important;overflow-wrap:anywhere;line-height:1.4;flex-shrink:1;text-align:center}
+.nexlab-settings-shell .nexlab-settings-inline-note{flex-wrap:wrap}
+.nexlab-settings-shell .nexlab-settings-inline-note>span{min-width:0;flex:1 1 15rem}
+.nexlab-settings-shell :is(.nexlab-settings-card p,.nexlab-settings-card code,.nexlab-integrations-layout p,.nexlab-integrations-layout code){overflow-wrap:anywhere}
+.nexlab-settings-shell .nxl-notify-metrics{grid-template-columns:repeat(auto-fit,minmax(min(100%,11rem),1fr))!important}
+.nexlab-settings-shell .nxl-notify-metric{min-width:0}
+.nexlab-settings-shell .nxl-notify-tabs{flex-wrap:wrap;overflow:visible;height:auto;max-height:none;gap:8px}
+.nexlab-settings-shell .nxl-notify-tabs button{max-width:100%;white-space:normal}
+@container nexlab-settings-width (max-width:640px){
+ .nexlab-settings-shell .nexlab-settings-layout:has(>.nexlab-settings-content){display:block!important;height:auto!important;max-height:none}
+ .nexlab-settings-shell .nexlab-settings-nav{position:relative!important;top:auto!important;height:auto!important;max-height:none;overflow:visible}
+ .nexlab-settings-shell.is-mobile-detail .nexlab-settings-nav{display:none!important}
+ .nexlab-settings-shell:not(.is-mobile-detail) .nexlab-settings-content{display:none!important}
+ .nexlab-settings-shell.is-mobile-detail .nexlab-settings-content{display:grid!important;height:auto!important;max-height:none;overflow:visible}
+ .nexlab-settings-shell .nexlab-settings-mobile-back{display:inline-flex;align-items:center;gap:7px;width:max-content;max-width:100%;min-height:40px;padding:9px 12px;border-radius:10px;background:#fff;color:#21466f;cursor:pointer}
+}
+@media(max-width:600px){
+ .nexlab-settings-shell :is(.nexlab-settings-fields-grid,.nexlab-settings-password-form,.nexlab-settings-session-actions,.nexlab-settings-protection-grid,.nexlab-settings-channel-grid,.nexlab-settings-google-scope-grid,.nexlab-settings-integration-rules,.nexlab-integrations-points,.nexlab-integrations-stats,.nexlab-integrations-sync-grid,.nexlab-integrations-note-list,.nexlab-settings-quiet-row){grid-template-columns:minmax(0,1fr)!important}
+ .nexlab-settings-shell .nexlab-settings-backup-row-main{flex-basis:100%}
+ .nexlab-settings-shell .nexlab-settings-backup-actions{width:100%}
+}

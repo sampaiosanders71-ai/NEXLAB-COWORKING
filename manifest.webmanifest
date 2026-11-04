@@ -1,24 +1,22 @@
 {
-  "id": "./",
-  "name": "NEXLAB Beta 0.26.82",
-  "short_name": "NEXLAB",
-  "description": "Gestão interna do Coworking Space UEMA Timon — Marketing atualizado.",
-  "start_url": "./index.html",
+  "id": "./nexlab-pwa",
+  "name": "NexLab",
+  "short_name": "NexLab",
+  "description": "NexLab — gestão acadêmica de equipes, projetos, reservas, eventos, patrimônio, comunicação e atividades.",
+  "start_url": "./?source=pwa",
   "scope": "./",
   "display": "standalone",
-  "display_override": [
-    "window-controls-overlay",
-    "standalone",
-    "minimal-ui"
-  ],
   "orientation": "any",
   "background_color": "#F5F6F8",
-  "theme_color": "#0E1F3D",
+  "theme_color": "#0B2A63",
   "categories": [
     "productivity",
     "education",
     "business"
   ],
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  },
   "icons": [
     {
       "src": "icons/nexlab-192.png?v=brand-r50",

@@ -1,11 +1,12 @@
 (function(){
   'use strict';
   if(window.__NEXLAB_VAPID_ROTATION_BETA_0264__) return;
-  window.__NEXLAB_VAPID_ROTATION_BETA_0264__={version:'0.26.50',status:'idle'};
-  const PROJECT_REF='eahldhabwulnwhuwrhvc';
-  const EXPECTED_KEY='BIwuvqKRH2PipAjpAMTwmVM6kUgN0XycoLCD99uuKJQcO3e0rXWZWBNBaMZaqFxGHBL90aKQrTbMZaNLb_xblLE';
-  const API=(window.__NEXLAB_CONFIG__?.supabaseUrl||`https://${PROJECT_REF}.supabase.co`).replace(/\/$/,'');
-  const ANON=window.__NEXLAB_CONFIG__?.supabaseAnonKey||'sb_publishable_hr-WTQUBbBE0Ei3Lr2hkhQ_XSKG_PXa';
+  window.__NEXLAB_VAPID_ROTATION_BETA_0264__={version:'0.26.82',status:'idle'};
+  const CONFIG=window.__NEXLAB_CONFIG__?.assert?.()||(()=>{throw new Error('Configuração central do NEXLAB não carregada.');})();
+  const PROJECT_REF=CONFIG.projectRef;
+  const EXPECTED_KEY=CONFIG.vapidPublicKey;
+  const API=CONFIG.supabaseUrl;
+  const ANON=CONFIG.supabaseAnonKey;
   const MARKER='nexlab:vapid-generation';
 
   function decode(value){
@@ -15,11 +16,7 @@
     for(let i=0;i<raw.length;i++)bytes[i]=raw.charCodeAt(i);return bytes;
   }
   function equal(a,b){if(!a||!b||a.byteLength!==b.byteLength)return false;const x=new Uint8Array(a),y=new Uint8Array(b);for(let i=0;i<x.length;i++)if(x[i]!==y[i])return false;return true}
-  function token(){
-    const keys=[`sb-${PROJECT_REF}-auth-token`,...Object.keys(localStorage).filter(k=>k.includes(PROJECT_REF)&&k.includes('auth-token'))];
-    for(const key of keys){try{const p=JSON.parse(localStorage.getItem(key)||'null');const t=p?.access_token||p?.currentSession?.access_token||p?.session?.access_token;if(t)return t}catch{}}
-    return null;
-  }
+  function token(){return CONFIG.getAccessToken();}
   function subject(){
     try{
       const value=token();if(!value)return 'anonymous';
@@ -30,7 +27,7 @@
     }catch{return 'anonymous'}
   }
   function markerKey(){return `${MARKER}:${subject()}`}
-  function markerValue(subscription){return `0.26.50:${subscription?.endpoint||''}`}
+  function markerValue(subscription){return `0.26.82:${subscription?.endpoint||''}`}
   async function rpc(name,body){
     const access=token();if(!access)throw new Error('Sessão não localizada.');
     const response=await fetch(`${API}/rest/v1/rpc/${name}`,{method:'POST',cache:'no-store',headers:{apikey:ANON,Authorization:`Bearer ${access}`,'Content-Type':'application/json'},body:JSON.stringify(body||{})});
@@ -68,7 +65,7 @@
       state.status=changed?'rotated':'refreshed';
     }else state.status='current';
     state.endpoint=subscription.endpoint;state.completedAt=new Date().toISOString();
-    window.dispatchEvent(new CustomEvent('nexlab:vapid-rotated',{detail:{status:state.status,version:'0.26.50'}}));
+    window.dispatchEvent(new CustomEvent('nexlab:vapid-rotated',{detail:{status:state.status,version:'0.26.82'}}));
   }
   const sync=()=>{
     if(activeSync)return activeSync;

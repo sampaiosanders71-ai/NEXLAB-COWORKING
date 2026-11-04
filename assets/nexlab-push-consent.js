@@ -2,14 +2,15 @@
   'use strict';
 
   const BUILD=globalThis.__NEXLAB_BUILD_IDENTITY__||Object.freeze({
-    version:'0.26.50',
-    revision:'beta-0-26-50-exclusao-usuarios-corrigida'
+    version:'0.26.82',
+    revision:'beta-0-26-82-google-calendar-integracao'
   });
   if(globalThis.__NEXLAB_PUSH_CONSENT__?.revision===BUILD.revision)return;
 
-  const PROJECT_REF='eahldhabwulnwhuwrhvc';
-  const API=(globalThis.__NEXLAB_CONFIG__?.supabaseUrl||`https://${PROJECT_REF}.supabase.co`).replace(/\/$/,'');
-  const ANON=globalThis.__NEXLAB_CONFIG__?.supabaseAnonKey||'sb_publishable_hr-WTQUBbBE0Ei3Lr2hkhQ_XSKG_PXa';
+  const CONFIG=globalThis.__NEXLAB_CONFIG__?.assert?.()||(()=>{throw new Error('Configuração central do NEXLAB não carregada.');})();
+  const PROJECT_REF=CONFIG.projectRef;
+  const API=CONFIG.supabaseUrl;
+  const ANON=CONFIG.supabaseAnonKey;
   const DEFER_MS=7*24*60*60*1000;
   const CHECK_DELAY_MS=1500;
   const EVALUATION_MIN_INTERVAL_MS=15000;
@@ -46,17 +47,7 @@
       && typeof Notification.requestPermission==='function';
   }
 
-  function authToken(){
-    const keys=[`sb-${PROJECT_REF}-auth-token`,...Object.keys(localStorage).filter(key=>key.includes(PROJECT_REF)&&key.includes('auth-token'))];
-    for(const key of keys){
-      try{
-        const parsed=JSON.parse(localStorage.getItem(key)||'null');
-        const token=parsed?.access_token||parsed?.currentSession?.access_token||parsed?.session?.access_token;
-        if(token)return token;
-      }catch{}
-    }
-    return null;
-  }
+  function authToken(){return CONFIG.getAccessToken();}
 
   function tokenSubject(token){
     try{
