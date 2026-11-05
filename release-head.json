@@ -3,12 +3,12 @@
   "version": "0.26.82",
   "release": "Beta",
   "channel": "beta",
-  "revision": "beta-0-26-82-legibilidade-e-espacos",
-  "asset_revision": "app-beta-0-26-82-legibilidade-e-espacos",
-  "generated_at": "2026-11-05T11:06:52Z",
+  "revision": "beta-0-26-82-icones-acesso-rapido",
+  "asset_revision": "app-beta-0-26-82-icones-acesso-rapido",
+  "generated_at": "2026-11-05T23:38:50Z",
   "manifest": "release-manifest.json",
-  "manifest_sha256": "e041576882799ddde050d19a6b44cdc9f916bba2d824319ed8660e9c050b084f",
+  "manifest_sha256": "376c37197e8d63544e8813c030fb86badee4cb84b3a28dfc1ab2182c6068b055",
   "essential_count": 65,
-  "essential_bytes": 3203831,
-  "cache_name": "nxl-official-app-beta-0-26-82-legibilidade-e-espacos-20261105T110652Z"
+  "essential_bytes": 3204904,
+  "cache_name": "nxl-official-app-beta-0-26-82-icones-acesso-rapido-20261105T233850Z"
 }

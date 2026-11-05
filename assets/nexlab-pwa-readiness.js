@@ -1,6 +1,6 @@
 (function(){
   'use strict';
-  const BUILD_IDENTITY=window.__NEXLAB_BUILD_IDENTITY__||Object.freeze({version:'0.26.82',release:'Beta',revision:'beta-0-26-82-google-calendar-integracao',assetRevision:'app-beta-0-26-82-legibilidade-e-espacos',cacheName:'nexlab-app-beta-0-26-82-legibilidade-e-espacos-20260928T022407Z',pwa:{identity:{id:'./nexlab-pwa',name:'NexLab',scope:'./',startUrl:'./?source=pwa',workerPath:'nexlab-sw.js',namespace:'nexlab-pwa-v2'}}});
+  const BUILD_IDENTITY=window.__NEXLAB_BUILD_IDENTITY__||Object.freeze({version:'0.26.82',release:'Beta',revision:'beta-0-26-82-google-calendar-integracao',assetRevision:'app-beta-0-26-82-icones-acesso-rapido',cacheName:'nexlab-app-beta-0-26-82-icones-acesso-rapido-20260928T022407Z',pwa:{identity:{id:'./nexlab-pwa',name:'NexLab',scope:'./',startUrl:'./?source=pwa',workerPath:'nexlab-sw.js',namespace:'nexlab-pwa-v2'}}});
   if (window.__NEXLAB_PWA_READINESS__?.revision === BUILD_IDENTITY.revision) return;
 
   const VERSION=BUILD_IDENTITY.version;
