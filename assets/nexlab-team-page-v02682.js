@@ -1,5 +1,5 @@
 /* NexLab — detalhes da equipe no fluxo da página. Nenhum contrato de dados é alterado. */
-import {g as React} from './nexlab-runtime-vendor.js?v=app-beta-0-26-82-correcoes-recuperacao-auditoria';
+import {g as React} from './nexlab-runtime-vendor.js?v=app-beta-0-26-82-legibilidade-e-espacos';
 const PARAM='nexlabTeam';
 const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 export function useTeamPageRoute({teamId,teams,onOpen,onClose,panelRef}){

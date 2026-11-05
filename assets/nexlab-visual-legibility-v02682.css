@@ -1,0 +1,107 @@
+/* Visual corrections: keep module order, data and interaction handlers intact. */
+
+/* A decorative image must not replace the primary button's solid fill. */
+.nexlab-settings-shell .nexlab-settings-btn.primary{
+ background-color:#0d294d!important;
+ background-image:linear-gradient(145deg,rgba(255,255,255,.055),rgba(255,255,255,0))!important;
+ color:#fff!important;border-color:#0d294d!important;
+}
+.nexlab-settings-shell .nexlab-settings-btn.primary:not(:disabled):hover{background-color:#173e67!important}
+.nexlab-settings-shell .nexlab-settings-btn.primary:disabled{background:#e8eef5!important;color:#52677e!important;border-color:#cbd8e6!important;opacity:1}
+.nexlab-settings-shell .nexlab-settings-btn.primary:focus-visible{outline:3px solid #c56b00;outline-offset:3px}
+:root[data-nexlab-high-contrast=true] .nexlab-settings-shell .nexlab-settings-btn.primary{background:#102b46!important;color:#fff!important}
+:root[data-nexlab-high-contrast=true] .nexlab-settings-shell .nexlab-settings-btn.primary:disabled{background:#e8eef5!important;color:#425870!important}
+
+/* Readable, consistent orange actions, including authentication and editors. */
+#root button:is(.bg-orange-500,.bg-orange-600),
+.nexlab-team-form-v02682__submit,
+.mk-editor-footer button[type=submit],
+.booking-editor-footer button[type=submit],
+.ev-primary{
+ background-color:#ff8a00!important;background-image:none!important;color:#08223a!important;
+}
+#root button:is(.bg-orange-500,.bg-orange-600):not(:disabled):hover,
+.nexlab-team-form-v02682__submit:not(:disabled):hover,
+.mk-editor-footer button[type=submit]:not(:disabled):hover,
+.booking-editor-footer button[type=submit]:not(:disabled):hover,
+.ev-primary:not(:disabled):hover{background-color:#f59b28!important}
+#root button:is(.bg-orange-500,.bg-orange-600):disabled,
+.nexlab-team-form-v02682__submit:disabled,
+.mk-editor-footer button[type=submit]:disabled,
+.booking-editor-footer button[type=submit]:disabled,
+.ev-primary:disabled{background:#e8eef5!important;color:#52677e!important;opacity:1}
+#root form button.text-orange-500,#root form~button.text-orange-500{color:#9a4c00!important}
+#root:not(:has(#nexlab-main-content)) .text-orange-500{color:#9a4c00!important}
+
+/* The two facts retain their order and share the available card width. */
+#nexlab-main-content .team-card-rebuilt-v02682__facts{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+#nexlab-main-content .team-card-rebuilt-v02682__fact{padding:10px;min-width:0}
+#nexlab-main-content .team-card-rebuilt-v02682__fact>span{font-size:.75rem;line-height:1.5;letter-spacing:0;white-space:nowrap;overflow-wrap:normal;word-break:normal;color:#48617b}
+#nexlab-main-content .team-card-rebuilt-v02682__responsible{align-items:flex-start;min-width:0}
+#nexlab-main-content .team-card-rebuilt-v02682__responsible strong{font-size:.8125rem;line-height:1.5;min-width:0;max-width:100%;white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere}
+#nexlab-main-content .team-card-rebuilt-v02682__members strong{font-size:.9375rem}
+
+/* Supporting information scales with the user's text-size preference. */
+#nexlab-main-content .compact-metric__label{font-size:.75rem!important;line-height:1.5!important;letter-spacing:.025em;color:#48617b!important;overflow-wrap:normal}
+#nexlab-main-content .compact-metric__helper{font-size:.75rem!important;line-height:1.5;color:#52677e!important}
+#nexlab-main-content :is([class~="text-[9px]"],[class~="text-[10px]"],[class~="text-[11px]"]){font-size:.75rem!important;line-height:1.5}
+
+#nexlab-main-content .nexlab-reports-module-v02682{--reports-muted:#52677e}
+#nexlab-main-content .nexlab-reports-module-v02682 :is(p,small,label,select,button){font-size:.8125rem;line-height:1.5}
+#nexlab-main-content .nexlab-reports-module-v02682 .compact-metric__value{font-size:1.25rem;line-height:1.3}
+#nexlab-main-content .nexlab-reports-module-card-v02682{min-height:96px;align-items:center}
+#nexlab-main-content .nexlab-reports-module-card__copy-v02682{gap:5px}
+#nexlab-main-content .nexlab-reports-module-card__copy-v02682 h3{font-size:.875rem;line-height:1.45}
+#nexlab-main-content .nexlab-reports-module-card__copy-v02682 p{font-size:.8125rem;line-height:1.5;color:#52677e;display:block;overflow:visible;-webkit-line-clamp:unset;max-height:none}
+#nexlab-main-content .nexlab-reports-module-v02682 :is(.nxl-export-trigger,.nxl-export-menu-item){font-size:.8125rem!important;min-height:40px}
+#nexlab-main-content .nexlab-reports-module-card__open-v02682{min-width:44px!important;min-height:44px!important}
+#nexlab-main-content .nexlab-reports-section-heading-v02682 :is(p,span){color:#52677e}
+
+#nexlab-main-content .bookings-interface-v02682 :is(button,input,select,label){font-size:.8125rem!important;line-height:1.45}
+#nexlab-main-content .bookings-interface-v02682 :is(.booking-row-kicker,.booking-row-copy small,.booking-day-head small){font-size:.75rem;line-height:1.5;color:#52677e}
+#nexlab-main-content .booking-day-head small{color:#935000!important}
+#nexlab-main-content .booking-row-copy strong{font-size:.875rem;line-height:1.45}
+#nexlab-main-content .mural-interface-v02682 :is(.author-copy small,.validity,.results-label){font-size:.75rem;color:#52677e}
+#nexlab-main-content .mural-interface-v02682 :is(.feed-tabs button,.create-button,.pin-filter,.read-button){font-size:.8125rem}
+#nexlab-main-content .mk-workspace :is(.mk-tabs button,.mk-filter-toggle,.mk-clear,.mk-pagination button){font-size:.8125rem}
+#nexlab-main-content .mk-workspace :is(.mk-list-heading p,.mk-month-heading small,.mk-posting-time small){font-size:.75rem;color:#52677e}
+
+/* Remove the unused top strip in Reports; keep other auxiliary actions above their module. */
+body[data-nexlab-page=relatorios] #nexlab-main-content>.nxl-history-toolbar{display:none}
+#nexlab-main-content>.nxl-history-toolbar{margin-top:0;margin-bottom:8px;min-height:0}
+
+/* Help already has an extended hit area; make keyboard focus equally apparent. */
+.nexlab-module-help-button:focus-visible{outline:3px solid #f59b28!important;outline-offset:4px!important}
+.nexlab-module-help-button::after{inset:-.65rem}
+#nexlab-main-content .nexlab-system-monitor__refresh>span{display:inline!important}
+:root[data-nexlab-text-size=xlarge] #nexlab-main-content .team-card-rebuilt-v02682__facts{grid-template-columns:minmax(0,1fr)}
+
+@media(max-width:767px){
+ #nexlab-main-content .nexlab-reports-module-v02682 .compact-metric{display:grid;grid-template-columns:34px minmax(0,1fr);gap:8px 10px;align-content:start}
+ #nexlab-main-content .nexlab-reports-module-v02682 .compact-metric>.min-w-0{display:contents}
+ #nexlab-main-content .nexlab-reports-module-v02682 .compact-metric__icon{grid-column:1;grid-row:1}
+ #nexlab-main-content .nexlab-reports-module-v02682 .compact-metric__label{grid-column:2;grid-row:1;align-self:center}
+ #nexlab-main-content .nexlab-reports-module-v02682 .compact-metric__value{grid-column:1/-1;font-size:1.125rem;white-space:nowrap;overflow-wrap:normal;word-break:normal}
+ #nexlab-main-content .nexlab-reports-module-v02682 .compact-metric__helper{grid-column:1/-1}
+ body[data-nexlab-page=equipes] #nexlab-main-content .teams-v2680__metrics{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
+ #nexlab-main-content .teams-v2680__metrics .team-metric-v2680{padding:12px;min-height:88px}
+ #nexlab-main-content .team-metric-v2680>span{font-size:.75rem;line-height:1.4;letter-spacing:0;overflow-wrap:normal;color:#48617b}
+ #nexlab-main-content .team-metric-v2680>small{font-size:.75rem;line-height:1.4;color:#52677e}
+ #nexlab-main-content .teams-v2680__toolbar{padding:12px;gap:8px}
+ #nexlab-main-content .teams-v2680__toolbar :is(input,select,button){min-height:44px}
+ #nexlab-main-content .team-card-rebuilt-v02682__main{min-height:0;padding:22px 16px 16px}
+ #nexlab-main-content .nxl-profile-approved .nexlab-profile-sidebar-v02682{gap:14px!important}
+ #nexlab-main-content .nxl-profile-approved .nexlab-profile-sidebar-v02682>div{padding:16px!important}
+ #nexlab-main-content .nxl-profile-approved .nexlab-profile-sidebar-v02682>div>div.space-y-4{display:grid;gap:0;margin-top:10px!important}
+ #nexlab-main-content .nxl-profile-approved .nexlab-profile-sidebar-v02682>div>div.space-y-4>div.space-y-1:not(:has(button,select)){margin:0!important;padding:8px 0!important;gap:2px!important;grid-template-columns:minmax(0,1fr)!important;border-bottom:0!important}
+ #nexlab-main-content .nxl-profile-approved .nexlab-profile-sidebar-v02682>div>div.space-y-4>div.space-y-1>span{margin:0!important;line-height:1.5!important}
+ #nexlab-main-content .nxl-profile-approved .nexlab-profile-sidebar-v02682>div>div.space-y-4>div.space-y-1>span:first-child{font-size:.75rem!important;color:#52677e!important}
+ #nexlab-main-content .nxl-profile-approved .nexlab-profile-sidebar-v02682>div>div.space-y-4>div.space-y-1>span:nth-child(2){font-size:.875rem!important}
+ #nexlab-main-content .nexlab-reports-module-v02682 :is(.nxl-export-trigger,.nxl-export-menu-item){min-height:44px!important;height:auto!important;padding:8px 12px!important}
+}
+@media(max-width:360px){#nexlab-main-content .nexlab-reports-module-v02682 .compact-metric__value{font-size:1rem}}
+@media(max-width:767px){:root[data-nexlab-text-size=xlarge] #nexlab-main-content .nexlab-reports-module-v02682>.compact-metrics{grid-template-columns:minmax(0,1fr)}}
+@media(forced-colors:active){
+ .nexlab-settings-shell .nexlab-settings-btn.primary{background:ButtonFace!important;color:ButtonText!important;border-color:ButtonText!important;background-image:none!important;forced-color-adjust:auto}
+ .nexlab-settings-shell .nexlab-settings-btn.primary:disabled{color:GrayText!important}
+}

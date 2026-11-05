@@ -3,12 +3,12 @@
   "version": "0.26.82",
   "release": "Beta",
   "channel": "beta",
-  "revision": "beta-0-26-82-correcoes-recuperacao-auditoria",
-  "asset_revision": "app-beta-0-26-82-correcoes-recuperacao-auditoria",
-  "generated_at": "2026-11-05T10:05:18Z",
+  "revision": "beta-0-26-82-legibilidade-e-espacos",
+  "asset_revision": "app-beta-0-26-82-legibilidade-e-espacos",
+  "generated_at": "2026-11-05T11:06:52Z",
   "manifest": "release-manifest.json",
-  "manifest_sha256": "3ee7c6fdffa557f9f6821f3c12f07a2f421ff1e2ff15eee70b4d16385cad92ac",
-  "essential_count": 64,
-  "essential_bytes": 3194514,
-  "cache_name": "nxl-official-app-beta-0-26-82-correcoes-recuperacao-auditoria-20261105T100518Z"
+  "manifest_sha256": "e041576882799ddde050d19a6b44cdc9f916bba2d824319ed8660e9c050b084f",
+  "essential_count": 65,
+  "essential_bytes": 3203831,
+  "cache_name": "nxl-official-app-beta-0-26-82-legibilidade-e-espacos-20261105T110652Z"
 }
