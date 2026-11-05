@@ -13,5 +13,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
       - name: Verify essential and lazy resources
         run: node scripts/verify-release.mjs
+      - name: Verify Mural HTTP transfer framing
+        run: node scripts/verify-mural-transport.mjs

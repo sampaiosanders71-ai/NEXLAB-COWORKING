@@ -57,11 +57,24 @@ async function readPublic(url:URL,deadline:number,image=false):Promise<{status:n
    if(url.protocol==='https:'){const tls=await Deno.startTls(tcp,{hostname:url.hostname,alpnProtocols:['http/1.1']});conn=tls;if(expired){tls.close();throw Error('Tempo esgotado')}}
    const request=new TextEncoder().encode(`GET ${url.pathname}${url.search} HTTP/1.1\r\nHost: ${url.hostname}\r\nUser-Agent: NexLab-LinkPreview/1.0\r\nAccept: text/html,image/*;q=0.8\r\nAccept-Encoding: identity\r\nConnection: close\r\n\r\n`);
    let written=0;while(written<request.length)written+=await conn.write(request.subarray(written));
-   const chunks:Uint8Array[]=[];let size=0,headerEnd=-1,headers=new Map<string,string>(),status=0;
+   const chunks:Uint8Array[]=[];let size=0,headerEnd=-1,headers=new Map<string,string>(),status=0,chunkTail='';
    while(size<limit+32768){const buf=new Uint8Array(16384),n=await conn.read(buf);if(n===null)break;chunks.push(buf.slice(0,n));size+=n;
      if(headerEnd<0){const joined=new Uint8Array(size);let pos=0;for(const c of chunks){joined.set(c,pos);pos+=c.length}for(let at=0;at+3<joined.length;at++)if(joined[at]===13&&joined[at+1]===10&&joined[at+2]===13&&joined[at+3]===10){headerEnd=at;break}if(headerEnd<0&&size>32768)throw Error('Cabeçalho muito grande');if(headerEnd>=0){if(headerEnd>32768)throw Error('Cabeçalho muito grande');const head=new TextDecoder().decode(joined.subarray(0,headerEnd));if(!/^HTTP\/1\.[01] \d{3}/.test(head))throw Error('Resposta inválida');status=Number(head.split(' ')[1]);for(const line of head.split('\r\n').slice(1)){const at=line.indexOf(':');if(at>0)headers.set(line.slice(0,at).toLowerCase(),line.slice(at+1).trim())}if(status>=300&&status<400||!image&&headers.get('content-type')?.startsWith('image/'))break;if(image?!/^image\/(jpeg|png|webp)(;|$)/i.test(headers.get('content-type')||''):!headers.get('content-type')?.toLowerCase().includes('text/html'))throw Error('Formato não suportado');if(image&&Number(headers.get('content-length')||0)>limit)throw Error('Resposta muito grande');if(headers.has('content-encoding')&&headers.get('content-encoding')!=='identity')throw Error('Formato não suportado');}}
      if(headerEnd>=0&&size-headerEnd-4>limit)throw Error('Resposta muito grande');
      if(!image&&headerEnd>=0&&new TextDecoder().decode(buf.subarray(0,n)).toLowerCase().includes('</head>'))break;
+     // HTTP message framing determines completion; a CDN may omit TLS close_notify.
+     if(headerEnd>=0){
+      const chunked=headers.get('transfer-encoding')?.toLowerCase().includes('chunked');
+      if(!chunked&&headers.has('content-length')&&size-headerEnd-4>=Number(headers.get('content-length')))break;
+      if(chunked){
+       chunkTail=(chunkTail+new TextDecoder().decode(buf.subarray(0,n))).slice(-128);
+       if(/\r\n0(?:;[^\r\n]*)?\r\n/.test(chunkTail)){
+        const received=new Uint8Array(size);let offset=0;for(const chunk of chunks){received.set(chunk,offset);offset+=chunk.length;}
+        try{unchunk(received.subarray(headerEnd+4),limit,true);break;}catch(error){if((error as Error).message!=='Resposta incompleta')throw error;}
+       }
+      }
+     }
+
    }
    if(headerEnd<0)throw Error('Resposta inválida');
    const all=new Uint8Array(size);let pos=0;for(const c of chunks){all.set(c,pos);pos+=c.length}

@@ -1,5 +1,11 @@
 import {downloadImage,extractPreview} from './preview.ts';
 const bucket='mural-media';
+function diagnostic(stage:string,error:unknown){
+ const e=error as {name?:string;message?:string;statusCode?:string};
+ const message=String(e?.message||error||'unknown').replace(/https?:\/\/[^\s]+/gi,'[url]').replace(/Bearer\s+\S+/gi,'Bearer [redacted]').slice(0,180);
+ console.warn(JSON.stringify({event:'mural_cover_failure',stage,error:e?.name||'Error',message,status:e?.statusCode||null}));
+}
+
 export function cachedPath(url:string,base:string):string|null {
  try{const candidate=new URL(url),own=new URL(base);const prefix='/storage/v1/object/authenticated/'+bucket+'/';if(candidate.origin!==own.origin||!candidate.pathname.startsWith(prefix)||candidate.search||candidate.hash)return null;const path=decodeURIComponent(candidate.pathname.slice(prefix.length));return /^link-cache\/[a-f0-9]{64}\.(jpg|png|webp)$/.test(path)?path:null;}catch{return null;}
 }
@@ -21,12 +27,12 @@ export async function cacheCover(admin:any,base:string,source:string,candidate?:
   if(cooldown.size>256)for(const [k,until] of cooldown)if(until<Date.now())cooldown.delete(k);
   while(cooldown.size>256)cooldown.delete(cooldown.keys().next().value!);
   let media;
-  if(candidate&&!cachedPath(candidate,base))try{media=await downloadImage(candidate)}catch{}
-  if(!media){const fresh=await extractPreview(canonical.href);if(!fresh)return null;try{media=await downloadImage(fresh)}catch{return null}}
+  if(candidate&&!cachedPath(candidate,base))try{media=await downloadImage(candidate)}catch(error){diagnostic('download_original',error)}
+  if(!media){let fresh;try{fresh=await extractPreview(canonical.href)}catch(error){diagnostic('extract_fresh',error);return null}if(!fresh){diagnostic('extract_fresh','No image in public response');return null}try{media=await downloadImage(fresh)}catch(error){diagnostic('download_fresh',error);return null}}
   const path='link-cache/'+key+'.'+media.extension;
   const {error}=await admin.storage.from(bucket).upload(path,media.bytes,{contentType:media.contentType,cacheControl:'31536000',upsert:false});
-  if(error){const existing=await admin.storage.from(bucket).createSignedUrl(path,60);if(existing.error||!existing.data?.signedUrl)return null;}
+  if(error){diagnostic('storage_upload',error);const existing=await admin.storage.from(bucket).createSignedUrl(path,60);if(existing.error||!existing.data?.signedUrl)return null;}
   cooldown.delete(key);return stableUrl(base,path);
- })().catch(()=>null).finally(()=>inflight.delete(key));
+ })().catch(error=>{diagnostic('cache_unexpected',error);return null}).finally(()=>inflight.delete(key));
  inflight.set(key,work);return work;
 }
