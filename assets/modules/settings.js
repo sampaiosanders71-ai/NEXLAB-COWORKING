@@ -1,7 +1,7 @@
-import {DownloadIcon} from '../nexlab-report-download-v02682.js?v=app-beta-0-26-82-oficial-completo';
+import {DownloadIcon} from '../nexlab-report-download-v02682.js?v=app-beta-0-26-82-correcoes-recuperacao-auditoria';
 /* NEXLAB Beta 0.26.82 — Configurações: Conta, Acessibilidade, Notificações, Privacidade e Segurança. */
-import { g as React, Ln as supabase } from "../nexlab-runtime-vendor.js?v=app-beta-0-26-82-oficial-completo";
-import { Ai as NotificationHistory, hi as notificationHub, zn as canAccessModule, Po as PrivacyCenter, Eo as OPTIONAL_CONSENT_VERSION, Si as saveNotificationPreference, Ci as getPushSubscription, Ei as disablePushSubscription, ki as pushSupported, Ni as vapidToBytes, Vn as readableError } from "../nexlab-runtime-shared.js?v=app-beta-0-26-82-oficial-completo";
+import { g as React, Ln as supabase } from "../nexlab-runtime-vendor.js?v=app-beta-0-26-82-correcoes-recuperacao-auditoria";
+import { Ai as NotificationHistory, hi as notificationHub, zn as canAccessModule, Po as PrivacyCenter, Eo as OPTIONAL_CONSENT_VERSION, Si as saveNotificationPreference, Ci as getPushSubscription, Ei as disablePushSubscription, ki as pushSupported, Ni as vapidToBytes, Vn as readableError } from "../nexlab-runtime-shared.js?v=app-beta-0-26-82-correcoes-recuperacao-auditoria";
 
 const h=React.createElement;
 const ROLE_LABELS={admin:'Admin',administrador:'Admin',coordenador:'Coordenador',bolsista:'Bolsista',voluntario:'Voluntário',coworking_junior:'Coworking Júnior'};
@@ -29,7 +29,35 @@ function roleLabel(role){return ROLE_LABELS[String(role||'').toLowerCase()]||Str
 function toast(addToast,message,type='ok'){try{addToast?.(message,type);}catch{} }
 function Field({label,value,muted=false}){return h('div',{className:'nexlab-settings-field'},h('span',{className:'nexlab-settings-field-label'},label),h('strong',{className:muted?'is-muted':''},value||'Não informado'));}
 function Toggle({checked,onChange,disabled=false,label}){return h('button',{type:'button',role:'switch','aria-checked':!!checked,'aria-label':label,disabled,onClick:()=>onChange?.(!checked),className:'nexlab-settings-switch '+(checked?'is-on':'')},h('span',null));}
-function ConfirmDialog({title,message,confirmLabel='Confirmar',danger=false,onCancel,onConfirm,busy=false}){return h('div',{className:'nexlab-settings-modal-backdrop',role:'presentation',onMouseDown:e=>{if(e.target===e.currentTarget&&!busy)onCancel?.();}},h('div',{className:'nexlab-settings-modal',role:'dialog','aria-modal':'true','aria-labelledby':'nexlab-settings-confirm-title'},h('div',{className:'nexlab-settings-modal-icon '+(danger?'is-danger':'')},h(Icon,{name:danger?'logout':'shield',size:22})),h('h3',{id:'nexlab-settings-confirm-title'},title),h('p',null,message),h('div',{className:'nexlab-settings-modal-actions'},h('button',{type:'button',className:'nexlab-settings-btn secondary',disabled:busy,onClick:onCancel},'Cancelar'),h('button',{type:'button',className:'nexlab-settings-btn '+(danger?'danger':'primary'),disabled:busy,onClick:onConfirm},busy?'Processando...':confirmLabel))));}
+function ConfirmDialog({title,message,confirmLabel='Confirmar',danger=false,onCancel,onConfirm,busy=false}){
+  const dialogRef=React.useRef(null),cancelRef=React.useRef(null),current=React.useRef({busy,onCancel});
+  const base=React.useId();
+  current.current={busy,onCancel};
+  React.useLayoutEffect(()=>{
+    const previous=document.activeElement,dialog=dialogRef.current;
+    cancelRef.current?.focus({preventScroll:true});
+    const keydown=event=>{
+      if(event.key==='Escape'){
+        event.preventDefault();event.stopPropagation();
+        if(!current.current.busy)current.current.onCancel?.();
+      }else if(event.key==='Tab'){
+        const buttons=[...dialog.querySelectorAll('button:not(:disabled),[href],input:not(:disabled),select:not(:disabled),textarea:not(:disabled),[tabindex="0"]')].filter(node=>node.getClientRects().length);
+        const first=buttons[0],last=buttons[buttons.length-1],active=document.activeElement;
+        if(!first){event.preventDefault();event.stopPropagation();dialog.focus({preventScroll:true});}
+        else if(!dialog.contains(active)||(event.shiftKey?active===first:active===last)){
+          event.preventDefault();event.stopPropagation();(event.shiftKey?last:first).focus({preventScroll:true});
+        }
+      }
+    };
+    document.addEventListener('keydown',keydown,true);
+    return()=>{document.removeEventListener('keydown',keydown,true);if(previous?.isConnected)previous.focus?.({preventScroll:true});};
+  },[]);
+  return h('div',{className:'nexlab-settings-modal-backdrop',role:'presentation',onMouseDown:e=>{if(e.target===e.currentTarget&&!busy)onCancel?.();}},
+    h('div',{ref:dialogRef,tabIndex:-1,className:'nexlab-settings-modal',role:'dialog','aria-modal':'true','aria-busy':busy,'aria-labelledby':base+'-title','aria-describedby':base+'-message'},
+      h('div',{className:'nexlab-settings-modal-icon '+(danger?'is-danger':'')},h(Icon,{name:danger?'logout':'shield',size:22})),
+      h('h3',{id:base+'-title'},title),h('p',{id:base+'-message'},message),
+      h('div',{className:'nexlab-settings-modal-actions'},h('button',{ref:cancelRef,type:'button',className:'nexlab-settings-btn secondary',disabled:busy,onClick:onCancel},'Cancelar'),h('button',{type:'button',className:'nexlab-settings-btn '+(danger?'danger':'primary'),disabled:busy,onClick:onConfirm},busy?'Processando...':confirmLabel))));
+}
 
 // Apresentação dos painéis: os elementos recebidos mantêm seus dados e handlers.
 function SettingsVisualPanel({kind,children,mfaStatus,mfaConfigured}){
@@ -278,5 +306,5 @@ export default function SettingsModule({profile,addToast,onNavigate,onProfileUpd
   React.useEffect(()=>{const restore=()=>{try{const requested=new URLSearchParams(location.search).get('nexlabSettings');const saved=sessionStorage.getItem('nexlab.settings.section');const next=initialSection==='notifications'?'notifications':requested&&visibleIds.has(requested)?requested:saved&&visibleIds.has(saved)?saved:null;if(next){setActive(next);if(requested||initialSection)setMobileDetail(true);}}catch{}};restore();const open=()=>select('notifications');window.addEventListener('nexlab:notification-central',open);window.addEventListener('popstate',restore);return()=>{window.removeEventListener('nexlab:notification-central',open);window.removeEventListener('popstate',restore);};},[admin,initialSection]);
   const activeItem=visibleGroups.flatMap(g=>g.items).find(item=>item.id===active)||visibleGroups[0]?.items[0];
   let panel=null;if(active==='account')panel=h(AccountPanel,{profile,addToast,onNavigate});else if(active==='accessibility')panel=h(AccessibilityPanel,{addToast});else if(active==='notifications')panel=h(NotificationCentral,{profile,addToast,onNavigate,forceReceived:initialSection==='notifications'});else if(active==='integrations')panel=h(GoogleCalendarPanel,{addToast});else if(active==='privacy')panel=h(PrivacyCenter,{profile,addToast,onProfileUpdate});else if(active==='security')panel=h(SecurityPanel,{addToast,onOpenAccount:()=>select('account')});else if(active==='backup'&&admin)panel=h(DataProtectionPanel,{addToast,onNavigate});else if(active==='about')panel=h(AboutPanel,{onOpenSection:select});else panel=null;
-  return h('div',{className:'nexlab-settings-shell '+(mobileDetail?'is-mobile-detail':'')},h('header',{className:'nexlab-settings-page-head'},h('div',null,h('span',{className:'nexlab-settings-kicker'},'NEXLAB'),h('h1',null,'Configurações'),h('p',null,'Conta, acessibilidade, notificações, integrações, privacidade, segurança, continuidade e informações do sistema em um único lugar.'))),h('div',{className:'nexlab-settings-layout'},h('aside',{className:'nexlab-settings-nav','aria-label':'Seções de configurações'},...visibleGroups.map(group=>h('section',{key:group.group},h('h2',null,group.group),h('div',{className:'nexlab-settings-nav-list'},...group.items.map(item=>h('button',{type:'button',key:item.id,className:active===item.id?'is-active':'',onClick:()=>select(item.id),'aria-current':active===item.id?'page':undefined},h('span',{className:'nexlab-settings-nav-icon'},h(Icon,{name:item.icon,size:19})),h('span',{className:'nexlab-settings-nav-copy'},h('strong',null,item.label),h('small',null,item.description)),h(Icon,{name:'chevron',size:16}))))))),h('main',{className:'nexlab-settings-content','aria-labelledby':'nxl-settings-section-title','data-settings-section':active},h('h2',{id:'nxl-settings-section-title',className:'nxl-settings-sr'},activeItem?.label||'Configurações'),h('button',{type:'button',className:'nexlab-settings-mobile-back',onClick:()=>setMobileDetail(false)},h(Icon,{name:'back',size:18}),'Configurações'),panel)));
+  return h('div',{className:'nexlab-settings-shell '+(mobileDetail?'is-mobile-detail':'')},h('header',{className:'nexlab-settings-page-head'},h('div',null,h('span',{className:'nexlab-settings-kicker'},'NEXLAB'),h('h1',null,'Configurações'),h('p',null,'Conta, acessibilidade, notificações, integrações, privacidade, segurança, continuidade e informações do sistema em um único lugar.'))),h('div',{className:'nexlab-settings-layout'},h('aside',{className:'nexlab-settings-nav','aria-label':'Seções de configurações'},...visibleGroups.map(group=>h('section',{key:group.group},h('h2',null,group.group),h('div',{className:'nexlab-settings-nav-list'},...group.items.map(item=>h('button',{type:'button',key:item.id,className:active===item.id?'is-active':'',onClick:()=>select(item.id),'aria-current':active===item.id?'page':undefined},h('span',{className:'nexlab-settings-nav-icon'},h(Icon,{name:item.icon,size:19})),h('span',{className:'nexlab-settings-nav-copy'},h('strong',null,item.label),h('small',null,item.description)),h(Icon,{name:'chevron',size:16}))))))),h('section',{className:'nexlab-settings-content','aria-labelledby':'nxl-settings-section-title','data-settings-section':active},h('h2',{id:'nxl-settings-section-title',className:'nxl-settings-sr'},activeItem?.label||'Configurações'),h('button',{type:'button',className:'nexlab-settings-mobile-back',onClick:()=>setMobileDetail(false)},h(Icon,{name:'back',size:18}),'Configurações'),panel)));
 }

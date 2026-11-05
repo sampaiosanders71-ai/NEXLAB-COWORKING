@@ -17,7 +17,7 @@
     return;
   }
 
-  const BUILD_IDENTITY = window.__NEXLAB_BUILD_IDENTITY__ || Object.freeze({version:'0.26.82',release:'Beta',revision:'beta-0-26-82-google-calendar-integracao',assetRevision:'app-beta-0-26-82-oficial-completo',cacheName:'nexlab-app-beta-0-26-82-oficial-completo-20260928T022407Z',generatedAt:'2026-09-11T01:14:06Z'});
+  const BUILD_IDENTITY = window.__NEXLAB_BUILD_IDENTITY__ || Object.freeze({version:'0.26.82',release:'Beta',revision:'beta-0-26-82-google-calendar-integracao',assetRevision:'app-beta-0-26-82-correcoes-recuperacao-auditoria',cacheName:'nexlab-app-beta-0-26-82-correcoes-recuperacao-auditoria-20260928T022407Z',generatedAt:'2026-09-11T01:14:06Z'});
   const APP_VERSION = BUILD_IDENTITY.version;
   const APP_RELEASE = BUILD_IDENTITY.release;
   const APP_REVISION = BUILD_IDENTITY.revision;
@@ -1354,7 +1354,7 @@
     'assets/nexlab-vapid-rotation.js',
     'assets/nexlab-push-consent.js',
     'assets/nexlab-feedback-evidence.js'
-  ]).map(path=>'./'+String(path).replace(/^\.\//,'')+'?v='+(BUILD.assetRevision||'app-beta-0-26-82-oficial-completo'));
+  ]).map(path=>'./'+String(path).replace(/^\.\//,'')+'?v='+(BUILD.assetRevision||'app-beta-0-26-82-correcoes-recuperacao-auditoria'));
   const state={version:VERSION,revision:REVISION,status:'scheduled',loaded:[],errors:[],attempts:{},lastReason:'',startedAt:null,completedAt:null};
   const sourceState=new Map(sources.map(src=>[src,{status:'pending',attempts:0,lastError:''}]));
   let active=null;
