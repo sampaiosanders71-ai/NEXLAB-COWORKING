@@ -3,12 +3,12 @@
   "version": "0.26.82",
   "release": "Beta",
   "channel": "beta",
-  "revision": "beta-0-26-82-oficial-consolidado",
-  "asset_revision": "app-beta-0-26-82-oficial-consolidado",
-  "generated_at": "2026-11-09T01:34:41Z",
+  "revision": "beta-0-26-82-oficial-pendencias-patrimonio",
+  "asset_revision": "app-beta-0-26-82-oficial-pendencias-patrimonio",
+  "generated_at": "2026-11-09T01:57:52Z",
   "manifest": "release-manifest.json",
-  "manifest_sha256": "4880cb116d986bf9ba47a5150ea30d7eee77234e84a4a05dc057059f9e3b5f70",
+  "manifest_sha256": "bed3d7900332d0ffa0ed36e340aec1df2896a7f04a98ff4c2968f859a470bfee",
   "essential_count": 73,
-  "essential_bytes": 3380202,
-  "cache_name": "nxl-official-app-app-beta-0-26-82-oficial-consolidado-20261109T013441Z"
+  "essential_bytes": 3381447,
+  "cache_name": "nxl-official-app-beta-0-26-82-oficial-pendencias-patrimonio-20261109T015752Z"
 }

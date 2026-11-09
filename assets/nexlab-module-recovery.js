@@ -2,7 +2,7 @@
   'use strict';
   const BUILD=root.__NEXLAB_BUILD_IDENTITY__||{};
   const VERSION=String(BUILD.version||'0.26.82');
-  const REVISION=String(BUILD.revision||'beta-0-26-82-oficial-consolidado');
+  const REVISION=String(BUILD.revision||'beta-0-26-82-oficial-pendencias-patrimonio');
   const GUARD_KEY='nexlab:module-recovery:'+REVISION;
   const STRUCTURAL_RE=/(?:unexpected token|invalid or unexpected token|unexpected end of input|syntaxerror|does not provide an export named|failed to fetch dynamically imported module|error loading dynamically imported module|importing a module script failed|chunkloaderror|loading chunk|module script)/i;
   const state={version:VERSION,revision:REVISION,status:'ready',attempts:0,lastError:null,lastContext:null,active:null};
