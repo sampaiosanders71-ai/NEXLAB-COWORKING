@@ -1,6 +1,6 @@
-import { g as React, S as ReactDOM, Ln as supabase } from "./nexlab-runtime-vendor.js?v=app-beta-0-26-82-icones-acesso-rapido";
+import { g as React, S as ReactDOM, Ln as supabase } from "./nexlab-runtime-vendor.js?v=app-beta-0-26-82-oficial-consolidado";
 const CATEGORIES = { operational: [["projects", "Projetos"], ["teams", "Equipes"], ["asset_changes", "Altera\xE7\xF5es de patrim\xF4nio"], ["asset_movements", "Movimenta\xE7\xF5es de patrim\xF4nio"], ["asset_maintenance", "Manuten\xE7\xF5es conclu\xEDdas"], ["stock", "Movimenta\xE7\xF5es de estoque"], ["bookings", "Reservas e reuni\xF5es"], ["feedback", "Feedbacks"], ["users", "V\xEDnculos de usu\xE1rios"], ["permissions", "Permiss\xF5es"], ["reports", "Exporta\xE7\xF5es de relat\xF3rios"], ["activities", "Atividades operacionais"]], technical: [["system", "Eventos do sistema"], ["errors", "Ocorr\xEAncias de erros"], ["cron", "Execu\xE7\xF5es conclu\xEDdas de rotinas"], ["backup_expired", "Backups expirados"]] };
-const DEFAULT_CATEGORY = { projetos: "projects", planejamentos: "projects", equipes: "teams", inventario: "asset_movements", estoque: "stock", patrimonio: "asset_movements", reserva: "bookings", feedback: "feedback", participantes: "users", permissoes: "permissions", relatorios: "reports" };
+const DEFAULT_CATEGORY = { projetos: "projects", planejamentos: "projects", equipes: "teams", inventario: "asset_movements", estoque: "stock", patrimonio: "asset_movements", reserva: "bookings", feedback: "feedback", participantes: "users", permissoes: "permissions" };
 const dateText = (value) => {
   const d = new Date(value);
   return Number.isNaN(d.getTime()) ? "Data indispon\xEDvel" : d.toLocaleString("pt-BR", { timeZone: "America/Fortaleza" });

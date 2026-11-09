@@ -1,4 +1,4 @@
-import {g as React} from './nexlab-runtime-vendor.js?v=app-beta-0-26-82-icones-acesso-rapido';
+import {g as React} from './nexlab-runtime-vendor.js?v=app-beta-0-26-82-oficial-consolidado';
 const h=React.createElement;
 const number=new Intl.NumberFormat('pt-BR',{maximumFractionDigits:1});
 const integer=new Intl.NumberFormat('pt-BR',{maximumFractionDigits:0});

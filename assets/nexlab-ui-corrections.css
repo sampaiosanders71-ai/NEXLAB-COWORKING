@@ -79,6 +79,16 @@ svg.nxl-download-icon{display:inline-block!important;position:static!important;f
  .nexlab-settings-shell .nexlab-settings-backup-actions{width:100%}
 }
 
+/* Approved quick access: original sidebar glyphs and module accents. */
+:where(.nxl-approved) .ux-quick>div>button{
+ background:#183c60!important;border-color:color-mix(in srgb,var(--tone) 70%,#416483)!important;color:#fff!important;
+}
+:where(.nxl-approved) .ux-quick button>span{background:var(--tone)!important;color:#fff!important}
+:where(.nxl-approved) .ux-quick button>span>svg{fill:none;stroke:currentColor;stroke-width:2}
+:where(.nxl-approved) .ux-quick h2>svg{fill:none;stroke:#fff;stroke-width:2}
+:where(.nxl-approved) .ux-quick>div>button:hover{background:#20496f!important;border-color:var(--tone)!important}
+:where(.nxl-approved) .ux-quick>div>button:focus-visible{outline:2px solid white!important;outline-offset:3px}
+
 /* A failed cover keeps the announcement readable and offers an explicit retry. */
 .mural-interface-v02682 .mural-cover-unavailable{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;margin:8px 0 12px;border:1px solid #dce5ef;border-radius:10px;background:#f5f8fc;color:#45617b;font-size:12px;line-height:1.5}
 .mural-interface-v02682 .mural-cover-unavailable button{border:1px solid #c5d6e8;border-radius:7px;padding:5px 9px;background:#fff;color:#123a5d;font:inherit;font-weight:600;cursor:pointer}
