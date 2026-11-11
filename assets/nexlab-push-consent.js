@@ -3,7 +3,7 @@
 
   const BUILD=globalThis.__NEXLAB_BUILD_IDENTITY__||Object.freeze({
     version:'0.26.82',
-    revision:'beta-0-26-82-oficial-patrimonio-pagina-detalhes'
+    revision:'beta-0-26-82-oficial-kanban-navegacao-colunas'
   });
   if(globalThis.__NEXLAB_PUSH_CONSENT__?.revision===BUILD.revision)return;
 

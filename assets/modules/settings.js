@@ -1,7 +1,7 @@
-import {DownloadIcon} from '../nexlab-report-download-v02682.js?v=app-beta-0-26-82-oficial-patrimonio-pagina-detalhes';
+import {DownloadIcon} from '../nexlab-report-download-v02682.js?v=app-beta-0-26-82-oficial-kanban-navegacao-colunas';
 /* NEXLAB Beta 0.26.82 — Configurações: Conta, Acessibilidade, Notificações, Privacidade e Segurança. */
-import { g as React, Ln as supabase } from "../nexlab-runtime-vendor.js?v=app-beta-0-26-82-oficial-patrimonio-pagina-detalhes";
-import { Ai as NotificationHistory, hi as notificationHub, zn as canAccessModule, Po as PrivacyCenter, Eo as OPTIONAL_CONSENT_VERSION, Si as saveNotificationPreference, Ci as getPushSubscription, Ei as disablePushSubscription, ki as pushSupported, Ni as vapidToBytes, Vn as readableError } from "../nexlab-runtime-shared.js?v=app-beta-0-26-82-oficial-patrimonio-pagina-detalhes";
+import { g as React, Ln as supabase } from "../nexlab-runtime-vendor.js?v=app-beta-0-26-82-oficial-kanban-navegacao-colunas";
+import { Ai as NotificationHistory, hi as notificationHub, zn as canAccessModule, Po as PrivacyCenter, Eo as OPTIONAL_CONSENT_VERSION, Si as saveNotificationPreference, Ci as getPushSubscription, Ei as disablePushSubscription, ki as pushSupported, Ni as vapidToBytes, Vn as readableError } from "../nexlab-runtime-shared.js?v=app-beta-0-26-82-oficial-kanban-navegacao-colunas";
 
 const h=React.createElement;
 const ROLE_LABELS={admin:'Admin',administrador:'Admin',coordenador:'Coordenador',bolsista:'Bolsista',voluntario:'Voluntário',coworking_junior:'Coworking Júnior'};

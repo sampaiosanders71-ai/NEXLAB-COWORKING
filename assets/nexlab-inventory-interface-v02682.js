@@ -1,4 +1,4 @@
-import { g as React, Ln as supabase } from "./nexlab-runtime-vendor.js?v=app-beta-0-26-82-oficial-patrimonio-pagina-detalhes";
+import { g as React, Ln as supabase } from "./nexlab-runtime-vendor.js?v=app-beta-0-26-82-oficial-kanban-navegacao-colunas";
 export function InventoryModal({ title, onClose, panelClassName = 'max-w-2xl', children }) {
   const overlay = React.useRef(null), close = React.useRef(onClose), titleId = React.useId();
   close.current = onClose;

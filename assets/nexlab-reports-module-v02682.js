@@ -1,7 +1,7 @@
-import { g as React, Ln as supabase, bt as Users, Fe as Network, ge as FolderKanban, Ve as Package, V as CalendarClock, ze as Megaphone, H as CalendarDays, K as CalendarRange, Ge as RefreshCw, J as ChartColumn, D as ArrowRight, wt as X } from "./nexlab-runtime-vendor.js?v=app-beta-0-26-82-oficial-patrimonio-pagina-detalhes";
-import { DownloadIcon, useReportDownload, reportMfaSetupRequired } from "./nexlab-report-download-v02682.js?v=app-beta-0-26-82-oficial-patrimonio-pagina-detalhes";
-import { reportModules, fold, validPeriod, periodLabel, validatePacket, appendSensitiveUsers } from "./nexlab-reports-schema-v02682.js?v=app-beta-0-26-82-oficial-patrimonio-pagina-detalhes";
-import { exportModuleReport } from "./nexlab-reports-export-v02682.js?v=app-beta-0-26-82-oficial-patrimonio-pagina-detalhes";
+import { g as React, Ln as supabase, bt as Users, Fe as Network, ge as FolderKanban, Ve as Package, V as CalendarClock, ze as Megaphone, H as CalendarDays, K as CalendarRange, Ge as RefreshCw, J as ChartColumn, D as ArrowRight, wt as X } from "./nexlab-runtime-vendor.js?v=app-beta-0-26-82-oficial-kanban-navegacao-colunas";
+import { DownloadIcon, useReportDownload, reportMfaSetupRequired } from "./nexlab-report-download-v02682.js?v=app-beta-0-26-82-oficial-kanban-navegacao-colunas";
+import { reportModules, fold, validPeriod, periodLabel, validatePacket, appendSensitiveUsers } from "./nexlab-reports-schema-v02682.js?v=app-beta-0-26-82-oficial-kanban-navegacao-colunas";
+import { exportModuleReport } from "./nexlab-reports-export-v02682.js?v=app-beta-0-26-82-oficial-kanban-navegacao-colunas";
 const icons = { users: Users, network: Network, folder: FolderKanban, package: Package, calendar: CalendarClock, megaphone: Megaphone, events: CalendarDays };
 const num = (value) => new Intl.NumberFormat("pt-BR").format(value);
 const message = (error) => error?.code === "42501" ? error.message : error?.code === "NEXLAB_MFA_SETUP_REQUIRED" ? error.message : error?.name === "TimeoutError" ? "A consulta demorou mais que o esperado. Tente novamente." : "N\xE3o foi poss\xEDvel concluir a consulta. Tente novamente.";

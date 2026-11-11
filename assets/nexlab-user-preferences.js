@@ -1,5 +1,5 @@
 /* NEXLAB Beta 0.26.82 — preferências globais de interface e acessibilidade. */
-import { Ln as supabase } from './nexlab-runtime-vendor.js?v=app-beta-0-26-82-oficial-patrimonio-pagina-detalhes';
+import { Ln as supabase } from './nexlab-runtime-vendor.js?v=app-beta-0-26-82-oficial-kanban-navegacao-colunas';
 
 const STORAGE_KEY='nexlab:interface-preferences:v0.26.82';
 const DEFAULTS=Object.freeze({text_size:'default',high_contrast:false,reduce_motion:false});
