@@ -202,3 +202,120 @@
  #nxl-asset-groups .nxl-ag-group-panel .nxl-ag-search input,#nxl-asset-groups .nxl-ag-group-panel .nxl-ag-filters select{font-size:16px!important}
  #nxl-asset-groups .nxl-ag-group-panel .nxl-ag-refresh-button{grid-column:2;font-size:13px}
 }
+
+/* Ficha patrimonial em página dedicada. */
+
+#nxl-asset-groups .nxl-ag-inline-detail{padding:20px;background:#fff;color:#14283f;border:1px solid #b9c6d5;border-radius:10px;box-shadow:0 2px 5px #102b4610}
+#nxl-asset-groups .nxl-ag-inline-detail>h3:first-child{position:relative;margin:0 -20px 16px;padding:0 20px 14px 34px;border-bottom:1px solid #d5dce5;color:#17243b;font-size:20px;font-weight:750;line-height:1.4;letter-spacing:-.02em;white-space:normal;overflow-wrap:anywhere}
+#nxl-asset-groups .nxl-ag-inline-detail>h3:first-child::before{content:'';position:absolute;left:20px;top:2px;bottom:16px;width:4px;background:#ff8400;border-radius:3px}
+#nxl-asset-groups .nxl-ag-inline-detail .nxl-ag-detail-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;margin:0 0 18px;padding:8px 10px;border:1px solid #d0d6df;border-radius:8px;background:#f8f9fb}
+#nxl-asset-groups .nxl-ag-inline-detail .nxl-ag-detail-field{position:relative;min-width:0;margin:0;padding:9px 16px;border-bottom:1px solid #d8dfe7;background:none}
+#nxl-asset-groups .nxl-ag-inline-detail .nxl-ag-detail-field:not(:nth-child(3n))::after{content:'';position:absolute;right:0;top:0;bottom:0;border-right:1px solid #d0d7e1}
+#nxl-asset-groups .nxl-ag-inline-detail .nxl-ag-detail-field:nth-child(n+19){border-bottom:0}
+#nxl-asset-groups .nxl-ag-inline-detail .nxl-ag-detail-field dt{font-size:12px;font-weight:400;line-height:1.4;color:#536071}
+#nxl-asset-groups .nxl-ag-inline-detail .nxl-ag-detail-field dd{margin:2px 0 0;color:#15293f;font-size:14px;line-height:1.45;font-weight:600;white-space:normal;overflow-wrap:anywhere}
+#nxl-asset-groups .nxl-ag-inline-detail .nxl-ag-condition{display:inline-flex;min-height:25px;font-size:13px;padding:3px 9px;line-height:1.4;border-radius:6px;font-weight:750}
+#nxl-asset-groups .nxl-ag-inline-detail .nxl-ag-condition i{display:none}
+#nxl-asset-groups .nxl-ag-inline-detail .nxl-ag-condition.is-damaged{color:#970d17;background:#ffe1e4;border:1px solid #f6c4c9}
+#nxl-asset-groups .nxl-ag-inline-detail .nxl-ag-detail-location{display:inline-block;max-width:100%;padding:3px 9px;border-radius:6px;background:#e5f2e5;color:#1c5225;font-size:13px;line-height:1.4;font-weight:750;overflow-wrap:anywhere}
+#nxl-asset-groups .nxl-ag-inline-detail h3.nxl-ag-detail-section{position:relative;padding:0 0 8px 12px;margin:20px 0 9px;border-bottom:1px solid color-mix(in srgb,var(--section-accent) 35%,#e1e6ed);font-size:17px;font-weight:750;line-height:1.35;letter-spacing:-.015em;color:#17243b}
+#nxl-asset-groups .nxl-ag-inline-detail h3.nxl-ag-detail-section::before{content:'';position:absolute;left:0;top:1px;bottom:9px;width:3px;border-radius:3px;background:var(--section-accent)}
+#nxl-asset-groups .nxl-ag-inline-detail .is-description{--section-accent:#f58a16}
+#nxl-asset-groups .nxl-ag-inline-detail .is-notes{--section-accent:#388944}
+#nxl-asset-groups .nxl-ag-inline-detail .is-occurrences{--section-accent:#173d70}
+#nxl-asset-groups .nxl-ag-inline-detail .is-maintenance{--section-accent:#f58a16}
+#nxl-asset-groups .nxl-ag-inline-detail .is-movements{--section-accent:#388944}
+#nxl-asset-groups .nxl-ag-inline-detail .nxl-ag-full-text{margin:0;color:#273c52;font-size:14px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}
+#nxl-asset-groups .nxl-ag-inline-detail .nxl-ag-documents:empty{display:none}
+#nxl-asset-groups .nxl-ag-inline-detail .nxl-ag-history{display:grid;gap:10px;margin:0;padding:0;list-style:none}
+#nxl-asset-groups .nxl-ag-inline-detail .nxl-ag-history li{margin:0;padding:12px 16px;border:1px solid #cdd7e4;border-left:4px solid #2c5485;border-radius:7px;background:#f6f9fd;color:#243b53;white-space:normal}
+#nxl-asset-groups .nxl-ag-inline-detail .nxl-ag-history li::before{display:none}
+#nxl-asset-groups .nxl-ag-inline-detail .nxl-ag-history li.is-damage{border-color:#f3bfc5;border-left-color:#c5212e;background:#fff3f4}
+#nxl-asset-groups .nxl-ag-inline-detail .nxl-ag-history li.is-service{border-color:#ebd0ab;border-left-color:#bb7217;background:#fff8ed}
+#nxl-asset-groups .nxl-ag-inline-detail .nxl-ag-history strong{display:block;font-size:15px;line-height:1.4;color:#203d60;font-weight:750}
+#nxl-asset-groups .nxl-ag-inline-detail .nxl-ag-history .is-damage strong{color:#a10c19}
+#nxl-asset-groups .nxl-ag-inline-detail small{display:block;margin-top:2px;font-size:12px;line-height:1.5;color:#526174;white-space:normal;overflow-wrap:anywhere}
+#nxl-asset-groups .nxl-ag-inline-detail .nxl-ag-history p,#nxl-asset-groups .nxl-ag-inline-detail .nxl-ag-history-section p{margin:5px 0 0;font-size:14px;line-height:1.5;color:#253a50;white-space:pre-wrap;overflow-wrap:anywhere}
+#nxl-asset-groups .nxl-ag-inline-detail .nxl-ag-hint{padding:10px 14px;margin:0;background:#f6f7f9;border:1px solid #d6dce4;border-radius:7px;font-size:13px;color:#536071;line-height:1.5}
+#nxl-asset-groups .nxl-ag-inline-detail .nxl-ag-history-section{margin:0 0 10px;padding:12px 16px;border:1px solid #c4d8c8;border-left:4px solid #3a8346;border-radius:7px;background:#f4f9f4;font-size:14px;line-height:1.5;white-space:normal;overflow-wrap:anywhere}
+#nxl-asset-groups .nxl-ag-inline-detail .nxl-ag-history-section strong{display:block;color:#18374b;font-size:15px;font-weight:750}
+
+@container(max-width:800px){
+ #nxl-asset-groups .nxl-ag-inline-detail .nxl-ag-detail-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #nxl-asset-groups .nxl-ag-inline-detail .nxl-ag-detail-field{border-bottom:1px solid #d8dfe7}
+ #nxl-asset-groups .nxl-ag-inline-detail .nxl-ag-detail-field:nth-child(n)::after{border:0}
+ #nxl-asset-groups .nxl-ag-inline-detail .nxl-ag-detail-field:nth-child(odd)::after{border-right:1px solid #d0d7e1}
+ #nxl-asset-groups .nxl-ag-inline-detail .nxl-ag-detail-field:nth-last-child(-n+2){border-bottom:0}
+}
+@media(max-width:767px){
+ #nxl-asset-groups .nxl-ag-inline-detail{padding:16px 14px}
+ #nxl-asset-groups .nxl-ag-inline-detail>h3:first-child{font-size:18px;margin:0 -14px 14px;padding:0 14px 12px 26px}
+ #nxl-asset-groups .nxl-ag-inline-detail>h3:first-child::before{left:14px;bottom:14px}
+ #nxl-asset-groups .nxl-ag-inline-detail .nxl-ag-detail-grid{grid-template-columns:minmax(0,1fr);padding:3px 12px}
+ #nxl-asset-groups .nxl-ag-inline-detail .nxl-ag-detail-field{padding:9px 0;border-bottom:1px solid #d8dfe7}
+ #nxl-asset-groups .nxl-ag-inline-detail .nxl-ag-detail-field:nth-child(n)::after{display:none}
+ #nxl-asset-groups .nxl-ag-inline-detail .nxl-ag-detail-field:nth-last-child(2){border-bottom:1px solid #d8dfe7}
+ #nxl-asset-groups .nxl-ag-inline-detail .nxl-ag-detail-field:last-child{border-bottom:0}
+ #nxl-asset-groups .nxl-ag-inline-detail h3.nxl-ag-detail-section{font-size:16px}
+ #nxl-asset-groups .nxl-ag-inline-detail .nxl-ag-history li,#nxl-asset-groups .nxl-ag-inline-detail .nxl-ag-history-section{padding:11px 12px}
+ #preview-notice{font-size:10px;gap:8px;bottom:8px;padding:7px 9px}
+ #preview-notice span{gap:5px}
+ #preview-notice b{font-size:9px}
+}
+
+#nxl-asset-groups #nxl-ag-list-page[hidden],#nxl-asset-groups #nxl-ag-asset-page[hidden]{display:none!important}
+#nxl-asset-groups .nxl-ap-list tbody tr[data-row]{cursor:pointer}
+#nxl-asset-groups .nxl-ap-list tbody tr[data-row]:hover>td{background:#f3f7fc}
+#nxl-asset-groups .nxl-ap-list .nxl-ag-action-col{width:58px!important}
+#nxl-asset-groups .nxl-ap-list .nxl-ag-row-actions{width:58px;min-width:58px;padding-inline:8px!important}
+#nxl-asset-groups .nxl-ap-name{display:inline;color:#0b2a53;font:inherit;font-weight:750;text-decoration:none;white-space:normal;overflow-wrap:anywhere}
+#nxl-asset-groups .nxl-ap-name:hover{text-decoration:underline;text-underline-offset:3px}
+#nxl-asset-groups .nxl-ap-open{display:flex;align-items:center;justify-content:center;width:38px;height:38px;margin-left:auto;color:#244b79;background:transparent;border:0;border-radius:7px;box-shadow:none!important}
+#nxl-asset-groups .nxl-ap-open:hover{background:#e6eef9}
+#nxl-asset-groups .nxl-ap-open svg{width:21px;height:21px;flex:none}
+#nxl-asset-groups .nxl-ap-name:focus-visible,#nxl-asset-groups .nxl-ap-open:focus-visible{outline:2px solid #1767bd;outline-offset:3px;border-radius:4px}
+#nxl-asset-groups .nxl-ap-navigation{display:flex;align-items:center;justify-content:space-between;gap:20px;margin:0 0 16px;flex-wrap:wrap}
+#nxl-asset-groups .nxl-ap-back{display:inline-flex;align-items:center;gap:9px;min-height:42px;padding:10px 15px;border:1px solid #8da5c4;color:#0a2b52;background:#fff;font-size:13px;font-weight:700;border-radius:8px}
+#nxl-asset-groups .nxl-ap-back svg{width:17px;height:17px}
+#nxl-asset-groups .nxl-ap-breadcrumb{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0;font-size:12px;line-height:1.6;color:#556a82}
+#nxl-asset-groups .nxl-ap-breadcrumb button{padding:3px 0;background:none!important;border:0!important;box-shadow:none!important;color:#496685;font:inherit;cursor:pointer}
+#nxl-asset-groups .nxl-ap-breadcrumb button:hover{text-decoration:underline}
+#nxl-asset-groups .nxl-ap-breadcrumb svg{width:12px;height:12px;flex:none;color:#92a1b3}
+#nxl-asset-groups .nxl-ap-breadcrumb span{font-weight:700;color:#203d60;overflow-wrap:anywhere}
+#nxl-asset-groups .nxl-ap-sheet{margin:0 0 24px}
+#nxl-asset-groups .nxl-ap-heading{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:2px 0 20px;margin:0 0 18px;border-bottom:1px solid #d5dce5}
+#nxl-asset-groups .nxl-ap-identification{position:relative;padding-left:15px;min-width:0}
+#nxl-asset-groups .nxl-ap-identification::before{content:'';position:absolute;left:0;top:1px;bottom:1px;width:4px;border-radius:3px;background:#ff8400}
+#nxl-asset-groups .nxl-ap-eyebrow{display:block;margin:0 0 6px;font-size:12px;font-weight:500;color:#53677e;line-height:1.4}
+#nxl-asset-groups .nxl-ap-heading h2{margin:0 0 12px;font-size:26px;font-weight:750;letter-spacing:-.025em;line-height:1.3;color:#102c50;overflow-wrap:anywhere}
+#nxl-asset-groups .nxl-ap-heading h2:focus{outline:none}
+#nxl-asset-groups .nxl-ap-summary{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:13px;line-height:1.5;color:#48627c}
+#nxl-asset-groups .nxl-ap-summary .nxl-ag-code-label{display:inline-block;padding:4px 9px;font:700 13px/1.4 ui-monospace,SFMono-Regular,Consolas,monospace;color:#193d65;background:#eaf0f6;border-radius:5px}
+#nxl-asset-groups .nxl-ap-summary-location{display:inline-flex;align-items:center;gap:5px;max-width:100%;overflow-wrap:anywhere}
+#nxl-asset-groups .nxl-ap-summary-location svg{width:15px;height:15px;flex:none}
+#nxl-asset-groups .nxl-ap-edit{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:10px 18px;border:1px solid #274e7d;background:#fff;color:#0b2a53;font-size:14px;font-weight:750;border-radius:8px;flex:none}
+#nxl-asset-groups .nxl-ap-edit svg{width:17px;height:17px}
+#nxl-asset-groups .nxl-ap-edit:disabled{opacity:.5;cursor:default}
+#nxl-asset-groups .nxl-ap-warning{margin:12px 0 18px;padding:12px 14px;border:1px solid #e2c89c;border-radius:7px;background:#fff9ef;color:#74511e;font-size:13px;line-height:1.5}
+#nxl-asset-groups .nxl-ap-warning button{font:inherit;font-weight:700;text-decoration:underline;background:none;border:0;color:#4e3e27;cursor:pointer}
+#nxl-asset-groups .nxl-ap-history{font-size:13px;color:#48627c}
+#nxl-asset-groups .nxl-ap-unavailable{padding:24px;margin-top:16px;background:#fff;border:1px solid #b9c6d5;border-radius:9px}
+@container(max-width:900px){
+ #nxl-asset-groups .nxl-ap-list tr[data-row]{position:relative;padding-right:50px!important}
+ #nxl-asset-groups .nxl-ap-list .nxl-ag-row-actions{position:absolute;right:9px;top:50%;transform:translateY(-50%);width:34px;min-width:34px;grid-column:3;grid-row:1/6}
+ #nxl-asset-groups .nxl-ap-open{width:34px;height:44px}
+ #nxl-asset-groups .nxl-ap-list .nxl-ag-row-name{grid-column:2;grid-row:1}
+ #nxl-asset-groups .nxl-ap-list .nxl-ag-row-condition{grid-column:2;grid-row:5;justify-self:start;margin-top:5px}
+ #nxl-asset-groups .nxl-ap-list .nxl-ag-row-location{grid-column:2;grid-row:4}
+}
+@media(max-width:767px){
+ #nxl-asset-groups .nxl-ap-navigation{align-items:flex-start;gap:12px;margin-bottom:14px}
+ #nxl-asset-groups .nxl-ap-breadcrumb{width:100%;font-size:12px;gap:6px}
+ #nxl-asset-groups .nxl-ap-heading{align-items:flex-start;flex-wrap:wrap;gap:16px;padding-bottom:16px}
+ #nxl-asset-groups .nxl-ap-identification{width:100%;padding-left:12px}
+ #nxl-asset-groups .nxl-ap-heading h2{font-size:22px;margin-bottom:10px}
+ #nxl-asset-groups .nxl-ap-edit{min-height:44px;margin-left:12px;padding:10px 16px}
+ #nxl-asset-groups .nxl-ap-summary{gap:8px}
+ #nxl-asset-groups .nxl-ap-list .nxl-ag-row-name{font-size:15px;line-height:1.4}
+ #nxl-asset-groups .nxl-ap-back{min-height:44px}
+}

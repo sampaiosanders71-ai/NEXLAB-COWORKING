@@ -1,8 +1,18 @@
-import {g as React,Ln as supabase} from './nexlab-runtime-vendor.js?v=app-beta-0-26-82-oficial-pendencias-patrimonio';
-import {AssetsModule as LegacyAssetsModule} from './nexlab-runtime-features.js?v=app-beta-0-26-82-oficial-pendencias-patrimonio';
+import {g as React,Ln as supabase} from './nexlab-runtime-vendor.js?v=app-beta-0-26-82-oficial-patrimonio-pagina-detalhes';
+import {AssetsModule as LegacyAssetsModule} from './nexlab-runtime-features.js?v=app-beta-0-26-82-oficial-patrimonio-pagina-detalhes';
 const colors=[['Roxo','#8754c7'],['Azul','#287cbe'],['Turquesa','#229da6'],['Verde','#4c953e'],['Laranja','#cb8a28'],['Vermelho','#bd5353'],['Rosa','#bb638d'],['Cinza','#738293']];
 const iconLabels={chair:'Cadeira',table:'Mesa',cabinet:'Armário',monitor:'Equipamento',inbox:'Caixa',tool:'Ferramentas',book:'Livro',package:'Bens diversos'};
+function adoptLegacyAssetLink(){
+ try{const u=new URL(location.href);const id=u.searchParams.get('nexlabItem');
+  if(u.searchParams.get('nexlabInventory')!=='assets'||!id)return;
+  if(!u.searchParams.has('nexlabAssetDetail'))u.searchParams.set('nexlabAssetDetail',id);
+  u.searchParams.delete('nexlabItem');history.replaceState({...history.state,nexlabInventoryPage:null},'',u);
+ }catch{}
+}
 export default function AssetGroupsModule(props){
+ adoptLegacyAssetLink();
+ React.useEffect(()=>{window.addEventListener('popstate',adoptLegacyAssetLink,true);return()=>window.removeEventListener('popstate',adoptLegacyAssetLink,true);},[]);
+
  const mount=React.useRef(null),api=React.useRef(null),latest=React.useRef(props),alive=React.useRef(true);
  const [legacyRequest,setLegacyRequest]=React.useState(null),[legacyDetail,setLegacyDetail]=React.useState(false);
  latest.current=props;
@@ -126,9 +136,9 @@ async function historyFor(asset){
  const value=await rpc('nexlab_get_asset_workspace_history_v02682',{p_asset_id:asset.id});if(!value?.ok||!Array.isArray(value.occurrences)||!Array.isArray(value.maintenance)||!Array.isArray(value.movements))throw Error('O histórico do bem não foi confirmado pelo servidor.');
  if(!disposed)historyCache.set(asset.id,{updatedAt:asset.updatedAt,value});return value;
 }
-function historyHTML(h){return '<h3>Ocorrências de condição</h3><ol class="nxl-ag-history">'+(h.occurrences.length?h.occurrences.map(o=>'<li><strong>'+esc(o.kind)+'</strong><small>'+esc(date(o.occurred_at))+' · '+esc(o.actor_name)+'</small><p>'+esc(o.description)+'</p></li>').join(''):'<li>Nenhuma ocorrência de condição registrada.</li>')+'</ol><h3>Manutenções</h3>'+h.maintenance.map(m=>'<section class="nxl-ag-history-section"><strong>'+esc(m.status==='aberta'?'Em aberto':'Concluída')+'</strong><p>Envio: '+esc(date(m.data_envio))+' · Retorno: '+esc(date(m.data_retorno))+'</p><p>Problema: '+esc(m.descricao_problema||m.motivo||'Não registrado')+'</p><p>Solução: '+esc(m.descricao_solucao||'Não registrada')+'</p><p>'+esc(m.observacoes||'')+'</p><p>Fornecedor: '+esc(m.fornecedor||'Não registrado')+' · Custo: '+esc(money(m.custo))+'</p><p>Responsável: '+esc(m.responsavel_nome||'Não informado')+'</p>'+safeLink(m.link_externo,'Documento da manutenção')+'</section>').join('')+(h.maintenance.length?'':'<p class="nxl-ag-hint">Nenhuma manutenção registrada.</p>')+'<h3>Localização e responsabilidade</h3>'+h.movements.map(m=>'<section class="nxl-ag-history-section"><strong>'+esc(m.tipo)+'</strong><p>'+esc(date(m.data_movimentacao))+' · '+esc(m.actor_nome||'Não informado')+'</p><p>'+esc(m.origem_localizacao||'Não informado')+' → '+esc(m.destino_localizacao||'Não informado')+'</p><p>'+esc(m.origem_responsavel_nome||'Não definido')+' → '+esc(m.destino_responsavel_nome||'Não definido')+'</p><p>'+esc(m.motivo||'Não registrado')+'</p>'+safeLink(m.link_externo,'Documento da movimentação')+'</section>').join('')+(h.movements.length?'':'<p class="nxl-ag-hint">Nenhuma movimentação registrada.</p>');}
+function historyHTML(h){return '<h3 class="nxl-ag-detail-section is-occurrences">Ocorrências de condição</h3><ol class="nxl-ag-history">'+(h.occurrences.length?h.occurrences.map(o=>'<li class="'+(fold(o.kind).includes('dano')?'is-damage':fold(o.kind).includes('manutencao')?'is-service':'is-condition')+'"><strong>'+esc(o.kind)+'</strong><small>'+esc(date(o.occurred_at))+' · '+esc(o.actor_name)+'</small><p>'+esc(o.description)+'</p></li>').join(''):'<li>Nenhuma ocorrência de condição registrada.</li>')+'</ol><h3 class="nxl-ag-detail-section is-maintenance">Manutenções</h3>'+h.maintenance.map(m=>'<section class="nxl-ag-history-section"><strong>'+esc(m.status==='aberta'?'Em aberto':'Concluída')+'</strong><p>Envio: '+esc(date(m.data_envio))+' · Retorno: '+esc(date(m.data_retorno))+'</p><p>Problema: '+esc(m.descricao_problema||m.motivo||'Não registrado')+'</p><p>Solução: '+esc(m.descricao_solucao||'Não registrada')+'</p><p>'+esc(m.observacoes||'')+'</p><p>Fornecedor: '+esc(m.fornecedor||'Não registrado')+' · Custo: '+esc(money(m.custo))+'</p><p>Responsável: '+esc(m.responsavel_nome||'Não informado')+'</p>'+safeLink(m.link_externo,'Documento da manutenção')+'</section>').join('')+(h.maintenance.length?'':'<p class="nxl-ag-hint">Nenhuma manutenção registrada.</p>')+'<h3 class="nxl-ag-detail-section is-movements">Localização e responsabilidade</h3>'+h.movements.map(m=>'<section class="nxl-ag-history-section"><strong>'+esc(m.tipo)+'</strong><p>'+esc(date(m.data_movimentacao))+' · '+esc(m.actor_nome||'Não informado')+'</p><p>'+esc(m.origem_localizacao||'Não informado')+' → '+esc(m.destino_localizacao||'Não informado')+'</p><p>'+esc(m.origem_responsavel_nome||'Não definido')+' → '+esc(m.destino_responsavel_nome||'Não definido')+'</p><p>'+esc(m.motivo||'Não registrado')+'</p>'+safeLink(m.link_externo,'Documento da movimentação')+'</section>').join('')+(h.movements.length?'':'<p class="nxl-ag-hint">Nenhuma movimentação registrada.</p>');}
 function safeLink(value,label){if(!value)return '';try{const u=new URL(value);if(!['https:','http:'].includes(u.protocol))return '';return '<a href="'+esc(u.href)+'" target="_blank" rel="noopener noreferrer" class="nxl-ag-document-link">'+esc(label)+'</a>';}catch{return '';}}
-function metadataHTML(a){const pairs=[['Código patrimonial',a.code],['Etiqueta / tombamento',a.tag||'Sem etiqueta'],['Classe patrimonial',a.category],['Tipo',a.type],['Grupo',group(a.groupId).name],['Localização',a.location||'Não informada'],['Condição',a.status],['Responsável',a.responsibleName],['Quantidade','1 bem individual'],['Aquisição',date(a.acquired)],['Valor de aquisição',money(a.unitValue)],['Marca',a.brand||'Não informada'],['Modelo',a.model||'Não informado'],['Número de série',a.serial||'Não informado'],['Fornecedor',a.supplier||'Não informado'],['Nota fiscal',a.invoice||'Não informada'],['Garantia até',date(a.warranty)],['Vida útil (anos)',a.native?.vida_util_anos??'Não registrada'],['Cadastrado em',date(a.createdAt)],['Última atualização',date(a.updatedAt)]];return '<div class="nxl-ag-detail-grid">'+pairs.map(([k,v])=>'<div><dt>'+esc(k)+'</dt><dd>'+esc(v)+'</dd></div>').join('')+'</div><h3>Descrição completa</h3><p class="nxl-ag-full-text">'+esc(a.description||'Não registrada')+'</p><h3>Observações</h3><p class="nxl-ag-full-text">'+esc(a.notes||'Não registradas')+'</p><div class="nxl-ag-documents">'+safeLink(a.linkInvoice,'Nota fiscal')+safeLink(a.linkWarranty,'Garantia')+safeLink(a.linkManual,'Manual')+safeLink(a.linkReference,'Referência')+'</div>'+(a.inconsistent?'<p class="nxl-ag-load-error">Este cadastro precisa de revisão de integridade. '+esc(a.native?.inconsistencia_motivo||'')+'</p>':'');}
+function metadataHTML(a){const pairs=[['Código patrimonial',a.code],['Etiqueta / tombamento',a.tag||'Sem etiqueta'],['Classe patrimonial',a.category],['Tipo',a.type],['Grupo',group(a.groupId).name],['Localização',a.location||'Não informada'],['Condição',a.status],['Responsável',a.responsibleName],['Quantidade','1 bem individual'],['Aquisição',date(a.acquired)],['Valor de aquisição',money(a.unitValue)],['Marca',a.brand||'Não informada'],['Modelo',a.model||'Não informado'],['Número de série',a.serial||'Não informado'],['Fornecedor',a.supplier||'Não informado'],['Nota fiscal',a.invoice||'Não informada'],['Garantia até',date(a.warranty)],['Vida útil (anos)',a.native?.vida_util_anos??'Não registrada'],['Cadastrado em',date(a.createdAt)],['Última atualização',date(a.updatedAt)]];return '<dl class="nxl-ag-detail-grid">'+pairs.map(([k,v])=>'<div class="nxl-ag-detail-field"><dt>'+esc(k)+'</dt><dd>'+ (k==='Condição'?badge(a.status):k==='Localização'?'<span class="nxl-ag-detail-location">'+esc(v)+'</span>':esc(v))+'</dd></div>').join('')+'</dl><h3 class="nxl-ag-detail-section is-description">Descrição completa</h3><p class="nxl-ag-full-text">'+esc(a.description||'Não registrada')+'</p><h3 class="nxl-ag-detail-section is-notes">Observações</h3><p class="nxl-ag-full-text">'+esc(a.notes||'Não registradas')+'</p><div class="nxl-ag-documents">'+safeLink(a.linkInvoice,'Nota fiscal')+safeLink(a.linkWarranty,'Garantia')+safeLink(a.linkManual,'Manual')+safeLink(a.linkReference,'Referência')+'</div>'+(a.inconsistent?'<p class="nxl-ag-load-error">Este cadastro precisa de revisão de integridade. '+esc(a.native?.inconsistencia_motivo||'')+'</p>':'');}
 function detail(id){const a=data.assets.find(a=>a.id===id);if(!a)return;detailId=id;$('detail-code').textContent=a.code||'Código não informado';$('detail-title').textContent=a.name;$('detail-body').innerHTML=metadataHTML(a)+'<div id="nxl-ag-detail-history" role="status">Carregando histórico…</div>';$('detail-edit').dataset.id=id;$('detail-edit').hidden=!canManage||a.inconsistent;$('detail-delete').hidden=!canDelete;$('detail-native').dataset.id=id;show('detail-dialog');historyFor(a).then(h=>{if(!disposed&&detailId===id&&$('detail-history'))$('detail-history').outerHTML='<div id="nxl-ag-detail-history">'+historyHTML(h)+'</div>';}).catch(error=>{if(!disposed&&detailId===id&&$('detail-history'))$('detail-history').textContent=message(error);});}
 
 root.innerHTML=`<div class="nxl-ag-workspace-nav"><button type="button" id="nxl-ag-back" class="nxl-ag-button nxl-ag-secondary" data-home hidden>Voltar aos grupos</button><span id="nxl-ag-sync-state" role="status" aria-live="polite">Carregando patrimônio…</span></div>
@@ -196,6 +206,81 @@ render=function(){draw();applyAccess();};
 renderSelection=function(){drawSelection();applyAccess();};
 detailHTML=function(a){return metadataHTML(a)+'<div class="nxl-ag-inline-history" data-history-id="'+esc(a.id)+'">Carregando histórico…</div>';};
 renderTable=function(){drawTable();for(const id of detailExpanded){const a=data.assets.find(a=>a.id===id);if(!a)continue;const node=root.querySelector('[data-history-id="'+id+'"]');if(!node)continue;historyFor(a).then(h=>{if(!disposed&&node.isConnected)node.innerHTML=historyHTML(h);}).catch(error=>{if(!disposed&&node.isConnected)node.textContent=message(error);});}};
+// Dedicated asset details within the existing authorized workspace.
+const listPage=document.createElement('div');listPage.id='nxl-ag-list-page';
+listPage.append(...root.childNodes);root.append(listPage);
+const assetPage=document.createElement('section');assetPage.id='nxl-ag-asset-page';assetPage.hidden=true;assetPage.className='nxl-ap-page';assetPage.setAttribute('aria-label','Detalhes do patrimônio');root.append(assetPage);
+let pageAssetId=null,pageSnapshot=null,pageFingerprint='',pageRenderSequence=0;
+function workspaceScrollers(){const nodes=[];for(let n=root;n;n=n.parentElement)nodes.push(n);return nodes;}
+function resetWorkspaceScroll(){for(const n of workspaceScrollers())n.scrollTo({top:0,left:0,behavior:'instant'});window.scrollTo({top:0,left:0,behavior:'instant'});}
+const getAssetParam=()=>{try{return new URL(location.href).searchParams.get('nexlabAssetDetail');}catch{return null;}};
+function assetPageURL(id){const u=new URL(location.href);u.searchParams.set('nexlabTab','inventario');u.searchParams.set('nexlabInventory','assets');u.searchParams.delete('nexlabItem');u.searchParams.set('nexlabAssetDetail',id);return u.pathname+u.search+u.hash;}
+const chevron='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>';
+const arrowBack='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 5-7 7 7 7M5 12h14"/></svg>';
+renderTable=function(){
+ const rows=paged(),isAll=!isGroup();
+ $('table').innerHTML=`<div class="nxl-ag-table-wrap"><table class="nxl-ag-table nxl-ap-list ${isAll?'is-all':''}"><caption class="nxl-ag-sr">Bens patrimoniais — ${isAll?'todos os grupos':esc(group(view).name)}</caption><thead><tr><th scope="col" class="nxl-ag-check-col"><span class="nxl-ag-sr">Seleção</span></th><th scope="col">Código</th><th scope="col">Bem</th><th scope="col">Tipo</th><th scope="col">Localização</th>${isAll?'<th scope="col" class="nxl-ag-group-col">Grupo</th>':''}<th scope="col" class="nxl-ag-condition-col">Condição</th><th scope="col" class="nxl-ag-action-col"><span class="nxl-ag-sr">Abrir detalhes</span></th></tr></thead><tbody>${rows.map(a=>`<tr data-row="${esc(a.id)}" class="${selected.has(a.id)?'is-selected':''}"><td class="nxl-ag-row-check"><input type="checkbox" ${!canManage?'hidden':''} data-select="${esc(a.id)}" aria-label="Selecionar ${esc(a.code||a.name)}" ${selected.has(a.id)?'checked':''}></td><td class="nxl-ag-row-code"><span class="nxl-ag-code-label">${esc(a.code||'Não informado')}</span></td><td class="nxl-ag-row-name"><a class="nxl-ap-name" href="${esc(assetPageURL(a.id))}" data-asset-page-link="${esc(a.id)}" aria-label="Abrir detalhes de ${esc(a.code)} — ${esc(a.name)}">${esc(a.name)}</a></td><td class="nxl-ag-row-type">${esc(a.type||'Não informado')}</td><td class="nxl-ag-row-location"><span class="nxl-ag-location-label">${esc(a.location||'Não informada')}</span></td>${isAll?'<td class="nxl-ag-row-group">'+esc(group(a.groupId).name)+'</td>':''}<td class="nxl-ag-row-condition">${badge(a.status)}</td><td class="nxl-ag-row-actions"><a class="nxl-ap-open" href="${esc(assetPageURL(a.id))}" data-asset-page-link="${esc(a.id)}" aria-label="Abrir detalhes de ${esc(a.code)}" title="Abrir detalhes">${chevron}</a></td></tr>`).join('')}</tbody></table></div>`;
+ renderSelection();$('visible-count').textContent=filtered().length+' '+(filtered().length===1?'bem':'bens');applyAccess();
+};
+function captureList(id){return {view,filter:structuredClone(current()),selection:[...selected],scrollPositions:workspaceScrollers().map(n=>({top:n.scrollTop,left:n.scrollLeft})),windowScroll:window.scrollY,id};}
+function focusAssetTitle(){requestAnimationFrame(()=>$('page-title')?.focus({preventScroll:true}));}
+function renderAssetPage(){
+ if(!pageAssetId){listPage.hidden=false;assetPage.hidden=true;return;}
+ const a=data.assets.find(a=>a.id===pageAssetId);
+ if(!a){listPage.hidden=true;assetPage.hidden=false;assetPage.innerHTML='<button class="nxl-ag-button nxl-ag-secondary" data-asset-page-back>'+arrowBack+'Voltar ao grupo</button><div class="nxl-ap-unavailable"><h2 id="nxl-ag-page-title" tabindex="-1">Bem não disponível</h2><p>Este bem não está disponível. Volte ao grupo para consultar os registros aos quais você tem acesso.</p></div>';return;}
+ listPage.hidden=true;assetPage.hidden=false;
+ const fingerprint=JSON.stringify([a.native,group(a.groupId).name,fresh,canManage]);if(pageFingerprint===fingerprint)return;pageFingerprint=fingerprint;
+ const sequence=++pageRenderSequence;
+ assetPage.innerHTML=`<div class="nxl-ap-navigation"><button type="button" class="nxl-ag-button nxl-ag-secondary nxl-ap-back" data-asset-page-back>${arrowBack}Voltar ao grupo</button><nav class="nxl-ap-breadcrumb" aria-label="Localização do bem"><button type="button" data-asset-page-groups>Patrimônio</button>${chevron}<button type="button" data-asset-page-group>${esc(group(a.groupId).name)}</button>${chevron}<span aria-current="page">${esc(a.code||'Sem código')}</span></nav></div><article class="nxl-ag-inline-detail nxl-ap-sheet" aria-labelledby="nxl-ag-page-title"><header class="nxl-ap-heading"><div class="nxl-ap-identification"><span class="nxl-ap-eyebrow">Detalhes do patrimônio</span><h2 id="nxl-ag-page-title" tabindex="-1">${esc(a.name)}</h2><div class="nxl-ap-summary"><span class="nxl-ag-code-label">${esc(a.code||'Sem código')}</span>${badge(a.status)}<span class="nxl-ap-summary-location">${icon('pin')}${esc(a.location||'Localização não informada')}</span></div></div>${canManage?'<button type="button" id="nxl-ag-page-edit" class="nxl-ag-button nxl-ag-secondary nxl-ap-edit" data-asset-page-edit '+(!fresh||busy||a.inconsistent?'disabled':'')+'>'+icon('edit')+'Editar</button>':''}</header>${!fresh?'<div class="nxl-ap-warning" role="alert">Não foi possível confirmar a atualização dos dados. Atualize antes de editar. <button type="button" data-asset-page-refresh>Atualizar</button></div>':''}${metadataHTML(a)}<div class="nxl-ap-history" id="nxl-ag-page-history" role="status">Carregando histórico…</div></article>`;
+ historyFor(a).then(h=>{if(!disposed&&pageAssetId===a.id&&sequence===pageRenderSequence){const node=$('page-history');if(node){node.removeAttribute('role');node.innerHTML=historyHTML(h);}}}).catch(error=>{if(!disposed&&pageAssetId===a.id&&sequence===pageRenderSequence&&$('page-history')){$('page-history').innerHTML='<p class="nxl-ap-warning" role="alert">'+esc(message(error))+' <button type="button" data-asset-page-retry>Tentar novamente</button></p>';}});
+}
+detail=function(id){
+ if(!data.assets.some(a=>a.id===id))return;
+ if(!pageAssetId)pageSnapshot=captureList(id);
+ pageAssetId=id;pageFingerprint='';detailExpanded.clear();closeMenus();
+ history.pushState({...history.state,nxlAssetPage:id,nxlAssetDetailNavigation:true,nxlAssetListSnapshot:pageSnapshot},'',assetPageURL(id));renderAssetPage();resetWorkspaceScroll();focusAssetTitle();
+};
+function returnToList({groupsHome=false}={}){
+ pageAssetId=null;pageFingerprint='';pageRenderSequence++;
+ const snapshot=pageSnapshot;pageSnapshot=null;
+ if(groupsHome){view='home';selected.clear();}
+ else if(snapshot){view=snapshot.view;states.set(view,structuredClone(snapshot.filter));selected=new Set(snapshot.selection);}
+ listPage.hidden=false;assetPage.hidden=true;render();
+ requestAnimationFrame(()=>{const nodes=workspaceScrollers();nodes.forEach((n,i)=>n.scrollTo({top:groupsHome?0:snapshot?.scrollPositions?.[i]?.top||0,left:groupsHome?0:snapshot?.scrollPositions?.[i]?.left||0,behavior:'instant'}));window.scrollTo({top:groupsHome?0:snapshot?.windowScroll||0,behavior:'instant'});const focus=!groupsHome&&snapshot?.id?root.querySelector('[data-asset-page-link="'+snapshot.id+'"]'):$('title');focus?.focus({preventScroll:true});});
+}
+function backFromAsset(groupsHome=false){
+ if(groupsHome){const u=new URL(location.href);u.searchParams.delete('nexlabAssetDetail');history.replaceState({...history.state,nxlAssetPage:null},'',u);returnToList({groupsHome:true});return;}
+ if(history.state?.nxlAssetDetailNavigation&&history.state?.nxlAssetPage===pageAssetId){history.back();return;}
+ const a=data.assets.find(a=>a.id===pageAssetId);if(!pageSnapshot&&a)pageSnapshot={view:a.groupId||'ungrouped',filter:emptyFilter(),selection:[],scroll:0,windowScroll:0,id:a.id};
+ const u=new URL(location.href);u.searchParams.delete('nexlabAssetDetail');history.replaceState({...history.state,nxlAssetPage:null},'',u);returnToList();
+}
+const listRender=render;render=function(){listRender();renderAssetPage();};
+const listFocusTitle=focusTitle;focusTitle=function(){pageAssetId?focusAssetTitle():listFocusTitle();};
+const listApplyAccess=applyAccess;applyAccess=function(){listApplyAccess();const edit=$('page-edit');if(edit)edit.disabled=!canManage||!fresh||busy||!!data.assets.find(a=>a.id===pageAssetId)?.inconsistent;if(pageAssetId&&loaded)renderAssetPage();};
+on(root,'click',event=>{
+ const target=event.target.closest('a,button');
+ if(target?.hasAttribute('data-asset-page-link')){if(event.button||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;event.preventDefault();detail(target.dataset.assetPageLink);return;}
+ if(target?.hasAttribute('data-asset-page-back'))return backFromAsset();
+ if(target?.hasAttribute('data-asset-page-groups'))return backFromAsset(true);
+ if(target?.hasAttribute('data-asset-page-group')){
+  const a=data.assets.find(a=>a.id===pageAssetId);if(!a)return;
+  pageSnapshot={view:a.groupId||'ungrouped',filter:emptyFilter(),selection:[],scrollPositions:[],windowScroll:0,id:a.id};
+  const u=new URL(location.href);u.searchParams.delete('nexlabAssetDetail');history.replaceState({...history.state,nxlAssetPage:null,nxlAssetDetailNavigation:false},'',u);returnToList();return;
+ }
+
+ if(target?.hasAttribute('data-asset-page-edit'))return openAssetEditor(pageAssetId);
+ if(target?.hasAttribute('data-asset-page-refresh'))return refresh();
+ if(target?.hasAttribute('data-asset-page-retry')){historyCache.delete(pageAssetId);pageFingerprint='';renderAssetPage();return;}
+ const row=event.target.closest('tr[data-row]');
+ if(row&&!event.target.closest('a,button,input,label,select,textarea')&&!window.getSelection()?.toString())detail(row.dataset.row);
+});
+on(window,'popstate',()=>{
+ const id=getAssetParam();
+ if(id){pageSnapshot=history.state?.nxlAssetListSnapshot||captureList(id);pageAssetId=id;pageFingerprint='';renderAssetPage();resetWorkspaceScroll();focusAssetTitle();}
+ else if(pageAssetId)returnToList();
+});
+const initialPage=getAssetParam();if(initialPage){pageAssetId=initialPage;pageSnapshot=history.state?.nxlAssetListSnapshot||null;}
+
 $('refresh').onclick=()=>refresh();
 $('group-form').onsubmit=async e=>{
  e.preventDefault();if(busy||!canManage)return;updateGroupPreview();const draft=structuredClone(groupDraft),name=draft.name.replace(/\s+/g,' ');

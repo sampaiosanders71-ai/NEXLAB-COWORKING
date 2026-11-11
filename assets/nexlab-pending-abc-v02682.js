@@ -1,5 +1,5 @@
-import { g as React, o as jsxRuntime, Ln as supabase } from "./nexlab-runtime-vendor.js?v=app-beta-0-26-82-oficial-pendencias-patrimonio";
-import { Do as ModuleHeader, Qn as loadPendingCenter, Jn as isPendingItem, Vn as readableError } from "./nexlab-runtime-shared.js?v=app-beta-0-26-82-oficial-pendencias-patrimonio";
+import { g as React, o as jsxRuntime, Ln as supabase } from "./nexlab-runtime-vendor.js?v=app-beta-0-26-82-oficial-patrimonio-pagina-detalhes";
+import { Do as ModuleHeader, Qn as loadPendingCenter, Jn as isPendingItem, Vn as readableError } from "./nexlab-runtime-shared.js?v=app-beta-0-26-82-oficial-patrimonio-pagina-detalhes";
 const { Fragment, jsx, jsxs } = jsxRuntime;
 const PAGE_SIZE = 8;
 const TYPE_LABELS = {
@@ -537,7 +537,8 @@ function PendingModuleAE({ profile, addToast, onNavigate, onCountChange }) {
         const url = new URL(window.location.href);
         url.searchParams.set("nexlabTab", "inventario");
         url.searchParams.set("nexlabInventory", "assets");
-        url.searchParams.set("nexlabItem", id);
+        url.searchParams.delete("nexlabItem");
+        url.searchParams.set("nexlabAssetDetail", id);
         window.history.pushState({ ...window.history.state, nexlabTab: "inventario", nexlabInventoryPage: null }, "", url);
       } catch (cause) {
         addToast?.("Não foi possível abrir o patrimônio. Tente novamente.", "err");

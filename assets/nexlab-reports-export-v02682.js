@@ -1,9 +1,9 @@
-import {reportModules,reportValue} from './nexlab-reports-schema-v02682.js?v=app-beta-0-26-82-oficial-pendencias-patrimonio';
+import {reportModules,reportValue} from './nexlab-reports-schema-v02682.js?v=app-beta-0-26-82-oficial-patrimonio-pagina-detalhes';
 const title=id=>reportModules.find(m=>m.id===id)?.title||id;
 const dateKey=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
 const slug=text=>String(text).normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9]+/g,'_').toLowerCase();
 export async function exportModuleReport({packets,scope,format,period,profile,purpose,transfer,checkActive}){
- const libraries=await import('./nexlab-runtime-export.js?v=app-beta-0-26-82-oficial-pendencias-patrimonio');
+ const libraries=await import('./nexlab-runtime-export.js?v=app-beta-0-26-82-oficial-patrimonio-pagina-detalhes');
  checkActive();
  const reportTitle=scope==='geral'?'Relatório geral':title(scope),confidential=packets.some(p=>p.sheets.some(s=>s.confidential)),by=profile?.nome||'Usuário autorizado',at=new Date().toLocaleString('pt-BR'),file='nexlab_'+slug(reportTitle)+'_'+dateKey()+'.'+format;
  const note='Período aplicado a cadastros, agenda e publicações. Estoque e patrimônio refletem a posição atual; o período filtra suas movimentações. Publicações sem data permanecem incluídas.';
