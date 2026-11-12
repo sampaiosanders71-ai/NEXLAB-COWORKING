@@ -1313,8 +1313,8 @@
     },
     {
       "path": "sql/usage_mode_v02682.sql",
-      "size": 81345,
-      "sha256": "47bbacc19204c3d7069d40688d23c84fe5b18073db2184c96e0539589d1ad9a1"
+      "size": 81365,
+      "sha256": "482dc62e17e3b17f51b5ae0c8156aaca266631318f15ac300620264fe2904d2a"
     },
     {
       "path": "supabase/functions/nexlab-mural-link-preview/index.ts",
@@ -2085,8 +2085,8 @@
     },
     {
       "path": "sql/usage_mode_v02682.sql",
-      "size": 81345,
-      "sha256": "47bbacc19204c3d7069d40688d23c84fe5b18073db2184c96e0539589d1ad9a1"
+      "size": 81365,
+      "sha256": "482dc62e17e3b17f51b5ae0c8156aaca266631318f15ac300620264fe2904d2a"
     },
     {
       "path": "supabase/functions/nexlab-mural-link-preview/index.ts",
@@ -2427,7 +2427,7 @@
     "sql/patrimonio_grupos_ocorrencias_v02682.sql": "0c4a3b8d841ebeceb18ad2c96a5473fd428b0467e50c1152ae62d8a99a999d34",
     "sql/report_security_audit_v02682.sql": "01e1a4068742885c1f16fdc4ef12ef8bc977fedd80376c56f3e24028e74dccf3",
     "sql/reports_by_module_v02682.sql": "e2d09caa9970420d555de4cf36adc09b44ddaef89529ac6f537e1540745b5875",
-    "sql/usage_mode_v02682.sql": "47bbacc19204c3d7069d40688d23c84fe5b18073db2184c96e0539589d1ad9a1",
+    "sql/usage_mode_v02682.sql": "482dc62e17e3b17f51b5ae0c8156aaca266631318f15ac300620264fe2904d2a",
     "supabase/functions/nexlab-mural-link-preview/index.ts": "9f49208b7a4816c80e91c5072d164efe650fcc9606ce53a395b28024c79b2150",
     "supabase/functions/nexlab-mural-link-preview/media.ts": "cc3c6b070e58aedde94ba2faf0756183314a61e9138c156d0a77c62f80182a5e",
     "supabase/functions/nexlab-mural-link-preview/preview.ts": "9db688caa17f785df98a2ec5473200d1749cae803c9fa1689e82f61511f35532",
@@ -2439,7 +2439,7 @@
   "files_count": 154,
   "inventory_files_count": 154,
   "package_files_including_release_json": 155,
-  "package_uncompressed_bytes": 5295848,
+  "package_uncompressed_bytes": 5295868,
   "validation": {
     "scope": "Modo de uso, limites de acesso no servidor, retorno ao perfil oficial, contadores/notificações, celular e computador",
     "generated_at": "2026-11-12T22:21:47Z",

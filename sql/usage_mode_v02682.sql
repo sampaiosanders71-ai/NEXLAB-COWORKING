@@ -79,7 +79,7 @@ begin
  perms:=coalesce(p.effective_permissions,'{}'::text[]);
  if typ='profile_request' then return p.role='admin'; end if;
  if typ ~ 'asset|patrimonio' and not p.role::text=any(array['admin','coordenador']) then return false; end if;
- if typ ~ 'reservation_request|reservation_pending' and not 'reservations_review'=any(perms) then return false; end if;
+ if typ ~ 'reservation_created|reservation_request|reservation_pending' and not 'reservations_review'=any(perms) then return false; end if;
  if typ ~ 'feedback_created' and not 'feedback_manage'=any(perms) then return false; end if;
  target:=case target when 'patrimonio' then 'patrimonio' when 'estoque' then 'estoque' when 'saude-sistema' then 'saude-sistema' when 'logs' then 'logs' when 'notificacoes' then 'configuracoes' else target end;
  if target='inventario' then return 'module_patrimonio'=any(perms) or 'module_estoque'=any(perms); end if;
