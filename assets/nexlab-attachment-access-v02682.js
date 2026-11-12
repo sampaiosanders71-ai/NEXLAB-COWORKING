@@ -1,4 +1,4 @@
-import {g as React,Ln as supabase} from './nexlab-runtime-vendor.js?v=app-beta-0-26-82-oficial-kanban-navegacao-colunas';
+import {g as React,Ln as supabase} from './nexlab-runtime-vendor.js?v=app-beta-0-26-82-oficial-modo-de-uso';
 
 export function internalAttachmentPath(value,client=supabase){
   try{

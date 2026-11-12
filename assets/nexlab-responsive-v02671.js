@@ -1,6 +1,6 @@
 (function(){
   'use strict';
-  const BUILD=globalThis.__NEXLAB_BUILD_IDENTITY__||Object.freeze({version:'0.26.82',revision:'beta-0-26-82-oficial-kanban-navegacao-colunas'});
+  const BUILD=globalThis.__NEXLAB_BUILD_IDENTITY__||Object.freeze({version:'0.26.82',revision:'beta-0-26-82-oficial-modo-de-uso'});
   if(globalThis.__NEXLAB_RESPONSIVE_V02671__?.revision===BUILD.revision)return;
 
   const root=document.documentElement;

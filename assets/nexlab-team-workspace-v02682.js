@@ -1,7 +1,7 @@
 /* NEXLAB Beta 0.26.82 — área de equipes e tarefas, sem mensageria. */
 (function(){
   'use strict';
-  const BUILD=globalThis.__NEXLAB_BUILD_IDENTITY__||Object.freeze({version:'0.26.82',revision:'beta-0-26-82-oficial-kanban-navegacao-colunas'});
+  const BUILD=globalThis.__NEXLAB_BUILD_IDENTITY__||Object.freeze({version:'0.26.82',revision:'beta-0-26-82-oficial-modo-de-uso'});
   const REVISION=BUILD.revision;
   if(globalThis.__NEXLAB_TEAM_WORKSPACE__?.revision===REVISION)return;
   const UUID_RE=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;

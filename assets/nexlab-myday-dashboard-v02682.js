@@ -1,7 +1,7 @@
-import {renderApprovedDashboard,unmountApprovedDashboard} from "./nexlab-profile-dashboard-feedback-v02682.js?v=app-beta-0-26-82-oficial-kanban-navegacao-colunas";
-import {nexlabDateKey,nexlabAddCalendarDays,formatNexlabDate} from "./nexlab-calendar-date-v02682.js?v=app-beta-0-26-82-oficial-kanban-navegacao-colunas";
+import {renderApprovedDashboard,unmountApprovedDashboard} from "./nexlab-profile-dashboard-feedback-v02682.js?v=app-beta-0-26-82-oficial-modo-de-uso";
+import {nexlabDateKey,nexlabAddCalendarDays,formatNexlabDate} from "./nexlab-calendar-date-v02682.js?v=app-beta-0-26-82-oficial-modo-de-uso";
 /* NEXLAB Beta 0.26.82 — Dashboard reconstruído do zero — face institucional. */
-import { Ln as supabase } from "./nexlab-runtime-vendor.js?v=app-beta-0-26-82-oficial-kanban-navegacao-colunas";
+import { Ln as supabase } from "./nexlab-runtime-vendor.js?v=app-beta-0-26-82-oficial-modo-de-uso";
 
 const HOST_ID = 'nexlab-dashboard-clean-v02682';
 const STYLE_ID = 'nexlab-dashboard-rebuild-style-v02682';

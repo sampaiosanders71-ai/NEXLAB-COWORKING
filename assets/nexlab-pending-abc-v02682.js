@@ -1,5 +1,5 @@
-import { g as React, o as jsxRuntime, Ln as supabase } from "./nexlab-runtime-vendor.js?v=app-beta-0-26-82-oficial-kanban-navegacao-colunas";
-import { Do as ModuleHeader, Qn as loadPendingCenter, Jn as isPendingItem, Vn as readableError } from "./nexlab-runtime-shared.js?v=app-beta-0-26-82-oficial-kanban-navegacao-colunas";
+import { g as React, o as jsxRuntime, Ln as supabase } from "./nexlab-runtime-vendor.js?v=app-beta-0-26-82-oficial-modo-de-uso";
+import { Do as ModuleHeader, Qn as loadPendingCenter, Jn as isPendingItem, Vn as readableError } from "./nexlab-runtime-shared.js?v=app-beta-0-26-82-oficial-modo-de-uso";
 const { Fragment, jsx, jsxs } = jsxRuntime;
 const PAGE_SIZE = 8;
 const TYPE_LABELS = {
@@ -284,6 +284,36 @@ async function allPending(profile, isCurrent) {
   }
   return { ...response, items, warnings };
 }
+export async function readPendingSnapshot(current, isCurrent = () => true) {
+const results = await Promise.allSettled([allPending(current, isCurrent), supabase.rpc("nexlab_get_my_day_meetings_v1", { p_horizon_days: 7 }), supabase.rpc("nexlab_get_my_day_approvals_v1"), supabase.rpc("nexlab_get_my_day_communication_v1", { p_limit: 20 })]);
+if (!isCurrent()) return;
+const [base, meetings, approvals, communication] = results;
+if (results.every((r) => r.status === "rejected" || r.value?.error)) throw new Error("N\xE3o foi poss\xEDvel consultar as fontes de pend\xEAncias.");
+const response = base.status === "fulfilled" && base.value ? base.value : { items: [], warnings: [], partial: true };
+const warnings = [...response.warnings || []].filter((w) => ["tarefas", "tarefas_equipes", "projetos", "patrimonio", "feedbacks"].includes(String(w?.source || w || "").toLowerCase()));
+if (base.status === "rejected") warnings.push({ source: "pendencias", label: "Pendências e alertas" });
+const valid = (r) => r.status === "fulfilled" && !r.value?.error && r.value?.data?.ok;
+let meetingItems = [], approvalItems = [], communicationItems = [], caps = { resolved: true, hasAny: false, reservations: false, profiles: false };
+if (valid(meetings)) meetingItems = normalizeMeetingRows(meetings.value.data.meetings);
+else warnings.push({ source: "reunioes", label: "Reuni\xF5es" });
+if (valid(approvals)) {
+  approvalItems = normalizeApprovalRows(approvals.value.data.approvals);
+  const c = approvals.value.data.capabilities || {};
+  caps = { resolved: true, hasAny: Boolean(c.has_any), reservations: Boolean(c.reservations), profiles: Boolean(c.profiles) };
+} else warnings.push({ source: "aprovacoes", label: "Aprova\xE7\xF5es" });
+if (valid(communication)) communicationItems = normalizeCommunicationRows(communication.value.data.items);
+else warnings.push({ source: "comunicacao", label: "Men\xE7\xF5es e respostas" });
+const baseItems = (response.items || []).filter((item) => isTask(item) || ["overdue_project", "asset_attention", "feedback"].includes(item.kind));
+const items2 = dedupe([...baseItems, ...meetingItems, ...approvalItems, ...communicationItems]).filter(isPendingItem);
+const summary = { tasks: items2.filter(isTask).length, meetings: items2.filter(isMeeting).length, approvals: items2.filter(isApproval).length, overdue: items2.filter(isOverdue).length };
+  return {ownerId:current.id,items:items2,warnings,partial:Boolean(response.partial || warnings.length),approvalCapabilities:caps,summary};
+}
+export async function readPendingCount(profile, {signal} = {}) {
+  const snapshot=await readPendingSnapshot(profile,()=>!signal?.aborted);
+  if(signal?.aborted) throw signal.reason || new DOMException('Atualização encerrada.','AbortError');
+  if(snapshot.partial) throw new Error('O servidor não confirmou todas as fontes de pendências.');
+  return snapshot.items.length;
+}
 function ItemActions({ item, busy, profile, caps, onComplete, onMeetingResponse, onMeetingLink, onReservation, onProfile, onFeedback, onOpen, onDetail, detailed = false }) {
   const responsible = String(item.ownerId || "") === String(profile?.id || "");
   return /* @__PURE__ */ React.createElement(React.Fragment, null, isTask(item) && responsible && /* @__PURE__ */ React.createElement("button", { type: "button", className: "action complete", disabled: busy, onClick: () => onComplete(item) }, /* @__PURE__ */ React.createElement(Icon, { name: "check" }), busy ? "Concluindo\u2026" : "Concluir"), isMeeting(item) && item.metadata?.needsResponse && item.metadata?.canRespond && /* @__PURE__ */ React.createElement(React.Fragment, null, detailed && /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("button", { type: "button", className: "action open", disabled: busy, onClick: () => onMeetingResponse(item, "recusado") }, "Recusar"), /* @__PURE__ */ React.createElement("button", { type: "button", className: "action open", disabled: busy, onClick: () => onMeetingResponse(item, "indeciso") }, "Indeciso")), /* @__PURE__ */ React.createElement("button", { type: "button", className: "action confirm", disabled: busy, onClick: () => onMeetingResponse(item, "confirmado") }, /* @__PURE__ */ React.createElement(Icon, { name: "check" }), item.metadata?.needsReconfirmation ? "Reconfirmar" : "Confirmar")), isMeeting(item) && item.metadata?.onlineLink && !item.metadata?.needsResponse && /* @__PURE__ */ React.createElement("button", { type: "button", className: "action confirm", onClick: () => onMeetingLink(item) }, "Abrir link"), isApproval(item) && mayApprove(item, caps) && (detailed ? /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("button", { type: "button", className: "action open", disabled: busy, onClick: () => item.kind === "reservation" ? onReservation(item, "recusada") : onProfile(item, false) }, "Recusar"), /* @__PURE__ */ React.createElement("button", { type: "button", className: "action complete", disabled: busy, onClick: () => item.kind === "reservation" ? onReservation(item, "aprovada") : onProfile(item, true) }, /* @__PURE__ */ React.createElement(Icon, { name: "check" }), "Aprovar")) : /* @__PURE__ */ React.createElement("button", { type: "button", className: "action review", disabled: busy, onClick: () => onDetail(item) }, /* @__PURE__ */ React.createElement(Icon, { name: "shield" }), "Analisar")), item.kind === "feedback" && caps?.hasAny && detailed && /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("button", { type: "button", className: "action open", disabled: busy, onClick: () => onFeedback(item, "archive") }, "Arquivar"), /* @__PURE__ */ React.createElement("button", { type: "button", className: "action complete", disabled: busy, onClick: () => onFeedback(item, "resolve") }, "Resolver")), /* @__PURE__ */ React.createElement("button", { type: "button", className: "action open", onClick: () => onOpen(item) }, /* @__PURE__ */ React.createElement(Icon, { name: "folder" }), isCommunication(item) ? "Abrir coment\xE1rio" : detailed ? "Abrir registro" : "Abrir"));
@@ -344,34 +374,12 @@ function PendingModuleAE({ profile, addToast, onNavigate, onCountChange }) {
       const sessionResult = window.nexlabAuthSessionWithTimeout ? await window.nexlabAuthSessionWithTimeout(supabase.auth, 4500) : await supabase.auth.getSession();
       if (!isCurrent()) return;
       if (!current?.id || String(sessionResult?.data?.session?.user?.id || "") !== String(current.id)) throw new Error("Sua sess\xE3o expirou. Entre novamente para consultar as pend\xEAncias.");
-      const results = await Promise.allSettled([allPending(current, isCurrent), supabase.rpc("nexlab_get_my_day_meetings_v1", { p_horizon_days: 7 }), supabase.rpc("nexlab_get_my_day_approvals_v1"), supabase.rpc("nexlab_get_my_day_communication_v1", { p_limit: 20 })]);
+      const snapshot = await readPendingSnapshot(current, isCurrent);
       if (!isCurrent()) return;
-      const [base, meetings, approvals, communication] = results;
-      if (results.every((r) => r.status === "rejected" || r.value?.error)) throw new Error("N\xE3o foi poss\xEDvel consultar as fontes de pend\xEAncias.");
-      const response = base.status === "fulfilled" && base.value ? base.value : { items: [], warnings: [], partial: true };
-      const warnings = [...response.warnings || []].filter((w) => ["tarefas", "tarefas_equipes", "projetos", "patrimonio", "feedbacks"].includes(String(w?.source || w || "").toLowerCase()));
-      if (base.status === "rejected") warnings.push({ source: "pendencias", label: "Pendências e alertas" });
-      const valid = (r) => r.status === "fulfilled" && !r.value?.error && r.value?.data?.ok;
-      let meetingItems = [], approvalItems = [], communicationItems = [], caps = { resolved: true, hasAny: false, reservations: false, profiles: false };
-      if (valid(meetings)) meetingItems = normalizeMeetingRows(meetings.value.data.meetings);
-      else warnings.push({ source: "reunioes", label: "Reuni\xF5es" });
-      if (valid(approvals)) {
-        approvalItems = normalizeApprovalRows(approvals.value.data.approvals);
-        const c = approvals.value.data.capabilities || {};
-        caps = { resolved: true, hasAny: Boolean(c.has_any), reservations: Boolean(c.reservations), profiles: Boolean(c.profiles) };
-      } else warnings.push({ source: "aprovacoes", label: "Aprova\xE7\xF5es" });
-      if (valid(communication)) communicationItems = normalizeCommunicationRows(communication.value.data.items);
-      else warnings.push({ source: "comunicacao", label: "Men\xE7\xF5es e respostas" });
-      const baseItems = (response.items || []).filter((item) => isTask(item) || ["overdue_project", "asset_attention", "feedback"].includes(item.kind));
-      const items2 = dedupe([...baseItems, ...meetingItems, ...approvalItems, ...communicationItems]).filter(isPendingItem);
-      const summary = { tasks: items2.filter(isTask).length, meetings: items2.filter(isMeeting).length, approvals: items2.filter(isApproval).length, overdue: items2.filter(isOverdue).length };
-      setState({ ownerId: current.id, items: items2, warnings, partial: Boolean(response.partial || warnings.length), approvalCapabilities: caps });
+      setState(snapshot);
       setError(null);
-      if (!response.partial && warnings.length === 0) callbacks.current.onCountChange?.(items2.length);
-      try {
-        globalThis.dispatchEvent(new CustomEvent("nexlab:myday-updated", { detail: { ...summary, approvalCapabilities: caps } }));
-      } catch {
-      }
+      if (!snapshot.partial) callbacks.current.onCountChange?.(snapshot.items.length);
+      try { globalThis.dispatchEvent(new CustomEvent("nexlab:myday-updated", { detail: {...snapshot.summary,approvalCapabilities:snapshot.approvalCapabilities} })); } catch {}
     } catch (cause) {
       if (!isCurrent()) return;
       const message = readableError(cause, "N\xE3o foi poss\xEDvel carregar as pend\xEAncias.");
@@ -383,7 +391,7 @@ function PendingModuleAE({ profile, addToast, onNavigate, onCountChange }) {
         setRefreshing(false);
       }
     }
-  }, [profile?.id]);
+  }, [profile?.id, profile?.role, profile?.effective_permissions]);
   React.useEffect(() => {
     setState({ ownerId: profile?.id, items: [], warnings: [], partial: false, approvalCapabilities: { resolved: false, hasAny: false, reservations: false, profiles: false } });
     setSelectedId(null);

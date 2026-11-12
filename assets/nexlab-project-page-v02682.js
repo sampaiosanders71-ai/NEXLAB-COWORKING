@@ -1,6 +1,6 @@
 /* NEXLAB — página de projeto e links externos. Usa o contrato existente de attachments. */
-import { g as React, Ln as supabase } from './nexlab-runtime-vendor.js?v=app-beta-0-26-82-oficial-kanban-navegacao-colunas';
-import {internalAttachmentPath,PrivateAttachmentLink} from './nexlab-attachment-access-v02682.js?v=app-beta-0-26-82-oficial-kanban-navegacao-colunas';
+import { g as React, Ln as supabase } from './nexlab-runtime-vendor.js?v=app-beta-0-26-82-oficial-modo-de-uso';
+import {internalAttachmentPath,PrivateAttachmentLink} from './nexlab-attachment-access-v02682.js?v=app-beta-0-26-82-oficial-modo-de-uso';
 
 const h=React.createElement;
 const PROJECT_PARAM='nexlabProject';

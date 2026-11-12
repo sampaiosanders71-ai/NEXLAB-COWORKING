@@ -1,0 +1,101 @@
+.nxl-mode-header-host{display:flex;align-items:center;gap:16px;flex:none;min-width:0}
+#nxl-mode-indicator{display:inline-flex;align-items:center;gap:7px;padding:7px 11px;border:1px solid #d5e8cf;border-radius:7px;background:#edf7e5;color:#285324;font-size:12px;line-height:1.4;font-weight:600;white-space:nowrap}
+#nxl-mode-indicator::before{content:'';width:6px;height:6px;flex:none;border-radius:50%;background:#4a922d}
+#nxl-mode-indicator[hidden]{display:none!important}
+#nxl-mode-account-trigger{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:42px;padding:5px 10px!important;border:1px solid #d4dfed!important;border-radius:9px;background:#f8fbff!important;color:#102c50!important;box-shadow:0 1px 4px #0c305008!important;cursor:pointer;white-space:nowrap;font-family:inherit;font-size:13px;font-weight:700;line-height:1.4}
+#nxl-mode-account-trigger>svg{width:15px;height:15px;flex:none;color:#315474}
+.nxl-mode-avatar{display:inline-flex;align-items:center;justify-content:center;width:29px;height:29px;border-radius:50%;background:#e2ebf6;color:#194775;font-size:11px;font-weight:800;flex:none}
+.nxl-mode-account-name{font-size:12px;font-weight:700}
+.nxl-mode-mobile-label{display:none}
+.nxl-mode-label-short{display:none}
+.nxl-mode-account-menu{position:fixed;z-index:2100;padding:6px;background:#fff;border:1px solid #d4dfec;border-radius:10px;box-shadow:0 10px 28px #102d4b24;color:#183852}
+.nxl-mode-account-menu[hidden]{display:none!important}
+.nxl-mode-account-menu button{display:flex;align-items:center;gap:11px;width:100%;min-height:44px;padding:10px 12px!important;border:0!important;border-radius:6px;box-shadow:none!important;background:#fff!important;color:#203b55!important;text-align:left;font:500 14px/1.4 Arial,sans-serif;cursor:pointer}
+.nxl-mode-account-menu button svg{width:19px;height:19px;flex:none}
+.nxl-mode-account-menu button:hover,.nxl-mode-account-menu button:focus-visible{background:#f1f5fa!important;outline:none}
+.nxl-mode-account-menu button.nxl-mode-menu-switch{background:#fff2e4!important}
+.nxl-mode-account-menu button.nxl-mode-menu-switch:hover,.nxl-mode-account-menu button.nxl-mode-menu-switch:focus-visible{background:#ffe8ce!important}
+.nxl-mode-account-menu button[data-account-exit]:hover{color:#ae2830!important}
+.nxl-mode-profile-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:11px 15px;border:1px solid #dae3ed;border-radius:10px;background:#fff;box-shadow:0 1px 3px #12365705;margin:0!important;color:#35516d}
+.nxl-mode-profile-row[hidden]{display:none!important}
+.nxl-mode-row-copy{display:flex;align-items:center;gap:9px;min-width:0;font-size:13px;line-height:1.5}
+.nxl-mode-row-copy>svg{width:18px;height:18px;flex:none;color:#4a6682}
+.nxl-mode-row-copy strong{font-weight:700;color:#163859}
+.nxl-mode-row-button{flex:none;min-height:38px;padding:7px 11px!important;border:1px solid #b7c9df!important;border-radius:7px;background:#fff!important;box-shadow:none!important;color:#214b79!important;font-size:12px!important;font-weight:700;line-height:1.4;cursor:pointer}
+.nxl-mode-row-button:hover{background:#f3f7fc!important}
+.nxl-mode-dialog{position:fixed;inset:0;margin:auto!important;width:480px;height:fit-content;max-width:calc(100vw - 24px);max-height:calc(100dvh - 32px);padding:0;border:1px solid #b1c4dc;border-radius:12px;box-shadow:0 18px 70px #0c29484d;background:#fff;color:#102844;overflow:hidden;font-family:inherit}
+.nxl-mode-dialog:not([open]){display:none}
+.nxl-mode-dialog[open]{display:flex;flex-direction:column}
+.nxl-mode-dialog::backdrop{background:#102b4b69;backdrop-filter:blur(2px)}
+.nxl-mode-dialog-header{display:flex;align-items:center;justify-content:space-between;gap:16px;flex:none;margin:0;padding:19px 22px;background:linear-gradient(110deg,#102e4d,#0a2443);color:#fff}
+.nxl-mode-dialog-header h2{font-size:20px;font-weight:750;line-height:1.3;letter-spacing:-.015em;margin:0;color:#fff}
+.nxl-mode-dialog-header button{display:flex;align-items:center;justify-content:center;flex:none;min-width:36px;min-height:36px;margin:-4px -5px -4px 0;padding:5px!important;border:0!important;border-radius:6px;background:transparent!important;color:#fff!important;box-shadow:none!important;cursor:pointer}
+.nxl-mode-dialog-header button svg{width:23px;height:23px}
+#nxl-mode-options{min-width:0;min-height:0;overflow:auto;flex:1;margin:0;padding:9px 20px 12px;border:0}
+.nxl-mode-choice{display:flex;align-items:center;gap:13px;min-height:70px;padding:13px 11px;margin:0;border-bottom:1px solid #e1e8f0;border-radius:0;cursor:pointer;color:#152e4a}
+.nxl-mode-choice:last-child{border-bottom:0}
+.nxl-mode-choice.is-selected{background:#fff8ef;border-radius:7px}
+.nxl-mode-choice input[type=radio]{appearance:auto!important;display:block;flex:0 0 20px;width:20px!important;height:20px!important;min-width:20px!important;min-height:20px!important;padding:0!important;margin:0!important;accent-color:#f17c05;box-shadow:none!important;border-radius:50%}
+.nxl-mode-choice-name{font-size:15px;line-height:1.4;font-weight:700;min-width:0;overflow-wrap:anywhere}
+.nxl-mode-choice-tags{display:flex;align-items:center;justify-content:flex-end;gap:5px;flex-wrap:wrap;margin-left:auto;flex:none;max-width:112px}
+.nxl-mode-choice-tags span{display:inline-block;padding:4px 7px;border-radius:5px;font-size:11px;font-weight:650;line-height:1.4;white-space:nowrap}
+.nxl-mode-official{background:#edf0f4;color:#435164}
+.nxl-mode-in-use{background:#e5f4db;color:#326125}
+.nxl-mode-dialog footer{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex:none;padding:15px 21px;border-top:1px solid #e0e7ef;background:#fff}
+.nxl-mode-dialog footer button{min-height:42px;min-width:104px;padding:10px 15px!important;border-radius:8px;font-size:13px;font-weight:750;line-height:1.3;box-shadow:none!important;cursor:pointer}
+.nxl-mode-secondary{border:1px solid #a8bfdc!important;color:#1b497c!important;background:#fff!important}
+.nxl-mode-primary{border:1px solid #f17e07!important;color:#102c50!important;background:#f17e07!important}
+.nxl-mode-primary:disabled{background:#fff0dd!important;border-color:#f2d8b5!important;color:#8d6940!important;cursor:default}
+.nxl-mode-primary:not(:disabled):hover{background:#df7100!important}
+.nxl-mode-dialog button:focus-visible,.nxl-mode-row-button:focus-visible,#nxl-mode-account-trigger:focus-visible{outline:2px solid #236abd;outline-offset:3px}
+.nxl-mode-dialog-header button:focus-visible{outline-color:#fff}
+.nxl-mode-draft-warning{margin:0 20px 10px;padding:10px 12px;font-size:12px;line-height:1.5;background:#fff8e8;color:#7b561c;border:1px solid #edd8ac;border-radius:6px}
+.nxl-mode-draft-warning[hidden]{display:none}
+.nxl-mode-sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+#nxl-mode-toast{position:fixed;z-index:2200;left:50%;bottom:65px;transform:translate(-50%,12px);max-width:calc(100vw - 32px);width:max-content;padding:11px 16px;background:#183e5d;color:#fff;border-radius:9px;box-shadow:0 5px 20px #102a4b22;font-size:13px;line-height:1.4;opacity:0;pointer-events:none;transition:opacity .18s,transform .18s}
+#nxl-mode-toast.is-visible{opacity:1;transform:translate(-50%,0)}
+
+
+@media(max-width:1100px){#nxl-mode-indicator{display:none!important}.nxl-mode-header-host{gap:8px}}
+@media(min-width:641px) and (max-width:1100px){
+ #nxl-mode-account-trigger{display:grid;grid-template-columns:29px auto 15px;gap:0 9px;min-height:44px}
+ .nxl-mode-avatar{grid-column:1;grid-row:1/3}
+ .nxl-mode-account-name{grid-column:2;grid-row:1;text-align:left}
+ .nxl-mode-mobile-label{display:block;grid-column:2;grid-row:2;font-size:9px;line-height:1.3;font-weight:600;color:#486681;text-align:left}
+ #nxl-mode-account-trigger>svg{grid-column:3;grid-row:1/3}
+}
+@media(max-width:900px){
+ .nexlab-app-header .nexlab-global-search-trigger-r55623{width:36px!important;min-width:36px!important;padding:6px!important}
+ .nexlab-app-header .nexlab-global-search-trigger-label-r55623,.nexlab-app-header .nexlab-global-search-shortcut-r55623{display:none!important}
+}
+@media(max-width:640px){
+ .nexlab-app-header{padding-left:10px!important;padding-right:10px!important}
+ .nexlab-app-header>span{flex:1;min-width:0;padding-left:4px!important;padding-right:4px!important}
+ .nexlab-app-header>div:last-child{gap:6px!important;flex:none}
+ #nxl-mode-account-trigger{position:relative;width:80px;min-width:80px;min-height:56px;gap:6px;padding:3px 8px 17px!important;border-color:#c5d5e7!important}
+ .nxl-mode-avatar{width:34px;height:34px;font-size:13px}
+ #nxl-mode-account-trigger>svg{width:14px;height:14px}
+ .nxl-mode-account-name{display:none}
+ .nxl-mode-mobile-label{display:block;position:absolute;left:4px;right:4px;bottom:2px;font-size:11px;line-height:1.15;font-weight:700;text-align:center;white-space:nowrap;color:#24486b}
+ .nxl-mode-label-full{display:none}
+ .nxl-mode-label-short{display:inline}
+ .nxl-mode-profile-row{gap:8px;padding:9px 11px}
+ .nxl-mode-row-copy{gap:6px;font-size:12px}
+ .nxl-mode-row-copy>svg{width:16px;height:16px}
+ .nxl-mode-row-button{min-height:44px;padding:6px 8px!important;font-size:11px!important}
+ .nxl-mode-dialog-header{padding:17px 16px}
+ .nxl-mode-dialog-header h2{font-size:18px}
+ #nxl-mode-options{padding:7px 12px}
+ .nxl-mode-choice{gap:10px;padding:12px 8px;min-height:68px}
+ .nxl-mode-choice-name{font-size:14px}
+ .nxl-mode-choice-tags{max-width:94px;gap:4px}
+ .nxl-mode-choice-tags span{font-size:10px;padding:4px 5px}
+ .nxl-mode-dialog footer{padding:13px;gap:8px}
+ .nxl-mode-dialog footer button{min-height:44px;min-width:90px;padding:9px 12px!important;font-size:12px}
+
+
+}
+@media(prefers-reduced-motion:reduce){#nxl-mode-toast{transition:none}}
+
+.nxl-mode-avatar{overflow:hidden}.nxl-mode-avatar img{width:100%;height:100%;object-fit:cover}.nxl-mode-account-name{max-width:160px;overflow:hidden;text-overflow:ellipsis}
+@media(min-width:641px) and (max-width:1100px){.nxl-mode-account-name{max-width:120px}}

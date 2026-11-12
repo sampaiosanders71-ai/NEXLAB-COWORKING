@@ -3,12 +3,12 @@
   "version": "0.26.82",
   "release": "Beta",
   "channel": "beta",
-  "revision": "beta-0-26-82-oficial-kanban-navegacao-colunas",
-  "asset_revision": "app-beta-0-26-82-oficial-kanban-navegacao-colunas",
-  "generated_at": "2026-11-11T22:45:50Z",
+  "revision": "beta-0-26-82-oficial-modo-de-uso",
+  "asset_revision": "app-beta-0-26-82-oficial-modo-de-uso",
+  "generated_at": "2026-11-12T22:21:47Z",
   "manifest": "release-manifest.json",
-  "manifest_sha256": "2d024e2c2872a84c0cb8fbaa3444e91f966a3fcef44d11b74b96fcf85664af8c",
-  "essential_count": 73,
-  "essential_bytes": 3409586,
-  "cache_name": "nxl-official-app-beta-0-26-82-oficial-kanban-navegacao-colunas-20261111T224550Z"
+  "manifest_sha256": "3ff3f6e3b302a3c225fd588e8c2c416b1e9b8a1b1c316fe342b802b96e1af74e",
+  "essential_count": 77,
+  "essential_bytes": 3487605,
+  "cache_name": "nxl-official-app-beta-0-26-82-oficial-modo-de-uso-20261112T222147Z"
 }
